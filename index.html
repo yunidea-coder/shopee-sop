@@ -749,11 +749,12 @@ document.getElementById('dayTag').textContent = `星期${DAY[dow]}`;
 let totalCount = parseInt(localStorage.getItem('count_'+dateKey) || '5');
 document.getElementById('storeCount').textContent = totalCount;
 
-const DATA_FIELDS = [
-  {key:'bx', label:'黑箱'},
+const P1_FIELDS = [{key:'bx', label:'黑箱'}];
+const P2_FIELDS = [
   {key:'norm', label:'一般進店'},
   {key:'ndd', label:'NDD進店'}
 ];
+const ALL_FIELDS = [...P1_FIELDS, ...P2_FIELDS];
 
 function loadNames(){ try { return JSON.parse(localStorage.getItem('names_'+dateKey) || '[]'); } catch(e) { return []; } }
 function saveNames(n){ try { localStorage.setItem('names_'+dateKey, JSON.stringify(n)); } catch(e) {} }
@@ -846,40 +847,48 @@ function bxTaskHtml(sid, name){
   const naText = `${name} WH未到店`, okText = `${name} WH上架完成`;
   return `<div class="task priority" id="${sid}_bx" onclick="tap('${sid}_bx','${sid}')"><div class="cb"><span class="ck">✓</span></div><div class="tc"><div class="task-name">⚡ 1200前 黑箱上架</div><div class="task-desc">完成後選擇狀況，複製文字貼到 Line 群組</div><div class="badges"><span class="badge bt">⏰ 12:00前</span><span class="badge bl">📋 Line 回報</span></div><div class="wh-options"><div class="wh-option"><span class="wh-text">${naText}</span><button class="wh-copy-btn" onclick="copyWH(event,'${naText.replace(/'/g,"\\'")}')">複製</button></div><div class="wh-option"><span class="wh-text">${okText}</span><button class="wh-copy-btn" onclick="copyWH(event,'${okText.replace(/'/g,"\\'")}')">複製</button></div></div></div></div>`;
 }
-function dataSectionHtml(sid){
+function dataSectionHtml(sid, fields, title){
   const vals = (loadData()[sid]) || {};
-  const rows = DATA_FIELDS.map(f=>`<div class="data-row"><span class="data-label">${f.label}</span><div class="num-ctrl"><button class="num-btn" onclick="updateNum('${sid}','${f.key}',-1);event.stopPropagation()">−</button><span class="num-val" id="nv_${sid}_${f.key}">${vals[f.key]||0}</span><button class="num-btn" onclick="updateNum('${sid}','${f.key}',1);event.stopPropagation()">+</button></div></div>`).join('');
-  return `<div class="data-section"><div class="data-section-title">📊 數量記錄（進店後填寫）</div><div class="data-grid">${rows}</div></div>`;
+  const rows = fields.map(f=>`<div class="data-row"><span class="data-label">${f.label}</span><div class="num-ctrl"><button class="num-btn" onclick="updateNum('${sid}','${f.key}',-1);event.stopPropagation()">−</button><span class="num-val" id="nv_${sid}_${f.key}">${vals[f.key]||0}</span><button class="num-btn" onclick="updateNum('${sid}','${f.key}',1);event.stopPropagation()">+</button></div></div>`).join('');
+  return `<div class="data-section"><div class="data-section-title">${title}</div><div class="data-grid">${rows}</div></div>`;
 }
 function storeBlockHtml(blockId, numLabel, color, title, tasksHtml, storeName){
   const cb = storeName ? `<button class="copy-name-btn" onclick="copyName(event,'${storeName.replace(/'/g,"\\'")}')">複製店名</button>` : '';
   return `<div class="store-block" id="blk_${blockId}"><div class="store-title" onclick="toggleBlock('blk_${blockId}')"><div class="store-title-left"><div class="store-num ${color}">${numLabel}</div><div class="store-name-text">${title}</div></div><div class="store-title-right">${cb}<div class="store-prog" id="prog_${blockId}"></div><div class="store-arrow">▼</div></div></div><div class="store-tasks" id="tasks_${blockId}">${tasksHtml}</div></div>`;
 }
+function valsForStore(d, i){
+  const merged = {};
+  P1_FIELDS.forEach(f => { merged[f.key] = (d[`p1_s${i}`] || {})[f.key] || 0; });
+  P2_FIELDS.forEach(f => { merged[f.key] = (d[`p2_s${i}`] || {})[f.key] || 0; });
+  return merged;
+}
+function fieldSourceSid(i, key){
+  return P1_FIELDS.some(f => f.key === key) ? `p1_s${i}` : `p2_s${i}`;
+}
 function buildSummaryHtml(){
   const d = loadData();
-  const totals = {}; DATA_FIELDS.forEach(f => totals[f.key] = 0);
+  const totals = {}; ALL_FIELDS.forEach(f => totals[f.key] = 0);
   let sh = '';
   for (let i = storeCount; i >= 1; i--) {
-    const sid = `p2_s${i}`, name = storeNames[i-1] || `第${i}間店`, vals = d[sid] || {}, order = storeCount - i + 1;
-    DATA_FIELDS.forEach(f => totals[f.key] += (vals[f.key] || 0));
-    sh += `<div class="summary-store"><div class="summary-store-name">第${order}站 · ${name}</div><div class="summary-fields">${DATA_FIELDS.map(f=>`<div class="sf">${f.label}：<b id="ss_${sid}_${f.key}">${vals[f.key]||0}</b></div>`).join('')}</div></div>`;
+    const name = storeNames[i-1] || `第${i}間店`, vals = valsForStore(d, i), order = storeCount - i + 1;
+    ALL_FIELDS.forEach(f => totals[f.key] += vals[f.key]);
+    sh += `<div class="summary-store"><div class="summary-store-name">第${order}站 · ${name}</div><div class="summary-fields">${ALL_FIELDS.map(f=>`<div class="sf">${f.label}：<b id="ss_${fieldSourceSid(i,f.key)}_${f.key}">${vals[f.key]}</b></div>`).join('')}</div></div>`;
   }
-  const th = `<div class="summary-total"><div class="summary-total-title">📦 今日合計</div><div class="summary-fields">${DATA_FIELDS.map(f=>`<div class="sf">${f.label}：<b id="st_${f.key}">${totals[f.key]}</b></div>`).join('')}</div></div>`;
+  const th = `<div class="summary-total"><div class="summary-total-title">📦 今日合計</div><div class="summary-fields">${ALL_FIELDS.map(f=>`<div class="sf">${f.label}：<b id="st_${f.key}">${totals[f.key]}</b></div>`).join('')}</div></div>`;
   return `<div class="summary-section"><div class="summary-header"><h3>📋 離店統整摘要</h3><button class="copy-btn" onclick="copySummary()">複製摘要</button></div>${sh}${th}</div>`;
 }
 function refreshSummary(){
   const d = loadData(), totals = {};
-  DATA_FIELDS.forEach(f => totals[f.key] = 0);
+  ALL_FIELDS.forEach(f => totals[f.key] = 0);
   for (let i = storeCount; i >= 1; i--) {
-    const sid = `p2_s${i}`, vals = d[sid] || {};
-    DATA_FIELDS.forEach(f => {
-      const v = vals[f.key] || 0;
-      totals[f.key] += v;
-      const el = document.getElementById(`ss_${sid}_${f.key}`);
-      if (el) el.textContent = v;
+    const vals = valsForStore(d, i);
+    ALL_FIELDS.forEach(f => {
+      totals[f.key] += vals[f.key];
+      const el = document.getElementById(`ss_${fieldSourceSid(i,f.key)}_${f.key}`);
+      if (el) el.textContent = vals[f.key];
     });
   }
-  DATA_FIELDS.forEach(f => {
+  ALL_FIELDS.forEach(f => {
     const el = document.getElementById(`st_${f.key}`);
     if (el) el.textContent = totals[f.key];
   });
@@ -910,6 +919,7 @@ function startChecklist(){
     allTaskIds.push(...ids);
     let th = '';
     th += taskHtml({id:`${sid}_in`, cls:'clock-in', name:'進店打卡', desc:'掃描 QR Code 完成 TO 單打卡', badges:[{c:'bp',t:'📷 拍照存證'},{c:'bg',t:'✅ 進店'}]}, sid);
+    th += dataSectionHtml(sid, P1_FIELDS, '📊 黑箱數量記錄');
     th += bxTaskHtml(sid, name);
     if (!isLast) th += taskHtml({id:`${sid}_out`, cls:'clock-out', name:'離店打卡', desc:'前往下一間店', badges:[{c:'bp',t:'📷 拍照存證'},{c:'br',t:'🚪 離店'}]}, sid);
     html += storeBlockHtml(sid, isLast ? `${i}★` : `${i}`, '', isLast ? `${name}　← 最後一間，接正常流程` : name, th, name);
@@ -925,7 +935,7 @@ function startChecklist(){
     allTaskIds.push(...ids);
     let th = '';
     if (!isFirst) th += taskHtml({id:`${sid}_in`, cls:'clock-in', name:'進店打卡', desc:'掃描 QR Code', badges:[{c:'bp',t:'📷 拍照存證'},{c:'bg',t:'✅ 進店'}]}, sid);
-    th += dataSectionHtml(sid);
+    th += dataSectionHtml(sid, P2_FIELDS, '📊 數量記錄（進店後填寫）');
     nTasks.forEach(t => { th += taskHtml(t, sid); });
     th += taskHtml({id:`${sid}_out`, cls:'clock-out', name:'離店打卡', desc:'掃描 QR Code 完成離店打卡', badges:[{c:'bp',t:'📷 拍照存證'},{c:'br',t:'🚪 離店'}]}, sid);
     html += storeBlockHtml(sid, `${storeCount-i+1}`, 'dark', isFirst ? `${name}（續正常流程）` : name, th, name);
@@ -958,19 +968,15 @@ function copyWH(e, text){
 function copySummary(){
   const d = loadData(), ds = `${today.getFullYear()}/${today.getMonth()+1}/${today.getDate()}`;
   let txt = `=== ${ds} 早班數量統整 ===\n\n`;
+  const totals = {}; ALL_FIELDS.forEach(f => totals[f.key] = 0);
   for (let i = storeCount; i >= 1; i--) {
-    const sid = `p2_s${i}`, name = storeNames[i-1] || `第${i}間店`, order = storeCount - i + 1, vals = d[sid] || {};
+    const name = storeNames[i-1] || `第${i}間店`, order = storeCount - i + 1, vals = valsForStore(d, i);
     txt += `【第${order}站 · ${name}】\n`;
-    DATA_FIELDS.forEach(f => { txt += `  ${f.label}：${vals[f.key] || 0}箱\n`; });
+    ALL_FIELDS.forEach(f => { txt += `  ${f.label}：${vals[f.key]}箱\n`; totals[f.key] += vals[f.key]; });
     txt += '\n';
   }
-  const totals = {}; DATA_FIELDS.forEach(f => totals[f.key] = 0);
-  for (let i = 1; i <= storeCount; i++) {
-    const vals = (d[`p2_s${i}`] || {});
-    DATA_FIELDS.forEach(f => totals[f.key] += (vals[f.key] || 0));
-  }
   txt += `【今日合計】\n`;
-  DATA_FIELDS.forEach(f => { txt += `  ${f.label}：${totals[f.key]}箱\n`; });
+  ALL_FIELDS.forEach(f => { txt += `  ${f.label}：${totals[f.key]}箱\n`; });
   navigator.clipboard.writeText(txt).then(() => showToast('已複製摘要 ✓')).catch(() => showToast('複製失敗'));
 }
 function showToast(msg){
