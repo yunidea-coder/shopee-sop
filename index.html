@@ -630,6 +630,15 @@ body {
 }
 .summary-total .sf { color: var(--on-primary-fixed); }
 .summary-total .sf b { color: var(--on-primary-fixed); }
+.sf-time {
+  font-family: 'Manrope', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--on-surface-variant);
+  margin-bottom: 4px;
+  letter-spacing: 0.01em;
+}
+.sf-time-empty { color: var(--outline-variant); font-weight: 600; }
 
 .toast {
   position: fixed;
@@ -691,6 +700,78 @@ body {
 }
 .ghost-btn:active { background: var(--surface-high); }
 .ghost-btn.danger { color: var(--tertiary); }
+
+.tip-card {
+  margin: 0 16px 14px;
+  padding: 12px 16px;
+  background: var(--cond-bg);
+  border-radius: 12px;
+  font-size: 12px;
+  color: var(--cond);
+  line-height: 1.5;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.tip-card .tip-icon { font-size: 14px; flex-shrink: 0; line-height: 1.4; }
+.tip-card b { font-weight: 800; color: var(--on-primary-fixed); }
+
+.time-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--ok-bg);
+  color: var(--ok);
+  font-size: 11px;
+  font-weight: 700;
+  font-family: 'Manrope', sans-serif;
+  letter-spacing: 0.02em;
+}
+
+.task-timer { margin-top: 10px; }
+.timer-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface-low);
+  border-radius: 12px;
+  padding: 8px 12px;
+}
+.timer-row.running { background: var(--warn-bg); }
+.timer-row.done { background: var(--ok-bg); }
+.timer-btn {
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  border: none;
+  padding: 7px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  background: var(--surface);
+  color: var(--on-surface-variant);
+  flex-shrink: 0;
+}
+.timer-btn.primary {
+  background: var(--primary);
+  color: #fff;
+}
+.timer-btn.warn {
+  background: var(--warn);
+  color: #fff;
+}
+.timer-btn:active { opacity: .8; }
+.timer-text {
+  font-family: 'Manrope', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--on-surface);
+  flex: 1;
+}
+.timer-row.running .timer-text { color: var(--warn); }
+.timer-row.done .timer-text { color: var(--ok); }
 </style>
 </head>
 <body>
@@ -799,6 +880,17 @@ renderNameInputs();
 
 function loadData(){ try { return JSON.parse(localStorage.getItem('sopdata_'+dateKey) || '{}'); } catch(e) { return {}; } }
 function saveData(d){ try { localStorage.setItem('sopdata_'+dateKey, JSON.stringify(d)); } catch(e) {} }
+function loadTimes(){ try { return JSON.parse(localStorage.getItem('times_'+dateKey) || '{}'); } catch(e) { return {}; } }
+function saveTimes(t){ try { localStorage.setItem('times_'+dateKey, JSON.stringify(t)); } catch(e) {} }
+function fmtClock(ts){ const d = new Date(ts); return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; }
+function fmtDuration(ms){
+  const sec = Math.floor(ms / 1000);
+  if (sec < 60) return `${sec}秒`;
+  const min = Math.floor(sec / 60);
+  if (min < 60) return `${min}分${sec % 60}秒`;
+  const h = Math.floor(min / 60);
+  return `${h}小時${min % 60}分`;
+}
 function updateNum(sid, key, delta){
   const d = loadData();
   if (!d[sid]) d[sid] = {};
@@ -814,7 +906,7 @@ function normalTasks(s){
   const tasks = [
     {id:`s${s}_m2`, cls:'cond', name:'紙捲測試回報', desc:'', badges:[{c:'bp',t:'📷 拍照'},{c:'bl',t:'Line回報'}]},
     {id:`s${s}_p1`, cls:'must', name:'逾期包裹下架 + 離店裝箱', desc:'查詢逾期件並完成裝箱', badges:[{c:'bp',t:'📷 拍照'},{c:'bl',t:'Line 逾期回報'}]},
-    {id:`s${s}_p2`, cls:'must', name:'進貨包裹驗收上架', desc:'核對包裹後放入格子', badges:[{c:'bp',t:'📷 拍照'}]},
+    {id:`s${s}_p2`, cls:'must', name:'進貨包裹驗收上架', desc:'核對包裹後放入格子', badges:[{c:'bp',t:'📷 拍照'}], withTimer:true},
   ];
   if (isTue) tasks.push({id:`s${s}_p3`, cls:'must', name:'包裹盤點', desc:'清點所有格子包裹', badges:[{c:'bp',t:'📷 拍照'},{c:'bo',t:'📅 週二限定'},{c:'bl',t:'Line 盤點回報'}]});
   tasks.push(
@@ -828,7 +920,7 @@ function normalTasks(s){
     {id:`s${s}_l9`, cls:'must', name:'包裹清 0', desc:'', badges:[{c:'bp',t:'📷 拍照'},{c:'bl',t:'Line回報'}]},
     {id:`s${s}_l10`, cls:'must', name:'包裹重新上架回報', desc:'', badges:[{c:'bp',t:'📷 拍照'},{c:'bl',t:'Line回報'}]},
     {id:`s${s}_l11`, cls:'must', name:'遺落回報', desc:'', badges:[{c:'bp',t:'📷 拍照'},{c:'bl',t:'Line回報'}]},
-    {id:`s${s}_l12`, cls:'must', name:'鑰匙回放', desc:'', badges:[{c:'bl',t:'Line回報'}]},
+    {id:`s${s}_l12`, cls:'must', name:'鑰匙回放', desc:'', badges:[{c:'bp',t:'📷 拍照'},{c:'bl',t:'Line回報'}]},
     {id:`s${s}_l13`, cls:'cond', name:'其他異常詢問回報（視情況）', desc:'', note:'有異常才需回報', noteCls:'purple', badges:[{c:'bl',t:'Line回報'}]},
     {id:`s${s}_l14`, cls:'cond', name:'客訴處理（視情況）', desc:'', note:'有客訴才需回報', noteCls:'purple', badges:[{c:'bl',t:'Line回報'}]},
     {id:`s${s}_c1`, cls:'must', name:'每日清掃 & 循環包裝', desc:'倒垃圾 → 清空收據紙筒 → 循環包裝整理與離店裝箱 → 淨空前場 → 設備歸位 → 廣除TO箱單 → PDA充電', badges:[]}
@@ -838,10 +930,31 @@ function normalTasks(s){
   return tasks;
 }
 
+function timePillHtml(taskId){
+  const t = loadTimes()[taskId];
+  return t ? `<div class="time-pill" id="tp_${taskId}">🕐 ${fmtClock(t)}</div>` : `<div class="time-pill" id="tp_${taskId}" style="display:none"></div>`;
+}
+function timerHtml(taskId){
+  const t = loadTimes(), start = t[taskId+'_start'], end = t[taskId+'_end'];
+  let inner;
+  if (start && end) {
+    inner = `<button class="timer-btn" onclick="resetTimer(event,'${taskId}')">重置</button><span class="timer-text">✓ 用時 ${fmtDuration(end - start)}（${fmtClock(start)}–${fmtClock(end)}）</span>`;
+    return `<div class="task-timer"><div class="timer-row done" id="tw_${taskId}">${inner}</div></div>`;
+  } else if (start) {
+    inner = `<button class="timer-btn warn" onclick="stopTimer(event,'${taskId}')">⏸ 結束</button><span class="timer-text" id="tt_${taskId}">進行中 ${fmtDuration(Date.now() - start)}</span>`;
+    return `<div class="task-timer"><div class="timer-row running" id="tw_${taskId}">${inner}</div></div>`;
+  } else {
+    inner = `<button class="timer-btn primary" onclick="startTimer(event,'${taskId}')">▶ 開始計時</button><span class="timer-text">尚未開始</span>`;
+    return `<div class="task-timer"><div class="timer-row" id="tw_${taskId}">${inner}</div></div>`;
+  }
+}
 function taskHtml(task, sid){
   const nh = task.note ? `<div class="note ${task.noteCls||''}">${task.note}</div>` : (task.noteText ? `<div class="note">${task.noteText}</div>` : '');
   const bh = task.badges && task.badges.length ? `<div class="badges">${task.badges.map(b=>`<span class="badge ${b.c}">${b.t}</span>`).join('')}</div>` : '';
-  return `<div class="task ${task.cls}" id="${task.id}" onclick="tap('${task.id}','${sid}')"><div class="cb"><span class="ck">✓</span></div><div class="tc"><div class="task-name">${task.name}</div>${task.desc?`<div class="task-desc">${task.desc}</div>`:''}${nh}${bh}</div></div>`;
+  const isClock = task.id.endsWith('_in') || task.id.endsWith('_out');
+  const tp = isClock ? timePillHtml(task.id) : '';
+  const tm = task.withTimer ? timerHtml(task.id) : '';
+  return `<div class="task ${task.cls}" id="${task.id}" onclick="tap('${task.id}','${sid}')"><div class="cb"><span class="ck">✓</span></div><div class="tc"><div class="task-name">${task.name}</div>${task.desc?`<div class="task-desc">${task.desc}</div>`:''}${nh}${bh}${tp}${tm}</div></div>`;
 }
 function bxTaskHtml(sid, name){
   const naText = `${name} WH未到店`, okText = `${name} WH上架完成`;
@@ -865,6 +978,23 @@ function valsForStore(d, i){
 function fieldSourceSid(i, key){
   return P1_FIELDS.some(f => f.key === key) ? `p1_s${i}` : `p2_s${i}`;
 }
+function timeBlockHtml(i){
+  const t = loadTimes();
+  const inT = t[`p1_s${i}_in`];
+  const outT = t[`p2_s${i}_out`];
+  const vStart = t[`sp2_s${i}_p2_start`], vEnd = t[`sp2_s${i}_p2_end`];
+  let lines = '';
+  if (inT || outT) {
+    const dur = (inT && outT) ? ` · 停留 ${fmtDuration(outT - inT)}` : '';
+    lines += `<div class="sf-time">🕐 進店 ${inT?fmtClock(inT):'<span class="sf-time-empty">--</span>'} → 離店 ${outT?fmtClock(outT):'<span class="sf-time-empty">--</span>'}${dur}</div>`;
+  }
+  if (vStart && vEnd) {
+    lines += `<div class="sf-time">📦 驗收用時 ${fmtDuration(vEnd - vStart)}</div>`;
+  } else if (vStart) {
+    lines += `<div class="sf-time">📦 驗收進行中…</div>`;
+  }
+  return lines;
+}
 function buildSummaryHtml(){
   const d = loadData();
   const totals = {}; ALL_FIELDS.forEach(f => totals[f.key] = 0);
@@ -872,7 +1002,7 @@ function buildSummaryHtml(){
   for (let i = storeCount; i >= 1; i--) {
     const name = storeNames[i-1] || `第${i}間店`, vals = valsForStore(d, i), order = storeCount - i + 1;
     ALL_FIELDS.forEach(f => totals[f.key] += vals[f.key]);
-    sh += `<div class="summary-store"><div class="summary-store-name">第${order}站 · ${name}</div><div class="summary-fields">${ALL_FIELDS.map(f=>`<div class="sf">${f.label}：<b id="ss_${fieldSourceSid(i,f.key)}_${f.key}">${vals[f.key]}</b></div>`).join('')}</div></div>`;
+    sh += `<div class="summary-store"><div class="summary-store-name">第${order}站 · ${name}</div><div id="sst_${i}">${timeBlockHtml(i)}</div><div class="summary-fields">${ALL_FIELDS.map(f=>`<div class="sf">${f.label}：<b id="ss_${fieldSourceSid(i,f.key)}_${f.key}">${vals[f.key]}</b></div>`).join('')}</div></div>`;
   }
   const th = `<div class="summary-total"><div class="summary-total-title">📦 今日合計</div><div class="summary-fields">${ALL_FIELDS.map(f=>`<div class="sf">${f.label}：<b id="st_${f.key}">${totals[f.key]}</b></div>`).join('')}</div></div>`;
   return `<div class="summary-section"><div class="summary-header"><h3>📋 離店統整摘要</h3><button class="copy-btn" onclick="copySummary()">複製摘要</button></div>${sh}${th}</div>`;
@@ -887,6 +1017,8 @@ function refreshSummary(){
       const el = document.getElementById(`ss_${fieldSourceSid(i,f.key)}_${f.key}`);
       if (el) el.textContent = vals[f.key];
     });
+    const tb = document.getElementById(`sst_${i}`);
+    if (tb) tb.innerHTML = timeBlockHtml(i);
   }
   ALL_FIELDS.forEach(f => {
     const el = document.getElementById(`st_${f.key}`);
@@ -926,6 +1058,7 @@ function startChecklist(){
   }
   html += `<div class="transition-note">🔄 <b>黑箱巡迴結束</b>，從第 ${storeCount} 間店開始，依序往回執行正常流程</div>`;
   html += `<div class="phase-header"><div class="phase-pill ph2">Phase 2</div><div class="phase-desc">正常流程（從第 ${storeCount} 間往回）</div></div>`;
+  html += `<div class="tip-card"><span class="tip-icon">🏷️</span><div>拍照任務記得加 <b>店名浮水印（右下）</b>。紙捲測試需 <b>4 張</b>。</div></div>`;
   for (let i = storeCount; i >= 1; i--) {
     const isFirst = i === storeCount, sid = `p2_s${i}`, name = storeNames[i-1], nTasks = normalTasks(sid);
     const ids = [];
@@ -966,12 +1099,19 @@ function copyWH(e, text){
   navigator.clipboard.writeText(text).then(() => showToast(`已複製「${text}」✓`)).catch(() => showToast('複製失敗'));
 }
 function copySummary(){
-  const d = loadData(), ds = `${today.getFullYear()}/${today.getMonth()+1}/${today.getDate()}`;
-  let txt = `=== ${ds} 早班數量統整 ===\n\n`;
+  const d = loadData(), t = loadTimes(), ds = `${today.getFullYear()}/${today.getMonth()+1}/${today.getDate()}`;
+  let txt = `=== ${ds} 早班統整 ===\n\n`;
   const totals = {}; ALL_FIELDS.forEach(f => totals[f.key] = 0);
   for (let i = storeCount; i >= 1; i--) {
     const name = storeNames[i-1] || `第${i}間店`, order = storeCount - i + 1, vals = valsForStore(d, i);
     txt += `【第${order}站 · ${name}】\n`;
+    const inT = t[`p1_s${i}_in`], outT = t[`p2_s${i}_out`];
+    if (inT || outT) {
+      const dur = (inT && outT) ? `（停留 ${fmtDuration(outT - inT)}）` : '';
+      txt += `  進店 ${inT?fmtClock(inT):'--'} → 離店 ${outT?fmtClock(outT):'--'}${dur}\n`;
+    }
+    const vStart = t[`sp2_s${i}_p2_start`], vEnd = t[`sp2_s${i}_p2_end`];
+    if (vStart && vEnd) txt += `  驗收用時 ${fmtDuration(vEnd - vStart)}\n`;
     ALL_FIELDS.forEach(f => { txt += `  ${f.label}：${vals[f.key]}箱\n`; totals[f.key] += vals[f.key]; });
     txt += '\n';
   }
@@ -1001,6 +1141,17 @@ function tap(id, sid){
   s[id] = !s[id];
   saveAll(s);
   el.classList.toggle('done', s[id]);
+  if (id.endsWith('_in') || id.endsWith('_out')) {
+    const t = loadTimes();
+    if (s[id]) t[id] = Date.now(); else delete t[id];
+    saveTimes(t);
+    const pill = document.getElementById('tp_'+id);
+    if (pill) {
+      if (s[id]) { pill.style.display = ''; pill.textContent = '🕐 ' + fmtClock(t[id]); }
+      else { pill.style.display = 'none'; pill.textContent = ''; }
+    }
+    refreshSummary();
+  }
   updateAllProgress();
   const blk = el.closest('.store-block');
   if (blk && !blk.classList.contains('collapsed')) {
@@ -1008,6 +1159,57 @@ function tap(id, sid){
     inner.style.maxHeight = inner.scrollHeight + 'px';
   }
 }
+function startTimer(e, taskId){
+  e.stopPropagation();
+  const t = loadTimes();
+  t[taskId+'_start'] = Date.now();
+  delete t[taskId+'_end'];
+  saveTimes(t);
+  rerenderTimer(taskId);
+}
+function stopTimer(e, taskId){
+  e.stopPropagation();
+  const t = loadTimes();
+  t[taskId+'_end'] = Date.now();
+  saveTimes(t);
+  rerenderTimer(taskId);
+  refreshSummary();
+}
+function resetTimer(e, taskId){
+  e.stopPropagation();
+  if (!confirm('重置這個計時？')) return;
+  const t = loadTimes();
+  delete t[taskId+'_start'];
+  delete t[taskId+'_end'];
+  saveTimes(t);
+  rerenderTimer(taskId);
+  refreshSummary();
+}
+function rerenderTimer(taskId){
+  const wrap = document.getElementById('tw_'+taskId);
+  if (!wrap) return;
+  const newHtml = timerHtml(taskId);
+  const tmp = document.createElement('div');
+  tmp.innerHTML = newHtml;
+  wrap.parentElement.replaceWith(tmp.firstChild);
+  document.querySelectorAll('.store-block').forEach(blk => {
+    if (!blk.classList.contains('collapsed')) {
+      const inner = blk.querySelector('.store-tasks');
+      inner.style.maxHeight = inner.scrollHeight + 'px';
+    }
+  });
+}
+function tickRunningTimers(){
+  const t = loadTimes();
+  Object.keys(t).forEach(k => {
+    if (k.endsWith('_start') && !t[k.replace('_start','_end')]) {
+      const taskId = k.slice(0, -6);
+      const el = document.getElementById('tt_'+taskId);
+      if (el) el.textContent = '進行中 ' + fmtDuration(Date.now() - t[k]);
+    }
+  });
+}
+setInterval(tickRunningTimers, 1000);
 function updateAllProgress(){
   const s = loadAll(), done = allTaskIds.filter(id => s[id]).length, total = allTaskIds.length;
   document.getElementById('pb').style.width = total ? Math.round(done / total * 100) + '%' : '0%';
@@ -1030,18 +1232,11 @@ function goBack(){
   renderNameInputs();
 }
 function resetAll(){
-  if (!confirm('確定重置今日清單？')) return;
+  if (!confirm('確定重置今日清單？（包含勾選、數量、時間）')) return;
   saveAll({});
-  allTaskIds.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.classList.remove('done');
-  });
-  document.querySelectorAll('.store-block').forEach(blk => {
-    blk.classList.remove('collapsed');
-    const inner = blk.querySelector('.store-tasks');
-    inner.style.maxHeight = inner.scrollHeight + 'px';
-  });
-  updateAllProgress();
+  saveData({});
+  saveTimes({});
+  startChecklist();
 }
 if (localStorage.getItem('count_'+dateKey)) {
   storeNames = loadNames();
