@@ -772,6 +772,120 @@ body {
 }
 .timer-row.running .timer-text { color: var(--warn); }
 .timer-row.done .timer-text { color: var(--ok); }
+
+.photo-section { margin-top: 10px; }
+.photo-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.photo-count {
+  font-family: 'Manrope', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--on-surface-variant);
+  letter-spacing: 0.02em;
+}
+.photo-count.full { color: var(--ok); }
+.photo-add-btn {
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  border: none;
+  padding: 7px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  background: var(--primary);
+  color: #fff;
+  flex-shrink: 0;
+}
+.photo-add-btn:disabled { background: var(--surface-high); color: var(--outline-variant); }
+.photo-add-btn:active { opacity: .85; }
+.photo-thumbs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+.photo-thumb {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--surface-low);
+  cursor: pointer;
+}
+.photo-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.photo-thumb-del {
+  position: absolute;
+  top: 4px; right: 4px;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: rgba(0,0,0,.65);
+  color: #fff;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 1;
+}
+.photo-thumb-del:active { background: rgba(0,0,0,.85); }
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.92);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 20px;
+}
+.lightbox.show { display: flex; }
+.lightbox img {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 10px;
+}
+.lightbox-close {
+  position: absolute;
+  top: 20px; right: 20px;
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.15);
+  color: #fff;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.export-btn-wrap { margin: 12px 16px 0; }
+.export-btn {
+  width: 100%;
+  background: var(--surface);
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 700;
+  border: none;
+  padding: 14px;
+  border-radius: 14px;
+  cursor: pointer;
+  font-family: inherit;
+  letter-spacing: 0.04em;
+  box-shadow: var(--shadow-ambient);
+}
+.export-btn:active { background: var(--surface-low); }
+.export-hint {
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--on-surface-variant);
+  text-align: center;
+  line-height: 1.5;
+}
+.export-hint a { color: var(--primary); text-decoration: none; border-bottom: 1px solid var(--primary-fixed); }
 </style>
 </head>
 <body>
@@ -812,12 +926,22 @@ body {
     <p>辛苦了，早班全部 SOP 已執行完畢</p>
   </div>
   <div id="phaseContent"></div>
+  <div class="export-btn-wrap">
+    <button class="export-btn" onclick="exportToday()">📥 下載今日紀錄（JSON）</button>
+    <div class="export-hint">匯出後可於電腦 <a href="history/">/history/</a> 頁面匯入查看</div>
+  </div>
   <div class="bottom-btns">
     <button class="ghost-btn" onclick="goBack()">← 重新設定</button>
     <button class="ghost-btn danger" onclick="resetAll()">重置今日清單</button>
   </div>
 </div>
 <div class="toast" id="toast"></div>
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox();event.stopPropagation()">✕</button>
+  <img id="lightboxImg" alt="">
+</div>
+<input type="file" id="photoInput" accept="image/*" capture="environment" style="display:none">
+<a id="exportAnchor" style="display:none"></a>
 
 <script>
 const DAY = ['日','一','二','三','四','五','六'];
@@ -948,13 +1072,22 @@ function timerHtml(taskId){
     return `<div class="task-timer"><div class="timer-row" id="tw_${taskId}">${inner}</div></div>`;
   }
 }
+const photoTaskIds = new Set();
+function hasPhotoBadge(task){
+  return task.badges && task.badges.some(b => b.c === 'bp');
+}
 function taskHtml(task, sid){
   const nh = task.note ? `<div class="note ${task.noteCls||''}">${task.note}</div>` : (task.noteText ? `<div class="note">${task.noteText}</div>` : '');
   const bh = task.badges && task.badges.length ? `<div class="badges">${task.badges.map(b=>`<span class="badge ${b.c}">${b.t}</span>`).join('')}</div>` : '';
   const isClock = task.id.endsWith('_in') || task.id.endsWith('_out');
   const tp = isClock ? timePillHtml(task.id) : '';
   const tm = task.withTimer ? timerHtml(task.id) : '';
-  return `<div class="task ${task.cls}" id="${task.id}" onclick="tap('${task.id}','${sid}')"><div class="cb"><span class="ck">✓</span></div><div class="tc"><div class="task-name">${task.name}</div>${task.desc?`<div class="task-desc">${task.desc}</div>`:''}${nh}${bh}${tp}${tm}</div></div>`;
+  let ph = '';
+  if (hasPhotoBadge(task) && !isClock) {
+    photoTaskIds.add(task.id);
+    ph = photoSectionHtml(task.id);
+  }
+  return `<div class="task ${task.cls}" id="${task.id}" onclick="tap('${task.id}','${sid}')"><div class="cb"><span class="ck">✓</span></div><div class="tc"><div class="task-name">${task.name}</div>${task.desc?`<div class="task-desc">${task.desc}</div>`:''}${nh}${bh}${tp}${tm}${ph}</div></div>`;
 }
 function bxTaskHtml(sid, name){
   const naText = `${name} WH未到店`, okText = `${name} WH上架完成`;
@@ -1026,6 +1159,186 @@ function refreshSummary(){
   });
 }
 
+// === Photos (IndexedDB) ===
+let photoDB = null;
+function openPhotoDB(){
+  return new Promise((resolve, reject) => {
+    if (photoDB) return resolve(photoDB);
+    const req = indexedDB.open('shopee-sop-photos', 1);
+    req.onupgradeneeded = (e) => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains('photos')) {
+        const store = db.createObjectStore('photos', {keyPath:'id', autoIncrement: true});
+        store.createIndex('byTask', ['dateKey', 'taskId']);
+        store.createIndex('byDate', 'dateKey');
+      }
+    };
+    req.onsuccess = (e) => { photoDB = e.target.result; resolve(photoDB); };
+    req.onerror = () => reject(req.error);
+  });
+}
+async function addPhoto(taskId, blob){
+  const db = await openPhotoDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('photos', 'readwrite');
+    const req = tx.objectStore('photos').add({ dateKey, taskId, blob, createdAt: Date.now() });
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+async function getPhotos(taskId){
+  const db = await openPhotoDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('photos', 'readonly');
+    const idx = tx.objectStore('photos').index('byTask');
+    const req = idx.getAll(IDBKeyRange.only([dateKey, taskId]));
+    req.onsuccess = () => resolve(req.result || []);
+    req.onerror = () => reject(req.error);
+  });
+}
+async function getPhotosByDate(dk){
+  const db = await openPhotoDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('photos', 'readonly');
+    const idx = tx.objectStore('photos').index('byDate');
+    const req = idx.getAll(IDBKeyRange.only(dk));
+    req.onsuccess = () => resolve(req.result || []);
+    req.onerror = () => reject(req.error);
+  });
+}
+async function deletePhotoById(id){
+  const db = await openPhotoDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('photos', 'readwrite');
+    const req = tx.objectStore('photos').delete(id);
+    req.onsuccess = () => resolve();
+    req.onerror = () => reject(req.error);
+  });
+}
+function compressImage(file, maxW = 800, quality = 0.78){
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const scale = Math.min(1, maxW / img.width);
+      const w = Math.round(img.width * scale), h = Math.round(img.height * scale);
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      canvas.toBlob(b => b ? resolve(b) : reject(new Error('compress failed')), 'image/jpeg', quality);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('load failed')); };
+    img.src = url;
+  });
+}
+function blobToDataURL(blob){
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result);
+    r.onerror = () => reject(r.error);
+    r.readAsDataURL(blob);
+  });
+}
+const MAX_PHOTOS = 4;
+const thumbUrls = new Map();
+function photoSectionHtml(taskId){
+  return `<div class="photo-section" id="ph_${taskId}"><div class="photo-head"><span class="photo-count" id="pc_${taskId}">📷 0/${MAX_PHOTOS}</span><button class="photo-add-btn" onclick="triggerCamera(event,'${taskId}')">＋ 拍照</button></div><div class="photo-thumbs" id="pt_${taskId}"></div></div>`;
+}
+async function renderPhotoSection(taskId){
+  const photos = await getPhotos(taskId);
+  const countEl = document.getElementById('pc_'+taskId);
+  const thumbsEl = document.getElementById('pt_'+taskId);
+  if (!countEl || !thumbsEl) return;
+  countEl.textContent = `📷 ${photos.length}/${MAX_PHOTOS}`;
+  countEl.classList.toggle('full', photos.length >= MAX_PHOTOS);
+  const addBtn = countEl.parentElement.querySelector('.photo-add-btn');
+  if (addBtn) addBtn.disabled = photos.length >= MAX_PHOTOS;
+  // clean old URLs
+  [...thumbsEl.querySelectorAll('img')].forEach(img => {
+    const u = thumbUrls.get(img);
+    if (u) { URL.revokeObjectURL(u); thumbUrls.delete(img); }
+  });
+  thumbsEl.innerHTML = photos.map(p => {
+    const u = URL.createObjectURL(p.blob);
+    return `<div class="photo-thumb" onclick="openLightbox('${u}')"><img src="${u}" data-pid="${p.id}"><button class="photo-thumb-del" onclick="deletePhoto(event,${p.id},'${taskId}')">✕</button></div>`;
+  }).join('');
+  [...thumbsEl.querySelectorAll('img')].forEach(img => thumbUrls.set(img, img.src));
+  // expand parent block
+  const blk = thumbsEl.closest('.store-block');
+  if (blk && !blk.classList.contains('collapsed')) {
+    const inner = blk.querySelector('.store-tasks');
+    inner.style.maxHeight = inner.scrollHeight + 'px';
+  }
+}
+let pendingPhotoTaskId = null;
+function triggerCamera(e, taskId){
+  e.stopPropagation();
+  pendingPhotoTaskId = taskId;
+  document.getElementById('photoInput').click();
+}
+document.getElementById('photoInput').addEventListener('change', async (ev) => {
+  const file = ev.target.files[0];
+  ev.target.value = '';
+  if (!file || !pendingPhotoTaskId) return;
+  const taskId = pendingPhotoTaskId;
+  pendingPhotoTaskId = null;
+  const existing = await getPhotos(taskId);
+  if (existing.length >= MAX_PHOTOS) { showToast('已達 4 張上限'); return; }
+  try {
+    const blob = await compressImage(file);
+    await addPhoto(taskId, blob);
+    await renderPhotoSection(taskId);
+    showToast(`📷 拍照儲存 (${existing.length + 1}/${MAX_PHOTOS})`);
+  } catch (err) { showToast('儲存失敗：' + err.message); }
+});
+async function deletePhoto(e, id, taskId){
+  e.stopPropagation();
+  if (!confirm('刪除這張照片？')) return;
+  await deletePhotoById(id);
+  await renderPhotoSection(taskId);
+}
+function openLightbox(url){
+  document.getElementById('lightboxImg').src = url;
+  document.getElementById('lightbox').classList.add('show');
+}
+function closeLightbox(){
+  document.getElementById('lightbox').classList.remove('show');
+}
+
+// === Export / JSON download ===
+async function exportToday(){
+  const data = {
+    schemaVersion: 1,
+    exportedAt: Date.now(),
+    dateKey,
+    date: `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`,
+    storeCount,
+    storeNames,
+    tasks: loadAll(),
+    data: loadData(),
+    times: loadTimes(),
+    photos: []
+  };
+  const db = await openPhotoDB();
+  const tx = db.transaction('photos', 'readonly');
+  const idx = tx.objectStore('photos').index('byDate');
+  const req = idx.getAll(IDBKeyRange.only(dateKey));
+  const photos = await new Promise((r, j) => { req.onsuccess = () => r(req.result); req.onerror = () => j(req.error); });
+  for (const p of photos) {
+    data.photos.push({ taskId: p.taskId, createdAt: p.createdAt, dataUrl: await blobToDataURL(p.blob) });
+  }
+  const filename = `shopee-sop-${data.date}.json`;
+  const blob = new Blob([JSON.stringify(data)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.getElementById('exportAnchor');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  showToast(`已匯出 ${filename}（${photos.length} 張照片）`);
+}
+
 let allTaskIds = [], storeCount = 0, storeNames = [];
 
 function startChecklist(){
@@ -1042,6 +1355,7 @@ function startChecklist(){
   const saved = loadAll();
   let html = '';
   allTaskIds = [];
+  photoTaskIds.clear();
 
   html += `<div class="phase-header"><div class="phase-pill ph1">Phase 1</div><div class="phase-desc">黑箱上架巡迴（共 ${storeCount} 間）</div></div>`;
   for (let i = 1; i <= storeCount; i++) {
@@ -1088,6 +1402,8 @@ function startChecklist(){
     inner.style.maxHeight = inner.scrollHeight + 'px';
   });
   updateAllProgress();
+  // async: render photo thumbnails per task
+  photoTaskIds.forEach(tid => renderPhotoSection(tid));
 }
 
 function copyName(e, name){
