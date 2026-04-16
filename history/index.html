@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>智取店 早班 · 歷史紀錄</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Manrope:wght@500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f9f9f9;
+  --surface: #ffffff;
+  --surface-low: #f3f3f3;
+  --surface-high: #e8e8e8;
+  --on-surface: #1a1c1c;
+  --on-surface-variant: #51443e;
+  --primary: #744c34;
+  --primary-container: #8f644a;
+  --primary-fixed: #ffdbc8;
+  --on-primary-fixed: #301402;
+  --tertiary: #a71d15;
+  --outline-variant: #d5c3ba;
+  --panel-dark: #3d2e28;
+  --panel-text: #e8dcd1;
+  --panel-text-dim: #a89485;
+  --ok: #5b7a5e;
+  --ok-bg: #eef2ec;
+  --warn: #b8692a;
+  --warn-bg: #fbf1e6;
+  --danger: #a71d15;
+  --danger-bg: #f9ebe9;
+  --cond: #6b5b4f;
+  --cond-bg: #efeae4;
+  --shadow-ambient: 0 18px 40px -5px rgba(81,68,62,.06);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: 'Inter', 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--on-surface);
+  min-height: 100vh;
+  line-height: 1.55;
+}
+
+.header {
+  background: linear-gradient(135deg, var(--panel-dark), #4a3830);
+  color: var(--panel-text);
+  padding: 32px 40px 28px;
+}
+.header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.header .brand {
+  font-family: 'Manrope', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--panel-text-dim);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.header h1 {
+  font-family: 'Manrope', 'Noto Sans TC', sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+.header-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.btn {
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  border: none;
+  padding: 11px 20px;
+  border-radius: 999px;
+  cursor: pointer;
+  letter-spacing: 0.06em;
+}
+.btn.primary {
+  background: var(--primary-fixed);
+  color: var(--on-primary-fixed);
+}
+.btn.primary:hover { filter: brightness(1.04); }
+.btn.ghost-light {
+  background: rgba(255,255,255,.1);
+  color: var(--panel-text);
+}
+.btn.ghost-light:hover { background: rgba(255,255,255,.18); }
+.btn.danger {
+  background: transparent;
+  color: var(--panel-text-dim);
+}
+.btn.danger:hover { color: var(--tertiary); }
+
+.main {
+  max-width: 1200px;
+  margin: 32px auto 80px;
+  padding: 0 24px;
+}
+
+.summary-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.stat-card {
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 20px 22px;
+  box-shadow: var(--shadow-ambient);
+}
+.stat-label {
+  font-family: 'Manrope', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--on-surface-variant);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.stat-rows { display: flex; flex-direction: column; gap: 4px; }
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+.stat-key {
+  font-size: 12px;
+  color: var(--on-surface-variant);
+}
+.stat-val {
+  font-family: 'Manrope', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--primary);
+  letter-spacing: -0.01em;
+}
+.stat-val.sm { font-size: 14px; }
+
+.layout {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+}
+
+.day-list-head {
+  font-family: 'Manrope', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--on-surface-variant);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  padding: 0 4px;
+}
+.day-list { display: flex; flex-direction: column; gap: 10px; }
+.day-card {
+  background: var(--surface);
+  border-radius: 14px;
+  padding: 16px 18px;
+  cursor: pointer;
+  box-shadow: var(--shadow-ambient);
+  transition: transform .15s ease, background .15s;
+}
+.day-card:hover { transform: translateY(-1px); }
+.day-card.active { background: var(--primary-fixed); }
+.day-card.active .day-date { color: var(--on-primary-fixed); }
+.day-card.active .day-stats { color: var(--on-primary-fixed); }
+.day-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.day-date {
+  font-family: 'Manrope', 'Noto Sans TC', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--on-surface);
+  letter-spacing: -0.01em;
+}
+.day-dow {
+  display: inline-block;
+  background: var(--surface-low);
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--on-surface-variant);
+  margin-left: 8px;
+}
+.day-card.active .day-dow { background: rgba(48,20,2,.15); color: var(--on-primary-fixed); }
+.day-del {
+  background: transparent;
+  border: none;
+  color: var(--outline-variant);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+.day-del:hover { color: var(--tertiary); }
+.day-stats {
+  font-size: 11px;
+  color: var(--on-surface-variant);
+  line-height: 1.6;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 500;
+}
+.day-stats b {
+  color: var(--primary);
+  font-weight: 700;
+}
+.day-card.active .day-stats b { color: var(--on-primary-fixed); }
+
+.empty {
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 60px 32px;
+  text-align: center;
+  box-shadow: var(--shadow-ambient);
+}
+.empty .em { font-size: 44px; margin-bottom: 16px; }
+.empty h2 {
+  font-family: 'Manrope', 'Noto Sans TC', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--on-surface);
+  margin-bottom: 8px;
+}
+.empty p { font-size: 13px; color: var(--on-surface-variant); margin-bottom: 20px; }
+
+.detail {
+  background: var(--surface);
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: var(--shadow-ambient);
+}
+.detail-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 28px;
+  padding-bottom: 22px;
+}
+.detail-title-main {
+  font-family: 'Manrope', 'Noto Sans TC', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--on-surface);
+  letter-spacing: -0.01em;
+  margin-bottom: 6px;
+}
+.detail-title-sub {
+  font-size: 12px;
+  color: var(--on-surface-variant);
+  font-family: 'Manrope', sans-serif;
+  letter-spacing: 0.02em;
+}
+.detail-total {
+  background: var(--primary-fixed);
+  padding: 14px 18px;
+  border-radius: 12px;
+  color: var(--on-primary-fixed);
+  text-align: right;
+}
+.detail-total-label {
+  font-family: 'Manrope', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  opacity: .75;
+}
+.detail-total-vals {
+  font-family: 'Manrope', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.detail-total-vals span + span { margin-left: 14px; }
+
+.store-entry { padding: 24px 0; }
+.store-entry + .store-entry { border-top: 1px solid transparent; background-image: linear-gradient(to right, transparent, var(--outline-variant), transparent); background-size: 100% 1px; background-repeat: no-repeat; background-position: top; }
+.store-entry-head {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.store-order {
+  background: var(--panel-dark);
+  color: var(--panel-text);
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Manrope', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.store-name-big {
+  font-family: 'Manrope', 'Noto Sans TC', sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--on-surface);
+}
+.store-meta {
+  margin-left: auto;
+  font-family: 'Manrope', sans-serif;
+  font-size: 12px;
+  color: var(--on-surface-variant);
+  font-weight: 500;
+}
+.store-meta b { color: var(--primary); font-weight: 700; }
+.store-rows {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.store-row {
+  background: var(--surface-low);
+  padding: 12px 14px;
+  border-radius: 10px;
+}
+.store-row-label {
+  font-family: 'Manrope', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--on-surface-variant);
+  margin-bottom: 4px;
+}
+.store-row-val {
+  font-family: 'Manrope', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--on-surface);
+}
+.store-row-val .muted { color: var(--outline-variant); }
+
+.task-group-title {
+  font-family: 'Manrope', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--on-surface-variant);
+  text-transform: uppercase;
+  margin: 18px 0 10px;
+}
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 8px;
+}
+.photo-grid img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 8px;
+  cursor: pointer;
+  background: var(--surface-low);
+}
+.photo-task-label {
+  font-size: 11px;
+  color: var(--on-surface-variant);
+  margin-bottom: 6px;
+}
+
+.dropzone {
+  border-radius: 16px;
+  padding: 36px 24px;
+  text-align: center;
+  background: var(--surface);
+  color: var(--on-surface-variant);
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-ambient);
+}
+.dropzone.dragover { background: var(--primary-fixed); color: var(--on-primary-fixed); }
+.dropzone h3 {
+  font-family: 'Manrope', 'Noto Sans TC', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--on-surface);
+  margin-bottom: 4px;
+}
+.dropzone p {
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.92);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 40px;
+}
+.lightbox.show { display: flex; }
+.lightbox img { max-width: 100%; max-height: 100%; border-radius: 10px; }
+.lightbox-close {
+  position: absolute;
+  top: 24px; right: 24px;
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.15);
+  color: #fff;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--panel-dark);
+  color: var(--panel-text);
+  padding: 11px 22px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 500;
+  opacity: 0;
+  transition: opacity .3s;
+  pointer-events: none;
+  z-index: 9999;
+  white-space: nowrap;
+  box-shadow: 0 20px 40px -8px rgba(0,0,0,.3);
+}
+.toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <div>
+      <div class="brand">智取店 · 早班</div>
+      <h1>歷史紀錄</h1>
+    </div>
+    <div class="header-actions">
+      <button class="btn primary" onclick="document.getElementById('fileInput').click()">📥 匯入 JSON</button>
+      <button class="btn ghost-light" onclick="location.href='../'">回主畫面</button>
+      <button class="btn danger" onclick="clearAll()">清除全部</button>
+    </div>
+  </div>
+</header>
+
+<main class="main">
+  <div class="summary-row" id="summaryRow"></div>
+
+  <div id="emptyState" class="empty" style="display:none">
+    <div class="em">📂</div>
+    <h2>目前還沒有紀錄</h2>
+    <p>在手機上按「下載今日紀錄（JSON）」→ AirDrop 或 email 傳到電腦 → 點右上「匯入 JSON」</p>
+    <button class="btn primary" onclick="document.getElementById('fileInput').click()">📥 匯入 JSON</button>
+  </div>
+
+  <div class="layout" id="layout" style="display:none">
+    <div>
+      <div class="day-list-head">所有日期</div>
+      <div class="day-list" id="dayList"></div>
+    </div>
+    <div id="detailPane"></div>
+  </div>
+</main>
+
+<input type="file" id="fileInput" accept=".json,application/json" multiple style="display:none">
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox();event.stopPropagation()">✕</button>
+  <img id="lightboxImg" alt="">
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const DAY = ['日','一','二','三','四','五','六'];
+const P1_FIELDS = [{key:'bx', label:'黑箱'}];
+const P2_FIELDS = [
+  {key:'norm', label:'一般進店'},
+  {key:'ndd', label:'NDD進店'}
+];
+const ALL_FIELDS = [...P1_FIELDS, ...P2_FIELDS];
+
+let historyDB = null;
+function openDB(){
+  return new Promise((resolve, reject) => {
+    if (historyDB) return resolve(historyDB);
+    const req = indexedDB.open('shopee-sop-history', 1);
+    req.onupgradeneeded = (e) => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains('days')) {
+        db.createObjectStore('days', {keyPath:'date'});
+      }
+    };
+    req.onsuccess = (e) => { historyDB = e.target.result; resolve(historyDB); };
+    req.onerror = () => reject(req.error);
+  });
+}
+async function saveDay(record){
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('days', 'readwrite');
+    const req = tx.objectStore('days').put(record);
+    req.onsuccess = () => resolve();
+    req.onerror = () => reject(req.error);
+  });
+}
+async function listDays(){
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('days', 'readonly');
+    const req = tx.objectStore('days').getAll();
+    req.onsuccess = () => resolve(req.result.sort((a,b) => b.date.localeCompare(a.date)));
+    req.onerror = () => reject(req.error);
+  });
+}
+async function deleteDay(date){
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('days', 'readwrite');
+    const req = tx.objectStore('days').delete(date);
+    req.onsuccess = () => resolve();
+    req.onerror = () => reject(req.error);
+  });
+}
+async function clearDB(){
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('days', 'readwrite');
+    const req = tx.objectStore('days').clear();
+    req.onsuccess = () => resolve();
+    req.onerror = () => reject(req.error);
+  });
+}
+
+function fmtClock(ts){ const d = new Date(ts); return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; }
+function fmtDuration(ms){
+  const sec = Math.floor(ms / 1000);
+  if (sec < 60) return `${sec}秒`;
+  const min = Math.floor(sec / 60);
+  if (min < 60) return `${min}分${sec % 60}秒`;
+  const h = Math.floor(min / 60);
+  return `${h}小時${min % 60}分`;
+}
+function parseDate(dateStr){
+  const [y,m,d] = dateStr.split('-').map(Number);
+  return new Date(y, m-1, d);
+}
+function valsForStore(record, i){
+  const merged = {};
+  const d = record.data || {};
+  P1_FIELDS.forEach(f => { merged[f.key] = (d[`p1_s${i}`] || {})[f.key] || 0; });
+  P2_FIELDS.forEach(f => { merged[f.key] = (d[`p2_s${i}`] || {})[f.key] || 0; });
+  return merged;
+}
+function totalsForRecord(record){
+  const totals = {}; ALL_FIELDS.forEach(f => totals[f.key] = 0);
+  for (let i = 1; i <= (record.storeCount || 0); i++) {
+    const v = valsForStore(record, i);
+    ALL_FIELDS.forEach(f => totals[f.key] += v[f.key]);
+  }
+  return totals;
+}
+function stayDurationMs(record){
+  const t = record.times || {};
+  let total = 0;
+  for (let i = 1; i <= (record.storeCount || 0); i++) {
+    const inT = t[`p1_s${i}_in`], outT = t[`p2_s${i}_out`];
+    if (inT && outT) total += outT - inT;
+  }
+  return total;
+}
+function taskProgress(record){
+  const allIds = Object.keys(record.tasks || {});
+  const done = allIds.filter(id => record.tasks[id]).length;
+  return { done, total: allIds.length };
+}
+
+async function doImport(files){
+  let ok = 0, fail = 0;
+  for (const file of files) {
+    try {
+      const text = await file.text();
+      const obj = JSON.parse(text);
+      if (!obj.date || !obj.storeCount) { fail++; continue; }
+      await saveDay(obj);
+      ok++;
+    } catch(e) {
+      console.error(e);
+      fail++;
+    }
+  }
+  if (fail > 0) showToast(`成功匯入 ${ok} 份，失敗 ${fail} 份`);
+  else showToast(`匯入成功 ${ok} 份`);
+  await render();
+}
+
+document.getElementById('fileInput').addEventListener('change', async (ev) => {
+  const files = [...ev.target.files];
+  ev.target.value = '';
+  if (files.length) await doImport(files);
+});
+
+// Drag-drop on body
+document.body.addEventListener('dragover', (e) => { e.preventDefault(); });
+document.body.addEventListener('drop', async (e) => {
+  e.preventDefault();
+  const files = [...e.dataTransfer.files].filter(f => f.name.endsWith('.json'));
+  if (files.length) await doImport(files);
+});
+
+let selectedDate = null;
+
+async function render(){
+  const days = await listDays();
+  const empty = document.getElementById('emptyState');
+  const layout = document.getElementById('layout');
+  const summary = document.getElementById('summaryRow');
+
+  if (days.length === 0) {
+    empty.style.display = 'block';
+    layout.style.display = 'none';
+    summary.innerHTML = '';
+    return;
+  }
+  empty.style.display = 'none';
+  layout.style.display = 'grid';
+
+  renderSummary(days);
+  renderDayList(days);
+  if (!selectedDate || !days.find(d => d.date === selectedDate)) selectedDate = days[0].date;
+  renderDetail(days.find(d => d.date === selectedDate));
+}
+
+function renderSummary(days){
+  const now = new Date();
+  const startOfWeek = new Date(now); startOfWeek.setDate(now.getDate() - now.getDay()); startOfWeek.setHours(0,0,0,0);
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const thisWeek = days.filter(d => parseDate(d.date) >= startOfWeek);
+  const thisMonth = days.filter(d => parseDate(d.date) >= startOfMonth);
+
+  const html = [
+    statCardHtml('本週', thisWeek),
+    statCardHtml('本月', thisMonth),
+    statCardHtml('全部', days)
+  ].join('');
+  document.getElementById('summaryRow').innerHTML = html;
+}
+
+function statCardHtml(label, records){
+  let stores = 0, bx = 0, norm = 0, ndd = 0, stayMs = 0;
+  records.forEach(r => {
+    stores += r.storeCount || 0;
+    const t = totalsForRecord(r);
+    bx += t.bx; norm += t.norm; ndd += t.ndd;
+    stayMs += stayDurationMs(r);
+  });
+  return `<div class="stat-card">
+    <div class="stat-label">${label} · ${records.length} 天</div>
+    <div class="stat-rows">
+      <div class="stat-row"><span class="stat-key">店家次</span><span class="stat-val">${stores}</span></div>
+      <div class="stat-row"><span class="stat-key">黑箱</span><span class="stat-val sm">${bx}</span></div>
+      <div class="stat-row"><span class="stat-key">一般</span><span class="stat-val sm">${norm}</span></div>
+      <div class="stat-row"><span class="stat-key">NDD</span><span class="stat-val sm">${ndd}</span></div>
+      <div class="stat-row"><span class="stat-key">累計停留</span><span class="stat-val sm">${stayMs ? fmtDuration(stayMs) : '--'}</span></div>
+    </div>
+  </div>`;
+}
+
+function renderDayList(days){
+  const html = days.map(d => {
+    const isActive = d.date === selectedDate;
+    const totals = totalsForRecord(d);
+    const stay = stayDurationMs(d);
+    const dt = parseDate(d.date);
+    const dow = DAY[dt.getDay()];
+    return `<div class="day-card ${isActive?'active':''}" onclick="selectDay('${d.date}')">
+      <div class="day-card-head">
+        <div>
+          <span class="day-date">${dt.getMonth()+1}/${dt.getDate()}</span>
+          <span class="day-dow">星期${dow}</span>
+        </div>
+        <button class="day-del" onclick="confirmDelete(event,'${d.date}')" title="刪除">✕</button>
+      </div>
+      <div class="day-stats">
+        ${d.storeCount} 間店 · 黑箱 <b>${totals.bx}</b>
+        ${stay ? ' · 停留 <b>' + fmtDuration(stay) + '</b>' : ''}
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('dayList').innerHTML = html;
+}
+
+function selectDay(date){
+  selectedDate = date;
+  listDays().then(days => {
+    renderDayList(days);
+    const d = days.find(x => x.date === date);
+    renderDetail(d);
+  });
+}
+
+async function confirmDelete(e, date){
+  e.stopPropagation();
+  if (!confirm(`刪除 ${date} 的紀錄？`)) return;
+  await deleteDay(date);
+  showToast('已刪除');
+  if (selectedDate === date) selectedDate = null;
+  await render();
+}
+
+async function clearAll(){
+  if (!confirm('清除所有歷史紀錄？此動作無法還原。')) return;
+  await clearDB();
+  selectedDate = null;
+  showToast('已清除全部');
+  await render();
+}
+
+function renderDetail(record){
+  if (!record) { document.getElementById('detailPane').innerHTML = ''; return; }
+  const dt = parseDate(record.date);
+  const dowTxt = `星期${DAY[dt.getDay()]}`;
+  const totals = totalsForRecord(record);
+  const prog = taskProgress(record);
+  const stay = stayDurationMs(record);
+
+  // Group photos by taskId
+  const photosByTask = {};
+  (record.photos || []).forEach(p => {
+    if (!photosByTask[p.taskId]) photosByTask[p.taskId] = [];
+    photosByTask[p.taskId].push(p);
+  });
+
+  let storesHtml = '';
+  for (let i = record.storeCount; i >= 1; i--) {
+    const name = record.storeNames[i-1] || `第${i}間店`;
+    const order = record.storeCount - i + 1;
+    const t = record.times || {};
+    const inT = t[`p1_s${i}_in`], outT = t[`p2_s${i}_out`];
+    const vStart = t[`sp2_s${i}_p2_start`], vEnd = t[`sp2_s${i}_p2_end`];
+    const vals = valsForStore(record, i);
+    const stayStore = (inT && outT) ? outT - inT : null;
+
+    // Rows of metadata
+    const rows = [
+      { label:'進店時間', val: inT ? fmtClock(inT) : '<span class="muted">--</span>' },
+      { label:'離店時間', val: outT ? fmtClock(outT) : '<span class="muted">--</span>' },
+      ...(stayStore ? [{ label:'停留', val: fmtDuration(stayStore) }] : []),
+      ...((vStart && vEnd) ? [{ label:'驗收用時', val: fmtDuration(vEnd - vStart) }] : []),
+      { label:'黑箱', val: `${vals.bx} 箱` },
+      { label:'一般進店', val: `${vals.norm} 箱` },
+      { label:'NDD 進店', val: `${vals.ndd} 箱` }
+    ];
+    const rowsHtml = rows.map(r =>
+      `<div class="store-row"><div class="store-row-label">${r.label}</div><div class="store-row-val">${r.val}</div></div>`
+    ).join('');
+
+    // Photos for this store - gather all tasks starting with sp2_s${i}_ and p1_s${i}_
+    const taskIds = Object.keys(photosByTask).filter(tid => tid.includes(`_s${i}_`) || tid === `p1_s${i}_in` || tid === `p1_s${i}_out` || tid === `p2_s${i}_in` || tid === `p2_s${i}_out`);
+    let photosHtml = '';
+    if (taskIds.length) {
+      photosHtml = `<div class="task-group-title">📷 照片</div>` + taskIds.map(tid => {
+        const label = taskLabelFromId(tid);
+        const imgs = photosByTask[tid].map(p => `<img src="${p.dataUrl}" onclick="openLightbox('${p.dataUrl.replace(/'/g,"\\'")}')">`).join('');
+        return `<div class="photo-task-label">${label}（${photosByTask[tid].length}）</div><div class="photo-grid" style="margin-bottom:14px">${imgs}</div>`;
+      }).join('');
+    }
+
+    storesHtml += `<div class="store-entry">
+      <div class="store-entry-head">
+        <span class="store-order">${order}</span>
+        <span class="store-name-big">${name}</span>
+        ${stayStore ? `<span class="store-meta">停留 <b>${fmtDuration(stayStore)}</b></span>` : ''}
+      </div>
+      <div class="store-rows">${rowsHtml}</div>
+      ${photosHtml}
+    </div>`;
+  }
+
+  const detail = `<div class="detail">
+    <div class="detail-head">
+      <div>
+        <div class="detail-title-main">${dt.getFullYear()}/${dt.getMonth()+1}/${dt.getDate()} <span style="font-size:14px;color:var(--on-surface-variant);font-weight:500;margin-left:6px">${dowTxt}</span></div>
+        <div class="detail-title-sub">${record.storeCount} 間店　·　任務 ${prog.done}/${prog.total}${stay?`　·　總停留 ${fmtDuration(stay)}`:''}</div>
+      </div>
+      <div class="detail-total">
+        <div class="detail-total-label">今日合計</div>
+        <div class="detail-total-vals">
+          <span>黑箱 ${totals.bx}</span>
+          <span>一般 ${totals.norm}</span>
+          <span>NDD ${totals.ndd}</span>
+        </div>
+      </div>
+    </div>
+    ${storesHtml}
+  </div>`;
+  document.getElementById('detailPane').innerHTML = detail;
+}
+
+function taskLabelFromId(tid){
+  const map = {
+    m2: '紙捲測試回報',
+    p1: '逾期包裹下架',
+    p2: '進貨包裹驗收',
+    p3: '包裹盤點',
+    p4: '異常包裹離店裝箱',
+    p5: '寄件包裹離店裝箱',
+    sys: 'AMS 系統入庫',
+    l1: '1200 前 SCSHD 上架',
+    l5: '滯留包裹回傳',
+    l7: '寄件清空回報',
+    l8: 'PDA 充電回傳',
+    l9: '包裹清 0',
+    l10: '包裹重新上架回報',
+    l11: '遺落回報',
+    l12: '鑰匙回放',
+    c2: '掃地',
+    c3: '拖地',
+    bx: '黑箱上架'
+  };
+  const parts = tid.split('_');
+  const suffix = parts[parts.length - 1];
+  return map[suffix] || tid;
+}
+
+function openLightbox(url){
+  document.getElementById('lightboxImg').src = url;
+  document.getElementById('lightbox').classList.add('show');
+}
+function closeLightbox(){ document.getElementById('lightbox').classList.remove('show'); }
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+render();
+</script>
+</body>
+</html>
