@@ -344,6 +344,32 @@ body {
 }
 .store-tab-chip.active.done { background: var(--ok); color: #fff; }
 
+.sec-header {
+  margin: 10px 14px 6px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: 'Manrope', 'Noto Sans TC', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+.sec-header-left { display: flex; align-items: center; gap: 8px; }
+.sec-icon { font-size: 15px; }
+.sec-count {
+  font-size: 11px;
+  font-weight: 600;
+  font-family: 'Manrope', sans-serif;
+  opacity: .75;
+}
+.sec-header.action { background: var(--primary-fixed); color: var(--on-primary-fixed); }
+.sec-header.report { background: var(--ok-bg); color: var(--ok); }
+.sec-header.misc   { background: var(--cond-bg); color: var(--cond); }
+.sec-header.done { opacity: .6; }
+.sec-header.done .sec-count::before { content: '✓ '; }
+
 .phase-header {
   margin: 18px 16px 14px;
   display: flex;
@@ -1215,29 +1241,32 @@ const P2_CONDITIONS = [
 function normalTasks(s){
   const isTue = dow === 2, isSweep = [2,4,5].includes(dow), isMop = dow === 4;
   const tasks = [
-    {id:`s${s}_m2`, cls:'cond', name:'紙捲測試回報', desc:'', badges:[{c:'bp',t:'📷 拍照'},{c:'bl',t:'Line回報'}]},
-    {id:`s${s}_p1`, cls:'must', name:'逾期包裹下架 + 離店裝箱', desc:'查詢逾期件並完成裝箱', badges:[{c:'bp',t:'📷 拍照'},{c:'bl',t:'Line 逾期回報'}]},
-    {id:`s${s}_p2`, cls:'must', name:'進貨包裹驗收上架', desc:'核對包裹後放入格子', badges:[{c:'bp',t:'📷 拍照'}], withTimer:true, conditions: P2_CONDITIONS},
+    // === 動作 ===
+    {id:`s${s}_m2`, cls:'cond', section:'action', name:'紙捲測試回報', desc:'', badges:[{c:'bp',t:'📷 拍照'},{c:'bl',t:'Line回報'}]},
+    {id:`s${s}_p1`, cls:'must', section:'action', name:'逾期包裹下架 + 離店裝箱', desc:'查詢逾期件並完成裝箱', badges:[{c:'bp',t:'📷 拍照'},{c:'bl',t:'Line 逾期回報'}]},
+    {id:`s${s}_p2`, cls:'must', section:'action', name:'進貨包裹驗收上架', desc:'核對包裹後放入格子', badges:[{c:'bp',t:'📷 拍照'}], withTimer:true, conditions: P2_CONDITIONS},
   ];
-  if (isTue) tasks.push({id:`s${s}_p3`, cls:'must', name:'包裹盤點', desc:'清點所有格子包裹', badges:[{c:'bp',t:'📷 拍照'},{c:'bo',t:'📅 週二限定'},{c:'bl',t:'Line 盤點回報'}]});
+  if (isTue) tasks.push({id:`s${s}_p3`, cls:'must', section:'action', name:'包裹盤點', desc:'清點所有格子包裹', badges:[{c:'bp',t:'📷 拍照'},{c:'bo',t:'📅 週二限定'},{c:'bl',t:'Line 盤點回報'}]});
   tasks.push(
-    {id:`s${s}_p4`, cls:'cond', name:'異常包裹離店裝箱（視情況）', desc:'記錄並裝箱異常包裹', note:'有異常包裹時才做', noteCls:'purple', badges:[{c:'bp',t:'📷 拍照'},{c:'bl',t:'Line 異常包裹'}]},
-    {id:`s${s}_p5`, cls:'must', name:'寄件包裹離店裝箱', desc:'完成寄件包裹裝箱離店', noteText:'⚠️ 若收到寄件欄已滿通知，須依由上而下順序完成！', badges:[{c:'bp',t:'📷 拍照'},{c:'bl',t:'Line 寄件清空'}]},
-    {id:`s${s}_sys`, cls:'hi', name:'⭐ 檢查 AMS 系統並完成入庫', desc:'確認系統狀態，完成所有包裹入庫', note:'維修申請耗材驗收', noteCls:'purple', badges:[{c:'by',t:'重點項目'},{c:'bp',t:'📷 截圖'}]},
-    {id:`s${s}_l1`, cls:'time12', name:'1200前 SCSHD 上架', desc:'', badges:[{c:'bt',t:'⏰ 12:00前'},{c:'bp',t:'📷 拍照'},{c:'bl',t:'Line回報'}]},
-    {id:`s${s}_l5`, cls:'must', name:'滯留包裹回傳', desc:'', badges:[{c:'bp',t:'📷 拍照'},{c:'bl',t:'Line回報'}]},
-    {id:`s${s}_l7`, cls:'must', name:'寄件清空回報', desc:'', badges:[{c:'bp',t:'📷 拍照'},{c:'bl',t:'Line回報'}]},
-    {id:`s${s}_l8`, cls:'must', name:'PDA 充電回傳', desc:'', badges:[{c:'bp',t:'📷 拍照'},{c:'bl',t:'Line回報'}]},
-    {id:`s${s}_l9`, cls:'must', name:'包裹清 0', desc:'', badges:[{c:'bp',t:'📷 拍照'},{c:'bl',t:'Line回報'}]},
-    {id:`s${s}_l10`, cls:'must', name:'包裹重新上架回報', desc:'', badges:[{c:'bp',t:'📷 拍照'},{c:'bl',t:'Line回報'}]},
-    {id:`s${s}_l11`, cls:'must', name:'遺落回報', desc:'', badges:[{c:'bp',t:'📷 拍照'},{c:'bl',t:'Line回報'}]},
-    {id:`s${s}_l12`, cls:'must', name:'鑰匙回放', desc:'', badges:[{c:'bp',t:'📷 拍照'},{c:'bl',t:'Line回報'}]},
-    {id:`s${s}_l13`, cls:'cond', name:'其他異常詢問回報（視情況）', desc:'', note:'有異常才需回報', noteCls:'purple', badges:[{c:'bl',t:'Line回報'}]},
-    {id:`s${s}_l14`, cls:'cond', name:'客訴處理（視情況）', desc:'', note:'有客訴才需回報', noteCls:'purple', badges:[{c:'bl',t:'Line回報'}]},
-    {id:`s${s}_c1`, cls:'must', name:'每日清掃 & 循環包裝', desc:'倒垃圾 → 清空收據紙筒 → 循環包裝整理與離店裝箱 → 淨空前場 → 設備歸位 → 廣除TO箱單 → PDA充電', badges:[]}
+    {id:`s${s}_p5`, cls:'must', section:'action', name:'寄件包裹離店裝箱', desc:'完成寄件包裹裝箱離店（NDD / 一般）', noteText:'⚠️ 若收到寄件欄已滿通知，須依由上而下順序完成！', badges:[{c:'bp',t:'📷 拍照'},{c:'bl',t:'Line 寄件清空'}]},
+    {id:`s${s}_p4`, cls:'cond', section:'action', name:'異常包裹離店裝箱（視情況）', desc:'記錄並裝箱異常包裹', note:'有異常包裹時才做', noteCls:'purple', badges:[{c:'bp',t:'📷 拍照'},{c:'bl',t:'Line 異常包裹'}]},
+    {id:`s${s}_sys`, cls:'hi', section:'action', name:'⭐ 檢查 AMS 系統並完成入庫', desc:'確認系統狀態，完成所有包裹入庫', note:'維修申請耗材驗收', noteCls:'purple', badges:[{c:'by',t:'重點項目'},{c:'bp',t:'📷 截圖'}]},
+    // === 回報 ===
+    {id:`s${s}_l1`, cls:'time12', section:'report', name:'1200前 SCSHD 上架', desc:'', badges:[{c:'bt',t:'⏰ 12:00前'},{c:'bp',t:'📷 拍照'},{c:'bl',t:'Line回報'}]},
+    {id:`s${s}_l5`, cls:'must', section:'report', name:'滯留包裹回傳', desc:'', badges:[{c:'bp',t:'📷 拍照'},{c:'bl',t:'Line回報'}]},
+    {id:`s${s}_l7`, cls:'must', section:'report', name:'寄件清空回報', desc:'', badges:[{c:'bp',t:'📷 拍照'},{c:'bl',t:'Line回報'}]},
+    {id:`s${s}_l8`, cls:'must', section:'report', name:'PDA 充電回傳', desc:'', badges:[{c:'bp',t:'📷 拍照'},{c:'bl',t:'Line回報'}]},
+    {id:`s${s}_l9`, cls:'must', section:'report', name:'包裹清 0', desc:'', badges:[{c:'bp',t:'📷 拍照'},{c:'bl',t:'Line回報'}]},
+    {id:`s${s}_l10`, cls:'must', section:'report', name:'包裹重新上架回報', desc:'', badges:[{c:'bp',t:'📷 拍照'},{c:'bl',t:'Line回報'}]},
+    {id:`s${s}_l11`, cls:'must', section:'report', name:'遺落回報', desc:'', badges:[{c:'bp',t:'📷 拍照'},{c:'bl',t:'Line回報'}]},
+    {id:`s${s}_l12`, cls:'must', section:'report', name:'鑰匙回放', desc:'', badges:[{c:'bp',t:'📷 拍照'},{c:'bl',t:'Line回報'}]},
+    {id:`s${s}_l13`, cls:'cond', section:'report', name:'其他異常詢問回報（視情況）', desc:'', note:'有異常才需回報', noteCls:'purple', badges:[{c:'bl',t:'Line回報'}]},
+    {id:`s${s}_l14`, cls:'cond', section:'report', name:'客訴處理（視情況）', desc:'', note:'有客訴才需回報', noteCls:'purple', badges:[{c:'bl',t:'Line回報'}]},
+    // === 其他 ===
+    {id:`s${s}_c1`, cls:'must', section:'misc', name:'每日清掃 & 循環包裝', desc:'倒垃圾 → 清空收據紙筒 → 循環包裝整理與離店裝箱 → 淨空前場 → 設備歸位 → 廣除TO箱單 → PDA充電', badges:[]}
   );
-  if (isSweep) tasks.push({id:`s${s}_c2`, cls:'must', name:`掃地（${dow===2?'週二':dow===4?'週四':'週五'}）`, desc:'約 3 分鐘，僅需撿起大型垃圾', badges:[{c:'bo',t:'📅 今日限定'}]});
-  if (isMop) tasks.push({id:`s${s}_c3`, cls:'must', name:'拖地（週四）', desc:'約 5 分鐘，僅需將明顯髒污清除', badges:[{c:'bo',t:'📅 今日限定'}]});
+  if (isSweep) tasks.push({id:`s${s}_c2`, cls:'must', section:'misc', name:`掃地（${dow===2?'週二':dow===4?'週四':'週五'}）`, desc:'約 3 分鐘，僅需撿起大型垃圾', badges:[{c:'bo',t:'📅 今日限定'}]});
+  if (isMop) tasks.push({id:`s${s}_c3`, cls:'must', section:'misc', name:'拖地（週四）', desc:'約 5 分鐘，僅需將明顯髒污清除', badges:[{c:'bo',t:'📅 今日限定'}]});
   return tasks;
 }
 
@@ -1320,7 +1349,8 @@ function taskHtml(task, sid){
     storeConditionTaskIds.add(task.id);
     cc = conditionCardHtml(task.id, task.conditions);
   }
-  return `<div class="task ${task.cls}" id="${task.id}" onclick="tap('${task.id}','${sid}')"><div class="cb"><span class="ck">✓</span></div><div class="tc"><div class="task-name">${task.name}</div>${task.desc?`<div class="task-desc">${task.desc}</div>`:''}${nh}${bh}${tp}${tm}${cc}${ph}</div></div>`;
+  const secAttr = task.section ? ` data-section="${task.section}"` : '';
+  return `<div class="task ${task.cls}" id="${task.id}"${secAttr} onclick="tap('${task.id}','${sid}')"><div class="cb"><span class="ck">✓</span></div><div class="tc"><div class="task-name">${task.name}</div>${task.desc?`<div class="task-desc">${task.desc}</div>`:''}${nh}${bh}${tp}${tm}${cc}${ph}</div></div>`;
 }
 function bxTaskHtml(sid, name){
   const naText = `${name} WH未到店`, okText = `${name} WH上架完成`;
@@ -1621,7 +1651,14 @@ function startChecklist(){
     let th = '';
     if (!isFirst) th += taskHtml({id:`${sid}_in`, cls:'clock-in', name:'進店打卡', desc:'掃描 QR Code', badges:[{c:'bp',t:'📷 拍照存證'},{c:'bg',t:'✅ 進店'}]}, sid);
     th += dataSectionHtml(sid, P2_FIELDS, '📊 數量記錄（進店後填寫）');
-    nTasks.forEach(t => { th += taskHtml(t, sid); });
+    let _lastSec = '';
+    nTasks.forEach(t => {
+      if (t.section && t.section !== _lastSec) {
+        th += sectionHeaderHtml(t.section, sid, nTasks);
+        _lastSec = t.section;
+      }
+      th += taskHtml(t, sid);
+    });
     th += taskHtml({id:`${sid}_out`, cls:'clock-out', name:'離店打卡', desc:'掃描 QR Code 完成離店打卡', badges:[{c:'bp',t:'📷 拍照存證'},{c:'br',t:'🚪 離店'}]}, sid);
     p2Html += storeBlockHtml(sid, `${storeCount-i+1}`, 'dark', isFirst ? `${name}（續正常流程）` : name, th, name);
   }
@@ -1733,6 +1770,34 @@ function selectStore(n){
   // restore transition on next frame (no animation triggered because values already match)
   requestAnimationFrame(() => {
     taskEls.forEach(el => { el.style.transition = ''; });
+  });
+}
+const SEC_META = {
+  action: {icon:'🎬', label:'動作（先做完）'},
+  report: {icon:'📋', label:'回報（用剛拍的照片）'},
+  misc:   {icon:'🧹', label:'其他（收尾）'}
+};
+function sectionHeaderHtml(section, sid, nTasks){
+  const meta = SEC_META[section];
+  const total = nTasks.filter(t => t.section === section).length;
+  return `<div class="sec-header ${section}" id="sec_${sid}_${section}"><div class="sec-header-left"><span class="sec-icon">${meta.icon}</span><span>${meta.label}</span></div><span class="sec-count" id="seccnt_${sid}_${section}">0 / ${total}</span></div>`;
+}
+function updateSectionHeaders(){
+  const s = loadAll();
+  document.querySelectorAll('.sec-header').forEach(hd => {
+    const id = hd.id; // sec_<sid>_<section>
+    const m = id.match(/^sec_(.+)_(action|report|misc)$/);
+    if (!m) return;
+    const sid = m[1], section = m[2];
+    // find tasks in this block belonging to this section
+    const blk = document.getElementById('blk_'+sid);
+    if (!blk) return;
+    const taskEls = [...blk.querySelectorAll('.task')].filter(el => el.dataset.section === section);
+    const total = taskEls.length;
+    const done = taskEls.filter(el => el.classList.contains('done')).length;
+    const cntEl = document.getElementById('seccnt_'+sid+'_'+section);
+    if (cntEl) cntEl.textContent = `${done} / ${total}`;
+    hd.classList.toggle('done', total > 0 && done === total);
   });
 }
 function updateStoreTabs(){
@@ -1904,6 +1969,7 @@ function updateAllProgress(){
     if (!isP2 && bDone === bTotal && bTotal > 0 && !blk.classList.contains('collapsed')) toggleBlock(blk.id.replace('blk_',''));
   });
   updateStoreTabs();
+  updateSectionHeaders();
   // update phase tab dots
   const st = phaseStats();
   const dot1 = document.getElementById('tabDot1'), dot2 = document.getElementById('tabDot2');
