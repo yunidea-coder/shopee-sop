@@ -241,8 +241,61 @@ body {
 }
 .start-btn:active { opacity: .9; }
 
+.phase-tabs {
+  display: flex;
+  gap: 4px;
+  margin: 14px 16px 4px;
+  background: var(--surface-low);
+  border-radius: 14px;
+  padding: 4px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  box-shadow: 0 1px 0 rgba(0,0,0,.03);
+}
+.phase-tab {
+  flex: 1;
+  padding: 11px 12px;
+  border: none;
+  background: transparent;
+  border-radius: 10px;
+  font-family: 'Manrope', 'Noto Sans TC', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--on-surface-variant);
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: background .2s, color .2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.phase-tab .tab-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  font-size: 9px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-high);
+  color: var(--on-surface-variant);
+  font-family: 'Manrope', sans-serif;
+}
+.phase-tab.active {
+  background: var(--surface);
+  color: var(--on-surface);
+  box-shadow: 0 2px 10px -3px rgba(81,68,62,.15);
+}
+.phase-tab.active .tab-dot { background: var(--primary); color: #fff; }
+.phase-tab.done .tab-dot { background: var(--ok); color: #fff; }
+.phase-pane { display: none; }
+.phase-pane.active { display: block; }
+
 .phase-header {
-  margin: 24px 16px 14px;
+  margin: 18px 16px 14px;
   display: flex;
   align-items: center;
   gap: 14px;
@@ -488,6 +541,69 @@ body {
   font-family: inherit;
 }
 .wh-copy-btn:active { opacity: .8; }
+
+.cond-card {
+  margin-top: 12px;
+  background: var(--cond-bg);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+.cond-title {
+  font-family: 'Manrope', 'Noto Sans TC', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--cond);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.cond-opts {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.cond-opt {
+  padding: 10px 12px;
+  border: none;
+  background: var(--surface);
+  color: var(--on-surface-variant);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+  line-height: 1.35;
+}
+.cond-opt.active {
+  background: var(--primary);
+  color: #fff;
+  font-weight: 600;
+}
+.cond-opt:not(.active):active { background: var(--surface-high); }
+.cond-hint {
+  margin-top: 10px;
+  padding: 10px 12px;
+  background: var(--warn-bg);
+  border-radius: 10px;
+  font-size: 12px;
+  color: var(--warn);
+  line-height: 1.5;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+.cond-hint-icon { flex-shrink: 0; }
+.cond-hint-muted {
+  font-size: 12px;
+  color: var(--on-surface-variant);
+  font-style: italic;
+}
+.cond-hint.muted {
+  background: transparent;
+  padding: 6px 2px;
+}
 
 .transition-note {
   margin: 4px 16px 14px;
@@ -925,6 +1041,10 @@ body {
     <h2>今日所有店完成！</h2>
     <p>辛苦了，早班全部 SOP 已執行完畢</p>
   </div>
+  <div class="phase-tabs" id="phaseTabs" style="display:none">
+    <button class="phase-tab active" id="phaseTab1" onclick="switchPhase(1)"><span class="tab-dot" id="tabDot1">1</span>黑箱巡迴</button>
+    <button class="phase-tab" id="phaseTab2" onclick="switchPhase(2)"><span class="tab-dot" id="tabDot2">2</span>正常流程</button>
+  </div>
   <div id="phaseContent"></div>
   <div class="export-btn-wrap">
     <button class="export-btn" onclick="exportToday()">📥 下載今日紀錄（JSON）</button>
@@ -957,7 +1077,9 @@ document.getElementById('storeCount').textContent = totalCount;
 const P1_FIELDS = [{key:'bx', label:'黑箱'}];
 const P2_FIELDS = [
   {key:'norm', label:'一般進店'},
-  {key:'ndd', label:'NDD進店'}
+  {key:'ndd', label:'NDD進店'},
+  {key:'norm_out', label:'一般離店'},
+  {key:'ndd_out', label:'NDD離店'}
 ];
 const ALL_FIELDS = [...P1_FIELDS, ...P2_FIELDS];
 
@@ -1025,12 +1147,18 @@ function updateNum(sid, key, delta){
   refreshSummary();
 }
 
+const P2_CONDITIONS = [
+  {k:'A', label:'順利全數上架', hint:'拍進貨區物流箱位置 + TO 單（等下「包裹清 0」要用）'},
+  {k:'B', label:'格口沒了｜包裹全上完', hint:'拍 PDA 格口清 0 畫面（等下「包裹清 0」要用）'},
+  {k:'C', label:'格口沒了｜包裹有剩下', hint:'拍進貨區剩下的物流箱（等下「滯留包裹」要用）'}
+];
+
 function normalTasks(s){
   const isTue = dow === 2, isSweep = [2,4,5].includes(dow), isMop = dow === 4;
   const tasks = [
     {id:`s${s}_m2`, cls:'cond', name:'紙捲測試回報', desc:'', badges:[{c:'bp',t:'📷 拍照'},{c:'bl',t:'Line回報'}]},
     {id:`s${s}_p1`, cls:'must', name:'逾期包裹下架 + 離店裝箱', desc:'查詢逾期件並完成裝箱', badges:[{c:'bp',t:'📷 拍照'},{c:'bl',t:'Line 逾期回報'}]},
-    {id:`s${s}_p2`, cls:'must', name:'進貨包裹驗收上架', desc:'核對包裹後放入格子', badges:[{c:'bp',t:'📷 拍照'}], withTimer:true},
+    {id:`s${s}_p2`, cls:'must', name:'進貨包裹驗收上架', desc:'核對包裹後放入格子', badges:[{c:'bp',t:'📷 拍照'}], withTimer:true, conditions: P2_CONDITIONS},
   ];
   if (isTue) tasks.push({id:`s${s}_p3`, cls:'must', name:'包裹盤點', desc:'清點所有格子包裹', badges:[{c:'bp',t:'📷 拍照'},{c:'bo',t:'📅 週二限定'},{c:'bl',t:'Line 盤點回報'}]});
   tasks.push(
@@ -1073,8 +1201,49 @@ function timerHtml(taskId){
   }
 }
 const photoTaskIds = new Set();
+const storeConditionTaskIds = new Set();
 function hasPhotoBadge(task){
   return task.badges && task.badges.some(b => b.c === 'bp');
+}
+function loadConditions(){ try { return JSON.parse(localStorage.getItem('cond_'+dateKey) || '{}'); } catch(e) { return {}; } }
+function saveConditions(c){ try { localStorage.setItem('cond_'+dateKey, JSON.stringify(c)); } catch(e){} }
+function conditionCardHtml(taskId, conditions){
+  const cur = loadConditions()[taskId] || '';
+  const opts = conditions.map(c => `<button class="cond-opt${cur===c.k?' active':''}" data-k="${c.k}" onclick="setCondition(event,'${taskId}','${c.k}')">${c.label}</button>`).join('');
+  const hintHtml = cur
+    ? `<span class="cond-hint-icon">📌</span><div>${conditions.find(c=>c.k===cur).hint}</div>`
+    : `<span class="cond-hint-muted">選一個狀況，下方會顯示等下要拍什麼照片</span>`;
+  const hintCls = cur ? 'cond-hint' : 'cond-hint muted';
+  return `<div class="cond-card" id="cc_${taskId}" onclick="event.stopPropagation()"><div class="cond-title">✅ 驗收上架結束時的狀況</div><div class="cond-opts" id="co_${taskId}">${opts}</div><div class="${hintCls}" id="ch_${taskId}">${hintHtml}</div></div>`;
+}
+function setCondition(e, taskId, k){
+  e.stopPropagation();
+  const all = loadConditions();
+  all[taskId] = k;
+  saveConditions(all);
+  // update option buttons
+  const optsWrap = document.getElementById('co_'+taskId);
+  if (optsWrap) [...optsWrap.children].forEach(btn => btn.classList.toggle('active', btn.getAttribute('data-k') === k));
+  renderConditionHint(taskId);
+  const blk = document.getElementById('cc_'+taskId)?.closest('.store-block');
+  if (blk && !blk.classList.contains('collapsed')) {
+    const inner = blk.querySelector('.store-tasks');
+    inner.style.maxHeight = inner.scrollHeight + 'px';
+  }
+}
+function renderConditionHint(taskId){
+  const hintEl = document.getElementById('ch_'+taskId);
+  if (!hintEl) return;
+  const cur = loadConditions()[taskId] || '';
+  const conditions = P2_CONDITIONS;
+  if (cur) {
+    const c = conditions.find(x => x.k === cur);
+    hintEl.className = 'cond-hint';
+    hintEl.innerHTML = `<span class="cond-hint-icon">📌</span><div>${c ? c.hint : ''}</div>`;
+  } else {
+    hintEl.className = 'cond-hint muted';
+    hintEl.innerHTML = `<span class="cond-hint-muted">選一個狀況，下方會顯示等下要拍什麼照片</span>`;
+  }
 }
 function taskHtml(task, sid){
   const nh = task.note ? `<div class="note ${task.noteCls||''}">${task.note}</div>` : (task.noteText ? `<div class="note">${task.noteText}</div>` : '');
@@ -1087,7 +1256,12 @@ function taskHtml(task, sid){
     photoTaskIds.add(task.id);
     ph = photoSectionHtml(task.id);
   }
-  return `<div class="task ${task.cls}" id="${task.id}" onclick="tap('${task.id}','${sid}')"><div class="cb"><span class="ck">✓</span></div><div class="tc"><div class="task-name">${task.name}</div>${task.desc?`<div class="task-desc">${task.desc}</div>`:''}${nh}${bh}${tp}${tm}${ph}</div></div>`;
+  let cc = '';
+  if (task.conditions && task.conditions.length) {
+    storeConditionTaskIds.add(task.id);
+    cc = conditionCardHtml(task.id, task.conditions);
+  }
+  return `<div class="task ${task.cls}" id="${task.id}" onclick="tap('${task.id}','${sid}')"><div class="cb"><span class="ck">✓</span></div><div class="tc"><div class="task-name">${task.name}</div>${task.desc?`<div class="task-desc">${task.desc}</div>`:''}${nh}${bh}${tp}${tm}${cc}${ph}</div></div>`;
 }
 function bxTaskHtml(sid, name){
   const naText = `${name} WH未到店`, okText = `${name} WH上架完成`;
@@ -1318,6 +1492,7 @@ async function exportToday(){
     tasks: loadAll(),
     data: loadData(),
     times: loadTimes(),
+    conditions: loadConditions(),
     photos: []
   };
   const db = await openPhotoDB();
@@ -1353,11 +1528,13 @@ function startChecklist(){
   saveNames(storeNames);
 
   const saved = loadAll();
-  let html = '';
   allTaskIds = [];
   photoTaskIds.clear();
+  storeConditionTaskIds.clear();
+  phase1AutoSwitched = false;
 
-  html += `<div class="phase-header"><div class="phase-pill ph1">Phase 1</div><div class="phase-desc">黑箱上架巡迴（共 ${storeCount} 間）</div></div>`;
+  let p1Html = '';
+  p1Html += `<div class="phase-header"><div class="phase-pill ph1">Phase 1</div><div class="phase-desc">黑箱上架巡迴（共 ${storeCount} 間）</div></div>`;
   for (let i = 1; i <= storeCount; i++) {
     const isLast = i === storeCount, sid = `p1_s${i}`, name = storeNames[i-1];
     const ids = [`${sid}_in`, `${sid}_bx`];
@@ -1368,11 +1545,13 @@ function startChecklist(){
     th += dataSectionHtml(sid, P1_FIELDS, '📊 黑箱數量記錄');
     th += bxTaskHtml(sid, name);
     if (!isLast) th += taskHtml({id:`${sid}_out`, cls:'clock-out', name:'離店打卡', desc:'前往下一間店', badges:[{c:'bp',t:'📷 拍照存證'},{c:'br',t:'🚪 離店'}]}, sid);
-    html += storeBlockHtml(sid, isLast ? `${i}★` : `${i}`, '', isLast ? `${name}　← 最後一間，接正常流程` : name, th, name);
+    p1Html += storeBlockHtml(sid, isLast ? `${i}★` : `${i}`, '', isLast ? `${name}　← 最後一間，接正常流程` : name, th, name);
   }
-  html += `<div class="transition-note">🔄 <b>黑箱巡迴結束</b>，從第 ${storeCount} 間店開始，依序往回執行正常流程</div>`;
-  html += `<div class="phase-header"><div class="phase-pill ph2">Phase 2</div><div class="phase-desc">正常流程（從第 ${storeCount} 間往回）</div></div>`;
-  html += `<div class="tip-card"><span class="tip-icon">🏷️</span><div>拍照任務記得加 <b>店名浮水印（右下）</b>。紙捲測試需 <b>4 張</b>。</div></div>`;
+
+  let p2Html = '';
+  p2Html += `<div class="transition-note">🔄 <b>黑箱巡迴結束</b>，從第 ${storeCount} 間店開始，依序往回執行正常流程</div>`;
+  p2Html += `<div class="phase-header"><div class="phase-pill ph2">Phase 2</div><div class="phase-desc">正常流程（從第 ${storeCount} 間往回）</div></div>`;
+  p2Html += `<div class="tip-card"><span class="tip-icon">🏷️</span><div>拍照任務記得加 <b>店名浮水印（右下）</b>。紙捲測試需 <b>4 張</b>。</div></div>`;
   for (let i = storeCount; i >= 1; i--) {
     const isFirst = i === storeCount, sid = `p2_s${i}`, name = storeNames[i-1], nTasks = normalTasks(sid);
     const ids = [];
@@ -1385,11 +1564,14 @@ function startChecklist(){
     th += dataSectionHtml(sid, P2_FIELDS, '📊 數量記錄（進店後填寫）');
     nTasks.forEach(t => { th += taskHtml(t, sid); });
     th += taskHtml({id:`${sid}_out`, cls:'clock-out', name:'離店打卡', desc:'掃描 QR Code 完成離店打卡', badges:[{c:'bp',t:'📷 拍照存證'},{c:'br',t:'🚪 離店'}]}, sid);
-    html += storeBlockHtml(sid, `${storeCount-i+1}`, 'dark', isFirst ? `${name}（續正常流程）` : name, th, name);
+    p2Html += storeBlockHtml(sid, `${storeCount-i+1}`, 'dark', isFirst ? `${name}（續正常流程）` : name, th, name);
   }
-  html += buildSummaryHtml();
+  p2Html += buildSummaryHtml();
+
+  const html = `<div class="phase-pane active" id="phase1Pane">${p1Html}</div><div class="phase-pane" id="phase2Pane">${p2Html}</div>`;
 
   document.getElementById('phaseContent').innerHTML = html;
+  document.getElementById('phaseTabs').style.display = 'flex';
   document.getElementById('setupScreen').style.display = 'none';
   document.getElementById('checklistArea').style.display = 'block';
 
@@ -1397,14 +1579,52 @@ function startChecklist(){
     const el = document.getElementById(id);
     if (el && saved[id]) el.classList.add('done');
   });
+  // render condition hints for any saved p2 condition choices
+  storeConditionTaskIds.forEach(tid => renderConditionHint(tid));
+  // measure maxHeight while both panes are visible to avoid scrollHeight=0 in hidden pane
+  const p2Pane = document.getElementById('phase2Pane');
+  p2Pane.classList.add('active');
   document.querySelectorAll('.store-block').forEach(blk => {
     const inner = blk.querySelector('.store-tasks');
     inner.style.maxHeight = inner.scrollHeight + 'px';
   });
+  p2Pane.classList.remove('active');
   updateAllProgress();
   // async: render photo thumbnails per task
   photoTaskIds.forEach(tid => renderPhotoSection(tid));
 }
+
+function switchPhase(n){
+  document.querySelectorAll('.phase-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.phase-tab').forEach(p => p.classList.remove('active'));
+  const pane = document.getElementById('phase'+n+'Pane');
+  const tab = document.getElementById('phaseTab'+n);
+  if (pane) pane.classList.add('active');
+  if (tab) tab.classList.add('active');
+  // recalc maxHeight for newly visible non-collapsed blocks
+  if (pane) {
+    pane.querySelectorAll('.store-block').forEach(blk => {
+      if (blk.classList.contains('collapsed')) return;
+      const inner = blk.querySelector('.store-tasks');
+      inner.style.maxHeight = inner.scrollHeight + 'px';
+    });
+  }
+  window.scrollTo({top:0, behavior:'instant'});
+}
+
+function phaseStats(){
+  const s = loadAll();
+  const p1Ids = allTaskIds.filter(id => id.startsWith('p1_'));
+  const p2Ids = allTaskIds.filter(id => id.startsWith('p2_'));
+  return {
+    p1Done: p1Ids.filter(id => s[id]).length,
+    p1Total: p1Ids.length,
+    p2Done: p2Ids.filter(id => s[id]).length,
+    p2Total: p2Ids.length
+  };
+}
+
+let phase1AutoSwitched = false;
 
 function copyName(e, name){
   e.stopPropagation();
@@ -1540,11 +1760,28 @@ function updateAllProgress(){
     }
     if (bDone === bTotal && bTotal > 0 && !blk.classList.contains('collapsed')) toggleBlock(blk.id.replace('blk_',''));
   });
+  // update phase tab dots
+  const st = phaseStats();
+  const dot1 = document.getElementById('tabDot1'), dot2 = document.getElementById('tabDot2');
+  const tab1 = document.getElementById('phaseTab1'), tab2 = document.getElementById('phaseTab2');
+  if (dot1) dot1.textContent = (st.p1Total && st.p1Done === st.p1Total) ? '✓' : (st.p1Total ? `${st.p1Done}/${st.p1Total}` : '1');
+  if (dot2) dot2.textContent = (st.p2Total && st.p2Done === st.p2Total) ? '✓' : (st.p2Total ? `${st.p2Done}/${st.p2Total}` : '2');
+  if (tab1) tab1.classList.toggle('done', st.p1Total > 0 && st.p1Done === st.p1Total);
+  if (tab2) tab2.classList.toggle('done', st.p2Total > 0 && st.p2Done === st.p2Total);
+  // auto-switch to Phase 2 when Phase 1 just completed (only once per session)
+  if (!phase1AutoSwitched && st.p1Total > 0 && st.p1Done === st.p1Total && st.p2Done < st.p2Total) {
+    const activePane = document.querySelector('.phase-pane.active');
+    if (activePane && activePane.id === 'phase1Pane') {
+      phase1AutoSwitched = true;
+      setTimeout(() => { switchPhase(2); showToast('Phase 1 完成，切到正常流程 ✓'); }, 350);
+    }
+  }
 }
 function goBack(){
   localStorage.removeItem('count_'+dateKey);
   document.getElementById('checklistArea').style.display = 'none';
   document.getElementById('setupScreen').style.display = 'block';
+  document.getElementById('phaseTabs').style.display = 'none';
   renderNameInputs();
 }
 function resetAll(){
@@ -1552,6 +1789,7 @@ function resetAll(){
   saveAll({});
   saveData({});
   saveTimes({});
+  saveConditions({});
   startChecklist();
 }
 if (localStorage.getItem('count_'+dateKey)) {
