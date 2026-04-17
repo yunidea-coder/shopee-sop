@@ -1966,7 +1966,7 @@ function updateAllProgress(){
     }
     // Phase 1: auto-collapse finished store; Phase 2: keep single-open driven by store tabs
     const isP2 = blk.id.startsWith('blk_p2_');
-    if (!isP2 && bDone === bTotal && bTotal > 0 && !blk.classList.contains('collapsed')) toggleBlock(blk.id.replace('blk_',''));
+    if (!isP2 && bDone === bTotal && bTotal > 0 && !blk.classList.contains('collapsed')) toggleBlock(blk.id);
   });
   updateStoreTabs();
   updateSectionHeaders();
