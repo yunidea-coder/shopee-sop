@@ -296,36 +296,31 @@ body {
 
 .store-tabs {
   display: flex;
-  gap: 6px;
-  margin: 8px 16px 14px;
-  padding: 8px;
-  background: var(--surface);
-  border-radius: 14px;
-  position: sticky;
-  top: 56px;
-  z-index: 45;
+  gap: 5px;
+  flex: 1;
   overflow-x: auto;
   scrollbar-width: none;
-  box-shadow: 0 4px 12px -4px rgba(81,68,62,.08);
+  padding: 2px 0;
+  min-width: 0;
 }
 .store-tabs::-webkit-scrollbar { display: none; }
 .store-tab-chip {
   flex: 0 0 auto;
-  min-width: 40px;
-  height: 40px;
-  padding: 0 10px;
-  border-radius: 11px;
+  min-width: 30px;
+  height: 30px;
+  padding: 0 8px;
+  border-radius: 9px;
   border: none;
   background: var(--surface-low);
   color: var(--on-surface-variant);
   font-family: 'Manrope', sans-serif;
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 700;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 3px;
   transition: background .2s, color .2s, transform .15s;
 }
 .store-tab-chip .chip-check {
@@ -353,7 +348,16 @@ body {
   margin: 18px 16px 14px;
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 10px;
+}
+.phase-header.sticky-header {
+  position: sticky;
+  top: 56px;
+  z-index: 45;
+  background: var(--bg);
+  margin: 0;
+  padding: 12px 16px;
+  box-shadow: 0 4px 12px -4px rgba(81,68,62,.08);
 }
 .phase-pill {
   padding: 6px 14px;
@@ -1605,9 +1609,8 @@ function startChecklist(){
 
   let p2Html = '';
   p2Html += `<div class="transition-note">🔄 <b>黑箱巡迴結束</b>，從第 ${storeCount} 間店開始，依序往回執行正常流程</div>`;
-  p2Html += `<div class="phase-header"><div class="phase-pill ph2">Phase 2</div><div class="phase-desc">正常流程（從第 ${storeCount} 間往回）</div></div>`;
+  p2Html += `<div class="phase-header sticky-header"><div class="phase-pill ph2">Phase 2</div><div class="store-tabs" id="storeTabs"></div></div>`;
   p2Html += `<div class="tip-card"><span class="tip-icon">🏷️</span><div>拍照任務記得加 <b>店名浮水印（右下）</b>。紙捲測試需 <b>4 張</b>。</div></div>`;
-  p2Html += `<div class="store-tabs" id="storeTabs"></div>`;
   for (let i = storeCount; i >= 1; i--) {
     const isFirst = i === storeCount, sid = `p2_s${i}`, name = storeNames[i-1], nTasks = normalTasks(sid);
     const ids = [];
