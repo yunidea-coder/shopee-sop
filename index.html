@@ -294,6 +294,61 @@ body {
 .phase-pane { display: none; }
 .phase-pane.active { display: block; }
 
+.store-tabs {
+  display: flex;
+  gap: 6px;
+  margin: 8px 16px 14px;
+  padding: 8px;
+  background: var(--surface);
+  border-radius: 14px;
+  position: sticky;
+  top: 56px;
+  z-index: 45;
+  overflow-x: auto;
+  scrollbar-width: none;
+  box-shadow: 0 4px 12px -4px rgba(81,68,62,.08);
+}
+.store-tabs::-webkit-scrollbar { display: none; }
+.store-tab-chip {
+  flex: 0 0 auto;
+  min-width: 40px;
+  height: 40px;
+  padding: 0 10px;
+  border-radius: 11px;
+  border: none;
+  background: var(--surface-low);
+  color: var(--on-surface-variant);
+  font-family: 'Manrope', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: background .2s, color .2s, transform .15s;
+}
+.store-tab-chip .chip-check {
+  display: none;
+  font-size: 12px;
+}
+.store-tab-chip.done {
+  background: var(--ok-bg);
+  color: var(--ok);
+}
+.store-tab-chip.done .chip-check { display: inline; }
+.store-tab-chip.partial {
+  background: var(--primary-fixed);
+  color: var(--on-primary-fixed);
+}
+.store-tab-chip.active {
+  background: var(--primary);
+  color: #fff;
+  transform: scale(1.04);
+  box-shadow: 0 4px 10px -2px rgba(116,76,52,.35);
+}
+.store-tab-chip.active.done { background: var(--ok); color: #fff; }
+
 .phase-header {
   margin: 18px 16px 14px;
   display: flex;
@@ -1552,6 +1607,7 @@ function startChecklist(){
   p2Html += `<div class="transition-note">🔄 <b>黑箱巡迴結束</b>，從第 ${storeCount} 間店開始，依序往回執行正常流程</div>`;
   p2Html += `<div class="phase-header"><div class="phase-pill ph2">Phase 2</div><div class="phase-desc">正常流程（從第 ${storeCount} 間往回）</div></div>`;
   p2Html += `<div class="tip-card"><span class="tip-icon">🏷️</span><div>拍照任務記得加 <b>店名浮水印（右下）</b>。紙捲測試需 <b>4 張</b>。</div></div>`;
+  p2Html += `<div class="store-tabs" id="storeTabs"></div>`;
   for (let i = storeCount; i >= 1; i--) {
     const isFirst = i === storeCount, sid = `p2_s${i}`, name = storeNames[i-1], nTasks = normalTasks(sid);
     const ids = [];
@@ -1589,6 +1645,18 @@ function startChecklist(){
     inner.style.maxHeight = inner.scrollHeight + 'px';
   });
   p2Pane.classList.remove('active');
+  // Phase 2: render store chips + collapse all except current selected store
+  renderStoreTabs();
+  document.querySelectorAll('#phase2Pane .store-block').forEach(blk => blk.classList.add('collapsed'));
+  const initialSid = p2SidForOrder(currentP2Order);
+  const initialBlk = document.getElementById('blk_'+initialSid);
+  if (initialBlk) {
+    initialBlk.classList.remove('collapsed');
+    const inner = initialBlk.querySelector('.store-tasks');
+    inner.style.maxHeight = inner.scrollHeight + 'px';
+  }
+  const initialChip = document.getElementById('stc_'+currentP2Order);
+  if (initialChip) initialChip.classList.add('active');
   updateAllProgress();
   // async: render photo thumbnails per task
   photoTaskIds.forEach(tid => renderPhotoSection(tid));
@@ -1610,6 +1678,62 @@ function switchPhase(n){
     });
   }
   window.scrollTo({top:0, behavior:'instant'});
+}
+
+let currentP2Order = 1;
+function p2SidForOrder(n){ return `p2_s${storeCount - n + 1}`; }
+function renderStoreTabs(){
+  const wrap = document.getElementById('storeTabs');
+  if (!wrap) return;
+  let h = '';
+  for (let n = 1; n <= storeCount; n++) {
+    const name = storeNames[storeCount - n] || `第${storeCount - n + 1}間`;
+    h += `<button class="store-tab-chip" id="stc_${n}" onclick="selectStore(${n})" title="${name.replace(/"/g,'&quot;')}">${n}<span class="chip-check">✓</span></button>`;
+  }
+  wrap.innerHTML = h;
+}
+function selectStore(n){
+  currentP2Order = n;
+  const sid = p2SidForOrder(n);
+  // collapse all P2 blocks, expand current
+  document.querySelectorAll('#phase2Pane .store-block').forEach(blk => {
+    const isTarget = blk.id === `blk_${sid}`;
+    if (isTarget) {
+      blk.classList.remove('collapsed');
+      const inner = blk.querySelector('.store-tasks');
+      inner.style.maxHeight = inner.scrollHeight + 'px';
+    } else {
+      blk.classList.add('collapsed');
+    }
+  });
+  // update chip active class
+  document.querySelectorAll('.store-tab-chip').forEach(c => c.classList.remove('active'));
+  const chip = document.getElementById('stc_'+n);
+  if (chip) chip.classList.add('active');
+  // scroll so selected block sits just below sticky header
+  const blk = document.getElementById('blk_'+sid);
+  if (blk) {
+    const rect = blk.getBoundingClientRect();
+    const offset = window.scrollY + rect.top - 150;
+    window.scrollTo({top: Math.max(0, offset), behavior: 'smooth'});
+  }
+}
+function updateStoreTabs(){
+  if (!storeCount) return;
+  const s = loadAll();
+  for (let n = 1; n <= storeCount; n++) {
+    const sid = p2SidForOrder(n);
+    const chip = document.getElementById('stc_'+n);
+    if (!chip) continue;
+    const blk = document.getElementById('blk_'+sid);
+    if (!blk) continue;
+    const tasks = blk.querySelectorAll('.task');
+    const done = [...tasks].filter(t => t.classList.contains('done')).length;
+    const total = tasks.length;
+    chip.classList.remove('done', 'partial');
+    if (total > 0 && done === total) chip.classList.add('done');
+    else if (done > 0) chip.classList.add('partial');
+  }
 }
 
 function phaseStats(){
@@ -1758,8 +1882,11 @@ function updateAllProgress(){
       prog.textContent = bDone === bTotal ? '✓ 完成' : `${bDone}/${bTotal}`;
       prog.style.color = bDone === bTotal ? 'var(--ok)' : 'var(--on-surface-variant)';
     }
-    if (bDone === bTotal && bTotal > 0 && !blk.classList.contains('collapsed')) toggleBlock(blk.id.replace('blk_',''));
+    // Phase 1: auto-collapse finished store; Phase 2: keep single-open driven by store tabs
+    const isP2 = blk.id.startsWith('blk_p2_');
+    if (!isP2 && bDone === bTotal && bTotal > 0 && !blk.classList.contains('collapsed')) toggleBlock(blk.id.replace('blk_',''));
   });
+  updateStoreTabs();
   // update phase tab dots
   const st = phaseStats();
   const dot1 = document.getElementById('tabDot1'), dot2 = document.getElementById('tabDot2');
