@@ -1698,32 +1698,41 @@ function renderStoreTabs(){
 function selectStore(n){
   currentP2Order = n;
   const sid = p2SidForOrder(n);
-  // collapse all others first — force maxHeight 0 immediately to avoid transition inflating layout
-  document.querySelectorAll('#phase2Pane .store-block').forEach(blk => {
-    if (blk.id === `blk_${sid}`) return;
-    blk.classList.add('collapsed');
-    const inner = blk.querySelector('.store-tasks');
+  const pane = document.getElementById('phase2Pane');
+  if (!pane) return;
+  // disable transition so collapse/expand takes effect immediately (layout matches final state)
+  const taskEls = pane.querySelectorAll('.store-tasks');
+  taskEls.forEach(el => el.style.transition = 'none');
+  // collapse others, expand target
+  pane.querySelectorAll('.store-block').forEach(b => {
+    if (b.id === `blk_${sid}`) return;
+    b.classList.add('collapsed');
+    const inner = b.querySelector('.store-tasks');
     if (inner) inner.style.maxHeight = '0px';
   });
-  // expand target
   const blk = document.getElementById('blk_'+sid);
   if (blk) {
     blk.classList.remove('collapsed');
     const inner = blk.querySelector('.store-tasks');
     if (inner) inner.style.maxHeight = inner.scrollHeight + 'px';
   }
+  // force reflow so the new layout is computed now
+  void pane.offsetHeight;
   // update chip active class
   document.querySelectorAll('.store-tab-chip').forEach(c => c.classList.remove('active'));
   const chip = document.getElementById('stc_'+n);
   if (chip) chip.classList.add('active');
-  // scroll after layout settles so sticky header height is accounted correctly
-  requestAnimationFrame(() => {
-    if (!blk) return;
+  // scroll to target using the settled layout
+  if (blk) {
     const headerOffset = document.querySelector('.phase-tabs')?.getBoundingClientRect().bottom || 0;
-    const stickyH = document.querySelector('#phase2Pane .sticky-header')?.offsetHeight || 0;
+    const stickyH = pane.querySelector('.sticky-header')?.offsetHeight || 0;
     const rect = blk.getBoundingClientRect();
     const target = window.scrollY + rect.top - headerOffset - stickyH - 8;
     window.scrollTo({top: Math.max(0, target), behavior: 'smooth'});
+  }
+  // restore transition on next frame (no animation triggered because values already match)
+  requestAnimationFrame(() => {
+    taskEls.forEach(el => { el.style.transition = ''; });
   });
 }
 function updateStoreTabs(){
