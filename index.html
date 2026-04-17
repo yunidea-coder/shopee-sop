@@ -1698,28 +1698,33 @@ function renderStoreTabs(){
 function selectStore(n){
   currentP2Order = n;
   const sid = p2SidForOrder(n);
-  // collapse all P2 blocks, expand current
+  // collapse all others first — force maxHeight 0 immediately to avoid transition inflating layout
   document.querySelectorAll('#phase2Pane .store-block').forEach(blk => {
-    const isTarget = blk.id === `blk_${sid}`;
-    if (isTarget) {
-      blk.classList.remove('collapsed');
-      const inner = blk.querySelector('.store-tasks');
-      inner.style.maxHeight = inner.scrollHeight + 'px';
-    } else {
-      blk.classList.add('collapsed');
-    }
+    if (blk.id === `blk_${sid}`) return;
+    blk.classList.add('collapsed');
+    const inner = blk.querySelector('.store-tasks');
+    if (inner) inner.style.maxHeight = '0px';
   });
+  // expand target
+  const blk = document.getElementById('blk_'+sid);
+  if (blk) {
+    blk.classList.remove('collapsed');
+    const inner = blk.querySelector('.store-tasks');
+    if (inner) inner.style.maxHeight = inner.scrollHeight + 'px';
+  }
   // update chip active class
   document.querySelectorAll('.store-tab-chip').forEach(c => c.classList.remove('active'));
   const chip = document.getElementById('stc_'+n);
   if (chip) chip.classList.add('active');
-  // scroll so selected block sits just below sticky header
-  const blk = document.getElementById('blk_'+sid);
-  if (blk) {
+  // scroll after layout settles so sticky header height is accounted correctly
+  requestAnimationFrame(() => {
+    if (!blk) return;
+    const headerOffset = document.querySelector('.phase-tabs')?.getBoundingClientRect().bottom || 0;
+    const stickyH = document.querySelector('#phase2Pane .sticky-header')?.offsetHeight || 0;
     const rect = blk.getBoundingClientRect();
-    const offset = window.scrollY + rect.top - 150;
-    window.scrollTo({top: Math.max(0, offset), behavior: 'smooth'});
-  }
+    const target = window.scrollY + rect.top - headerOffset - stickyH - 8;
+    window.scrollTo({top: Math.max(0, target), behavior: 'smooth'});
+  });
 }
 function updateStoreTabs(){
   if (!storeCount) return;
