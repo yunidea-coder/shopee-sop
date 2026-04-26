@@ -1553,8 +1553,29 @@ document.getElementById('photoInput').addEventListener('change', async (ev) => {
     await addPhoto(taskId, blob);
     await renderPhotoSection(taskId);
     showToast(`📷 拍照儲存 (${existing.length + 1}/${MAX_PHOTOS})`);
+    shareToPhotos(blob, taskId);
   } catch (err) { showToast('儲存失敗：' + err.message); }
 });
+async function shareToPhotos(blob, taskId){
+  try {
+    const ts = new Date();
+    const pad = n => String(n).padStart(2,'0');
+    const fname = `shopee-sop-${ts.getFullYear()}${pad(ts.getMonth()+1)}${pad(ts.getDate())}-${pad(ts.getHours())}${pad(ts.getMinutes())}${pad(ts.getSeconds())}-${taskId}.jpg`;
+    const file = new File([blob], fname, { type: 'image/jpeg' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file] });
+      return;
+    }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = fname;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  } catch (err) {
+    if (err && err.name === 'AbortError') return;
+    console.warn('shareToPhotos failed', err);
+  }
+}
 async function deletePhoto(e, id, taskId){
   e.stopPropagation();
   if (!confirm('刪除這張照片？')) return;
