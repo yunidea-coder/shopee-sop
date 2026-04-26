@@ -754,9 +754,19 @@ body {
   font-size: 15px;
   font-weight: 700;
   color: var(--primary);
-  min-width: 24px;
+  min-width: 36px;
+  width: 44px;
   text-align: center;
+  background: var(--surface-low);
+  border: none;
+  border-radius: 8px;
+  padding: 4px 2px;
+  -moz-appearance: textfield;
+  appearance: textfield;
 }
+.num-val::-webkit-outer-spin-button,
+.num-val::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.num-val:focus { outline: 2px solid var(--primary); outline-offset: 1px; }
 
 .summary-section {
   margin: 16px 16px 20px;
@@ -1228,7 +1238,17 @@ function updateNum(sid, key, delta){
   d[sid][key] = Math.max(0, (d[sid][key] || 0) + delta);
   saveData(d);
   const el = document.getElementById(`nv_${sid}_${key}`);
-  if (el) el.textContent = d[sid][key];
+  if (el) ('value' in el) ? el.value = d[sid][key] : el.textContent = d[sid][key];
+  refreshSummary();
+}
+function setNum(sid, key, raw){
+  const n = Math.max(0, parseInt(String(raw).replace(/[^\d-]/g,''), 10) || 0);
+  const d = loadData();
+  if (!d[sid]) d[sid] = {};
+  d[sid][key] = n;
+  saveData(d);
+  const el = document.getElementById(`nv_${sid}_${key}`);
+  if (el) el.value = n;
   refreshSummary();
 }
 
@@ -1358,7 +1378,7 @@ function bxTaskHtml(sid, name){
 }
 function dataSectionHtml(sid, fields, title){
   const vals = (loadData()[sid]) || {};
-  const rows = fields.map(f=>`<div class="data-row"><span class="data-label">${f.label}</span><div class="num-ctrl"><button class="num-btn" onclick="updateNum('${sid}','${f.key}',-1);event.stopPropagation()">−</button><span class="num-val" id="nv_${sid}_${f.key}">${vals[f.key]||0}</span><button class="num-btn" onclick="updateNum('${sid}','${f.key}',1);event.stopPropagation()">+</button></div></div>`).join('');
+  const rows = fields.map(f=>`<div class="data-row"><span class="data-label">${f.label}</span><div class="num-ctrl"><button class="num-btn" onclick="updateNum('${sid}','${f.key}',-1);event.stopPropagation()">−</button><input type="number" inputmode="numeric" min="0" class="num-val" id="nv_${sid}_${f.key}" value="${vals[f.key]||0}" onclick="this.select();event.stopPropagation()" onchange="setNum('${sid}','${f.key}',this.value)" onblur="setNum('${sid}','${f.key}',this.value)"><button class="num-btn" onclick="updateNum('${sid}','${f.key}',1);event.stopPropagation()">+</button></div></div>`).join('');
   return `<div class="data-section"><div class="data-section-title">${title}</div><div class="data-grid">${rows}</div></div>`;
 }
 function storeBlockHtml(blockId, numLabel, color, title, tasksHtml, storeName){
