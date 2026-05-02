@@ -2211,23 +2211,13 @@ document.getElementById('photoInput').addEventListener('change', async (ev) => {
   } catch (err) { showToast('儲存失敗：' + err.message); }
 });
 async function shareToPhotos(blob, taskId){
+  // 拍完自動開大圖，user 長按 → iOS「加入照片」/ Android「保存圖片」存到相簿
   try {
-    const ts = new Date();
-    const fname = `shopee-sop-late-${ts.getFullYear()}${pad(ts.getMonth()+1)}${pad(ts.getDate())}-${pad(ts.getHours())}${pad(ts.getMinutes())}${pad(ts.getSeconds())}-${taskId}.jpg`;
-    const file = new File([blob], fname, { type: 'image/jpeg' });
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      await navigator.share({ files: [file] });
-      return;
-    }
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = fname;
-    document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-  } catch (err) {
-    if (err && err.name === 'AbortError') return;
-    console.warn('shareToPhotos failed', err);
-  }
+    document.getElementById('lightboxImg').src = url;
+    document.getElementById('lightbox').classList.add('show');
+    showToast('長按圖片 →「加入照片」存相簿');
+  } catch (err) { console.warn(err); }
 }
 async function deletePhoto(e, id, taskId){
   e.stopPropagation();
