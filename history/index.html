@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>智取店 早班 · 歷史紀錄</title>
+<title>智取店 SOP · 歷史紀錄</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Manrope:wght@500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
@@ -101,10 +101,49 @@ body {
 }
 .btn.danger:hover { color: var(--tertiary); }
 
+.kind-tabs {
+  display: flex;
+  gap: 8px;
+  background: var(--bg);
+  padding: 18px 0 8px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--surface-low);
+}
+.kind-tab {
+  background: var(--surface);
+  border: none;
+  font-family: 'Manrope', 'Noto Sans TC', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 10px 22px;
+  border-radius: 12px;
+  color: var(--on-surface-variant);
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  box-shadow: var(--shadow-ambient);
+}
+.kind-tab.active {
+  background: var(--panel-dark);
+  color: var(--panel-text);
+}
+.kind-tab .count-tag {
+  display: inline-block;
+  margin-left: 6px;
+  background: var(--surface-low);
+  color: var(--on-surface-variant);
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+.kind-tab.active .count-tag {
+  background: rgba(255,255,255,.18);
+  color: var(--panel-text);
+}
+
 .main {
   max-width: 1200px;
-  margin: 32px auto 80px;
-  padding: 0 24px;
+  margin: 0 auto 80px;
+  padding: 0 24px 32px;
 }
 
 .summary-row {
@@ -461,7 +500,7 @@ body {
 <header class="header">
   <div class="header-inner">
     <div>
-      <div class="brand">智取店 · 早班</div>
+      <div class="brand">智取店 · SOP</div>
       <h1>歷史紀錄</h1>
     </div>
     <div class="header-actions">
@@ -473,6 +512,10 @@ body {
 </header>
 
 <main class="main">
+  <div class="kind-tabs">
+    <button class="kind-tab active" data-kind="morning" onclick="switchKind('morning')">🌅 早班 <span class="count-tag" id="cntMorning">0</span></button>
+    <button class="kind-tab" data-kind="late" onclick="switchKind('late')">🌙 晚班 <span class="count-tag" id="cntLate">0</span></button>
+  </div>
   <div class="summary-row" id="summaryRow"></div>
 
   <div id="emptyState" class="empty" style="display:none">
@@ -511,18 +554,36 @@ let historyDB = null;
 function openDB(){
   return new Promise((resolve, reject) => {
     if (historyDB) return resolve(historyDB);
-    const req = indexedDB.open('shopee-sop-history', 1);
+    const req = indexedDB.open('shopee-sop-history', 2);
     req.onupgradeneeded = (e) => {
       const db = e.target.result;
-      if (!db.objectStoreNames.contains('days')) {
-        db.createObjectStore('days', {keyPath:'date'});
+      const tx = e.target.transaction;
+      if (e.oldVersion < 1) {
+        db.createObjectStore('days', {keyPath:'id'});
+      } else if (e.oldVersion === 1) {
+        // v1 had keyPath='date' — migrate: read all, then recreate store with keyPath='id'
+        const oldStore = tx.objectStore('days');
+        const getAllReq = oldStore.getAll();
+        getAllReq.onsuccess = () => {
+          const records = getAllReq.result || [];
+          db.deleteObjectStore('days');
+          const newStore = db.createObjectStore('days', {keyPath:'id'});
+          for (const r of records) {
+            r.kind = r.kind || 'morning';
+            r.id = `${r.kind}-${r.date}`;
+            newStore.put(r);
+          }
+        };
       }
     };
     req.onsuccess = (e) => { historyDB = e.target.result; resolve(historyDB); };
     req.onerror = () => reject(req.error);
   });
 }
+function makeId(kind, date){ return `${kind}-${date}`; }
 async function saveDay(record){
+  if (!record.kind) record.kind = 'morning';
+  if (!record.id) record.id = makeId(record.kind, record.date);
   const db = await openDB();
   return new Promise((resolve, reject) => {
     const tx = db.transaction('days', 'readwrite');
@@ -531,20 +592,38 @@ async function saveDay(record){
     req.onerror = () => reject(req.error);
   });
 }
-async function listDays(){
+async function listDays(kindFilter){
   const db = await openDB();
   return new Promise((resolve, reject) => {
     const tx = db.transaction('days', 'readonly');
     const req = tx.objectStore('days').getAll();
-    req.onsuccess = () => resolve(req.result.sort((a,b) => b.date.localeCompare(a.date)));
+    req.onsuccess = () => {
+      let all = req.result || [];
+      all.forEach(r => { if (!r.kind) r.kind = 'morning'; });
+      if (kindFilter) all = all.filter(r => r.kind === kindFilter);
+      resolve(all.sort((a,b) => b.date.localeCompare(a.date)));
+    };
     req.onerror = () => reject(req.error);
   });
 }
-async function deleteDay(date){
+async function listAll(){
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('days', 'readonly');
+    const req = tx.objectStore('days').getAll();
+    req.onsuccess = () => {
+      const all = req.result || [];
+      all.forEach(r => { if (!r.kind) r.kind = 'morning'; });
+      resolve(all);
+    };
+    req.onerror = () => reject(req.error);
+  });
+}
+async function deleteDay(id){
   const db = await openDB();
   return new Promise((resolve, reject) => {
     const tx = db.transaction('days', 'readwrite');
-    const req = tx.objectStore('days').delete(date);
+    const req = tx.objectStore('days').delete(id);
     req.onsuccess = () => resolve();
     req.onerror = () => reject(req.error);
   });
@@ -608,7 +687,14 @@ async function doImport(files){
     try {
       const text = await file.text();
       const obj = JSON.parse(text);
-      if (!obj.date || !obj.storeCount) { fail++; continue; }
+      if (!obj.date) { fail++; continue; }
+      // determine kind
+      const kind = obj.type === 'late' ? 'late' : 'morning';
+      // morning record has storeCount; late has stores
+      if (kind === 'morning' && !obj.storeCount) { fail++; continue; }
+      if (kind === 'late' && !obj.stores) { fail++; continue; }
+      obj.kind = kind;
+      obj.id = makeId(kind, obj.date);
       await saveDay(obj);
       ok++;
     } catch(e) {
@@ -635,10 +721,30 @@ document.body.addEventListener('drop', async (e) => {
   if (files.length) await doImport(files);
 });
 
-let selectedDate = null;
+let selectedId = null;
+let currentKind = localStorage.getItem('historyKind') || 'morning';
+
+function switchKind(kind){
+  currentKind = kind;
+  localStorage.setItem('historyKind', kind);
+  document.querySelectorAll('.kind-tab').forEach(el => el.classList.toggle('active', el.dataset.kind === kind));
+  selectedId = null;
+  render();
+}
+
+async function refreshKindCounts(){
+  const all = await listAll();
+  const m = all.filter(r => r.kind === 'morning').length;
+  const l = all.filter(r => r.kind === 'late').length;
+  document.getElementById('cntMorning').textContent = m;
+  document.getElementById('cntLate').textContent = l;
+}
 
 async function render(){
-  const days = await listDays();
+  // sync tab active state on first render
+  document.querySelectorAll('.kind-tab').forEach(el => el.classList.toggle('active', el.dataset.kind === currentKind));
+  await refreshKindCounts();
+  const days = await listDays(currentKind);
   const empty = document.getElementById('emptyState');
   const layout = document.getElementById('layout');
   const summary = document.getElementById('summaryRow');
@@ -647,6 +753,8 @@ async function render(){
     empty.style.display = 'block';
     layout.style.display = 'none';
     summary.innerHTML = '';
+    const kindLabel = currentKind === 'late' ? '晚班' : '早班';
+    empty.querySelector('h2').textContent = `目前沒有${kindLabel}紀錄`;
     return;
   }
   empty.style.display = 'none';
@@ -654,8 +762,8 @@ async function render(){
 
   renderSummary(days);
   renderDayList(days);
-  if (!selectedDate || !days.find(d => d.date === selectedDate)) selectedDate = days[0].date;
-  renderDetail(days.find(d => d.date === selectedDate));
+  if (!selectedId || !days.find(d => d.id === selectedId)) selectedId = days[0].id;
+  renderDetail(days.find(d => d.id === selectedId));
 }
 
 function renderSummary(days){
@@ -673,7 +781,36 @@ function renderSummary(days){
   document.getElementById('summaryRow').innerHTML = html;
 }
 
+function lateTotals(records){
+  let bx = 0, ndd_out = 0, ndd_up = 0, norm_out = 0, norm_up = 0;
+  records.forEach(r => {
+    const c = r.counts || {};
+    ['A','B'].forEach(s => {
+      const cs = c[s] || {};
+      bx += cs.bx || 0;
+      ndd_out += cs.ndd_out || 0;
+      ndd_up += cs.ndd_up || 0;
+      norm_out += cs.norm_out || 0;
+      norm_up += cs.norm_up || 0;
+    });
+  });
+  return { bx, ndd_out, ndd_up, norm_out, norm_up };
+}
+
 function statCardHtml(label, records){
+  if (currentKind === 'late') {
+    const t = lateTotals(records);
+    return `<div class="stat-card">
+      <div class="stat-label">${label} · ${records.length} 天</div>
+      <div class="stat-rows">
+        <div class="stat-row"><span class="stat-key">黑箱</span><span class="stat-val">${t.bx}</span></div>
+        <div class="stat-row"><span class="stat-key">NDD 離店</span><span class="stat-val sm">${t.ndd_out}</span></div>
+        <div class="stat-row"><span class="stat-key">NDD 上架</span><span class="stat-val sm">${t.ndd_up}</span></div>
+        <div class="stat-row"><span class="stat-key">一般離店</span><span class="stat-val sm">${t.norm_out}</span></div>
+        <div class="stat-row"><span class="stat-key">一般上架</span><span class="stat-val sm">${t.norm_up}</span></div>
+      </div>
+    </div>`;
+  }
   let stores = 0, bx = 0, norm = 0, ndd = 0, stayMs = 0;
   records.forEach(r => {
     stores += r.storeCount || 0;
@@ -695,43 +832,48 @@ function statCardHtml(label, records){
 
 function renderDayList(days){
   const html = days.map(d => {
-    const isActive = d.date === selectedDate;
-    const totals = totalsForRecord(d);
-    const stay = stayDurationMs(d);
+    const isActive = d.id === selectedId;
     const dt = parseDate(d.date);
     const dow = DAY[dt.getDay()];
-    return `<div class="day-card ${isActive?'active':''}" onclick="selectDay('${d.date}')">
+    let stats;
+    if (d.kind === 'late') {
+      const t = lateTotals([d]);
+      const path = d.path ? `· ${d.path === 'P5' ? '緊急路線' : '正常路線'}` : '';
+      stats = `黑箱 <b>${t.bx}</b> · NDD <b>${t.ndd_up}</b> ${path}`;
+    } else {
+      const totals = totalsForRecord(d);
+      const stay = stayDurationMs(d);
+      stats = `${d.storeCount} 間店 · 黑箱 <b>${totals.bx}</b>${stay ? ' · 停留 <b>' + fmtDuration(stay) + '</b>' : ''}`;
+    }
+    return `<div class="day-card ${isActive?'active':''}" onclick="selectDay('${d.id}')">
       <div class="day-card-head">
         <div>
           <span class="day-date">${dt.getMonth()+1}/${dt.getDate()}</span>
           <span class="day-dow">星期${dow}</span>
         </div>
-        <button class="day-del" onclick="confirmDelete(event,'${d.date}')" title="刪除">✕</button>
+        <button class="day-del" onclick="confirmDelete(event,'${d.id}')" title="刪除">✕</button>
       </div>
-      <div class="day-stats">
-        ${d.storeCount} 間店 · 黑箱 <b>${totals.bx}</b>
-        ${stay ? ' · 停留 <b>' + fmtDuration(stay) + '</b>' : ''}
-      </div>
+      <div class="day-stats">${stats}</div>
     </div>`;
   }).join('');
   document.getElementById('dayList').innerHTML = html;
 }
 
-function selectDay(date){
-  selectedDate = date;
-  listDays().then(days => {
+function selectDay(id){
+  selectedId = id;
+  listDays(currentKind).then(days => {
     renderDayList(days);
-    const d = days.find(x => x.date === date);
+    const d = days.find(x => x.id === id);
     renderDetail(d);
   });
 }
 
-async function confirmDelete(e, date){
+async function confirmDelete(e, id){
   e.stopPropagation();
-  if (!confirm(`刪除 ${date} 的紀錄？`)) return;
-  await deleteDay(date);
+  if (!confirm(`刪除這天的紀錄？`)) return;
+  await deleteDay(id);
   showToast('已刪除');
-  if (selectedDate === date) selectedDate = null;
+  if (selectedId === id) selectedId = null;
   await render();
 }
 
@@ -745,6 +887,7 @@ async function clearAll(){
 
 function renderDetail(record){
   if (!record) { document.getElementById('detailPane').innerHTML = ''; return; }
+  if (record.kind === 'late') return renderLateDetail(record);
   const dt = parseDate(record.date);
   const dowTxt = `星期${DAY[dt.getDay()]}`;
   const totals = totalsForRecord(record);
@@ -820,6 +963,125 @@ function renderDetail(record){
       </div>
     </div>
     ${storesHtml}
+  </div>`;
+  document.getElementById('detailPane').innerHTML = detail;
+}
+
+const LATE_TASK_LABELS = {
+  p1_in_to: '進店TO', p1_pack: '2000 前 NDD 寄件打包', p1_wh: 'WH 上架（黑箱）',
+  p1_ndd: 'NDD 上架', p1_redist: '包裹重新分配', p1_out_to: '離店TO',
+  p2_moved: '已前往 B 店',
+  p3_in_to: '進店TO', p3_pack: '2000 前 NDD 寄件打包', p3_wh: 'WH 上架（黑箱）',
+  p3_ndd: 'NDD 上架', p3_redist: '包裹重新分配',
+  p3_norm_up: '標準配送包裹上架', p3_norm_pack: '一般寄件包裹打包',
+  p3_send_clear: '晚班寄件清空', p3_clear: '晚班包裹清 0',
+  p3_holdover: '晚班滯留包裹', p3_pda: 'PDA 充電',
+  p4_norm_up: '一般包裹上架', p4_norm_pack: '一般包裹打包', p4_holdover: '滯留包裹',
+  p4_send_clear: '寄件清空', p4_clear: '包裹清 0', p4_pda: 'PDA 充電', p4_out_to: '離店TO',
+  p5_b_out_to: '離店TO（B 店）', p5_in_to: '進店TO', p5_a_in_to: '進店TO（A 店）',
+  p5_pack: '2000 前 NDD 寄件打包', p5_wh: 'WH 上架（黑箱）',
+  p5_ndd: 'NDD 上架', p5_redist: '包裹重新分配',
+  p5_send_clear: '晚班寄件清空', p5_clear: '晚班包裹清 0',
+  p5_holdover: '晚班滯留包裹', p5_pda: 'PDA 充電',
+  p5_p1_redo: '補 A 店 P1 未完項',
+  p5_norm_up: '標準配送包裹上架', p5_norm_pack: '開始打包「一般」包裹',
+  p5_out_to: '離店TO'
+};
+const LATE_PHASE_GROUPS = {
+  p1: { title: 'P1 · A 店', store: 'A', tasks: ['p1_in_to','p1_pack','p1_wh','p1_ndd','p1_redist','p1_out_to'] },
+  p3: { title: 'P3 · B 店', store: 'B', tasks: ['p3_in_to','p3_pack','p3_wh','p3_ndd','p3_redist','p3_norm_up','p3_clear','p3_norm_pack','p3_holdover','p3_send_clear','p3_pda'] },
+  p5: { title: 'P5 · 回 A 店補完', store: 'A', tasks: ['p5_b_out_to','p5_in_to','p5_pack','p5_wh','p5_ndd','p5_redist','p5_norm_up','p5_clear','p5_holdover','p5_norm_pack','p5_send_clear','p5_pda','p5_out_to'] }
+};
+const LATE_COUNT_FIELDS = [
+  {key:'bx', label:'黑箱'},
+  {key:'ndd_out', label:'NDD 離店'},
+  {key:'ndd_up', label:'NDD 上架'},
+  {key:'norm_out', label:'一般離店'},
+  {key:'norm_up', label:'一般上架'}
+];
+
+function renderLateDetail(record){
+  const dt = parseDate(record.date);
+  const dowTxt = `星期${DAY[dt.getDay()]}`;
+  const stores = record.stores || {A:'A 店', B:'B 店'};
+  const sA = stores.A || 'A 店';
+  const sB = stores.B || 'B 店';
+  const counts = record.counts || {A:{}, B:{}};
+  const tasks = record.tasks || {};
+  const times = record.times || {};
+  const recordSkips = record.skips || {};
+  const totalTasks = Object.values(LATE_PHASE_GROUPS).reduce((a, p) => a + p.tasks.length, 0);
+  const doneTasks = Object.keys(tasks).filter(k => tasks[k]).length + Object.keys(recordSkips).filter(k => recordSkips[k]).length;
+  const path = record.path === 'P5' ? '緊急路線（回 A 店補做）' : (record.path === 'P4' ? '正常路線（B 店收尾）' : '路線未確定');
+
+  // photos by taskId
+  const photosByTask = {};
+  (record.photos || []).forEach(p => {
+    if (!photosByTask[p.taskId]) photosByTask[p.taskId] = [];
+    photosByTask[p.taskId].push(p);
+  });
+
+  // store totals
+  const storeRows = (storeKey, storeName) => {
+    const c = counts[storeKey] || {};
+    return `<div class="store-entry">
+      <div class="store-entry-head">
+        <span class="store-order">${storeKey}</span>
+        <span class="store-name-big">${storeName}</span>
+      </div>
+      <div class="store-rows">
+        ${LATE_COUNT_FIELDS.map(f => `<div class="store-row"><div class="store-row-label">${f.label}</div><div class="store-row-val">${c[f.key]||0}</div></div>`).join('')}
+      </div>
+    </div>`;
+  };
+
+  // phase blocks
+  const phaseBlocks = Object.keys(LATE_PHASE_GROUPS).map(pid => {
+    const p = LATE_PHASE_GROUPS[pid];
+    const storeName = p.store ? (p.store === 'A' ? sA : sB) : '';
+    const taskRows = p.tasks.map(tid => {
+      const isSkip = !!recordSkips[tid];
+      const ok = isSkip ? '⊘' : (tasks[tid] ? '✓' : '·');
+      const tm = times[tid] ? fmtClock(times[tid]) : '';
+      const photos = photosByTask[tid] || [];
+      const imgs = photos.length ? `<div class="photo-grid" style="margin-top:8px">${photos.map(p => `<img src="${p.dataUrl}" onclick="openLightbox('${p.dataUrl.replace(/'/g,"\\'")}')">`).join('')}</div>` : '';
+      const label = LATE_TASK_LABELS[tid] || tid;
+      const checkColor = isSkip ? 'var(--on-surface-variant)' : (tasks[tid] ? 'var(--ok)' : 'var(--outline-variant)');
+      return `<div style="padding:8px 0;border-bottom:1px solid var(--surface-low)">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+          <span><span style="display:inline-block;width:18px;height:18px;border-radius:6px;background:${checkColor};color:#fff;text-align:center;font-size:11px;font-weight:700;line-height:18px;margin-right:8px">${ok}</span>${label}</span>
+          <span style="font-family:'Manrope',sans-serif;font-size:11px;color:var(--on-surface-variant)">${tm}</span>
+        </div>
+        ${imgs}
+      </div>`;
+    }).join('');
+    return `<div class="store-entry">
+      <div class="store-entry-head">
+        <span class="store-name-big">${p.title}${storeName ? ' · ' + storeName : ''}</span>
+      </div>
+      <div style="padding:0 4px">${taskRows}</div>
+    </div>`;
+  }).join('');
+
+  const detail = `<div class="detail">
+    <div class="detail-head">
+      <div>
+        <div class="detail-title-main">${dt.getFullYear()}/${dt.getMonth()+1}/${dt.getDate()} <span style="font-size:14px;color:var(--on-surface-variant);font-weight:500;margin-left:6px">${dowTxt}</span></div>
+        <div class="detail-title-sub">晚班　·　${path}　·　任務 ${doneTasks}/${totalTasks}</div>
+      </div>
+      <div class="detail-total">
+        <div class="detail-total-label">A / B 兩店合計</div>
+        <div class="detail-total-vals">
+          ${LATE_COUNT_FIELDS.map(f => {
+            const v = (counts.A?.[f.key]||0) + (counts.B?.[f.key]||0);
+            return `<span>${f.label} ${v}</span>`;
+          }).join('')}
+        </div>
+      </div>
+    </div>
+    ${storeRows('A', sA)}
+    ${storeRows('B', sB)}
+    ${phaseBlocks}
   </div>`;
   document.getElementById('detailPane').innerHTML = detail;
 }

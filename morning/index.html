@@ -1,0 +1,2052 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="早班 SOP">
+<meta name="theme-color" content="#3d2e28">
+<title>智取店 早班 SOP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f9f9f9;
+  --surface: #ffffff;
+  --surface-low: #f3f3f3;
+  --surface-high: #e8e8e8;
+  --on-surface: #1a1c1c;
+  --on-surface-variant: #51443e;
+  --primary: #744c34;
+  --primary-container: #8f644a;
+  --primary-fixed: #ffdbc8;
+  --on-primary-fixed: #301402;
+  --tertiary: #a71d15;
+  --outline-variant: #d5c3ba;
+  --panel-dark: #3d2e28;
+  --panel-text: #e8dcd1;
+  --panel-text-dim: #a89485;
+  --ok: #5b7a5e;
+  --ok-bg: #eef2ec;
+  --warn: #b8692a;
+  --warn-bg: #fbf1e6;
+  --danger: #a71d15;
+  --danger-bg: #f9ebe9;
+  --cond: #6b5b4f;
+  --cond-bg: #efeae4;
+  --shadow-ambient: 0 18px 40px -5px rgba(81,68,62,.06);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: 'Inter', 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--on-surface);
+  min-height: 100vh;
+  padding-bottom: 100px;
+  line-height: 1.5;
+}
+
+.header {
+  background: linear-gradient(135deg, var(--panel-dark), #4a3830);
+  color: var(--panel-text);
+  padding: 22px 20px 18px;
+  padding-top: calc(env(safe-area-inset-top, 0px) + 22px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-ambient);
+}
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+.header .sub {
+  font-family: 'Manrope', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--panel-text-dim);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.header h1 {
+  font-family: 'Manrope', 'Noto Sans TC', sans-serif;
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.date-box {
+  text-align: right;
+  font-family: 'Manrope', sans-serif;
+}
+.date-num {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--panel-text);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.day-tag {
+  display: inline-block;
+  background: rgba(255,255,255,.12);
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--panel-text);
+  letter-spacing: 0.05em;
+}
+.prog-wrap {
+  background: rgba(255,255,255,.1);
+  border-radius: 10px;
+  height: 6px;
+  overflow: hidden;
+}
+.prog-bar {
+  height: 100%;
+  background: var(--primary-fixed);
+  border-radius: 10px;
+  transition: width .4s cubic-bezier(.4,0,.2,1);
+  width: 0;
+}
+.prog-label {
+  font-family: 'Manrope', sans-serif;
+  font-size: 11px;
+  color: var(--panel-text-dim);
+  text-align: right;
+  margin-top: 6px;
+  letter-spacing: 0.05em;
+}
+
+#setupScreen {
+  margin: 28px 16px;
+  background: var(--surface);
+  border-radius: 20px;
+  padding: 32px 24px;
+  box-shadow: var(--shadow-ambient);
+}
+#setupScreen h2 {
+  font-family: 'Manrope', 'Noto Sans TC', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--on-surface);
+  margin-bottom: 6px;
+  text-align: center;
+  letter-spacing: -0.01em;
+}
+#setupScreen > p {
+  font-size: 13px;
+  color: var(--on-surface-variant);
+  margin-bottom: 28px;
+  text-align: center;
+}
+.store-picker {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 32px;
+}
+.store-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  background: var(--surface-low);
+  color: var(--primary);
+  font-size: 22px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .15s;
+}
+.store-btn:active { background: var(--primary-fixed); }
+#storeCount {
+  font-family: 'Manrope', sans-serif;
+  font-size: 44px;
+  font-weight: 700;
+  color: var(--primary);
+  min-width: 58px;
+  text-align: center;
+  letter-spacing: -0.02em;
+}
+.store-unit {
+  font-size: 13px;
+  color: var(--on-surface-variant);
+  margin-left: 2px;
+}
+.name-section { margin-bottom: 28px; }
+.name-section-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--on-surface-variant);
+  letter-spacing: 0.05em;
+  text-align: center;
+  margin-bottom: 14px;
+  text-transform: uppercase;
+}
+.name-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.name-label {
+  font-family: 'Manrope', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--on-surface-variant);
+  min-width: 40px;
+  flex-shrink: 0;
+  text-align: right;
+  letter-spacing: 0.02em;
+}
+.name-input {
+  flex: 1;
+  padding: 11px 14px;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  color: var(--on-surface);
+  -webkit-appearance: none;
+  outline: none;
+  background: var(--surface-low);
+  font-family: inherit;
+  transition: background .2s;
+}
+.name-input:focus { background: var(--surface); box-shadow: inset 0 -2px 0 var(--primary); }
+.name-input::placeholder { color: var(--outline-variant); }
+.start-btn {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-container));
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  letter-spacing: 0.08em;
+  font-family: 'Manrope', 'Noto Sans TC', sans-serif;
+  box-shadow: 0 10px 28px -8px rgba(116,76,52,.4);
+}
+.start-btn:active { opacity: .9; }
+
+.phase-tabs {
+  display: flex;
+  gap: 4px;
+  margin: 14px 16px 4px;
+  background: var(--surface-low);
+  border-radius: 14px;
+  padding: 4px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  box-shadow: 0 1px 0 rgba(0,0,0,.03);
+}
+.phase-tab {
+  flex: 1;
+  padding: 11px 12px;
+  border: none;
+  background: transparent;
+  border-radius: 10px;
+  font-family: 'Manrope', 'Noto Sans TC', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--on-surface-variant);
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: background .2s, color .2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.phase-tab .tab-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  font-size: 9px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-high);
+  color: var(--on-surface-variant);
+  font-family: 'Manrope', sans-serif;
+}
+.phase-tab.active {
+  background: var(--surface);
+  color: var(--on-surface);
+  box-shadow: 0 2px 10px -3px rgba(81,68,62,.15);
+}
+.phase-tab.active .tab-dot { background: var(--primary); color: #fff; }
+.phase-tab.done .tab-dot { background: var(--ok); color: #fff; }
+.phase-pane { display: none; }
+.phase-pane.active { display: block; }
+
+.store-tabs {
+  display: flex;
+  gap: 5px;
+  flex: 1;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 2px 0;
+  min-width: 0;
+}
+.store-tabs::-webkit-scrollbar { display: none; }
+.store-tab-chip {
+  flex: 0 0 auto;
+  min-width: 30px;
+  height: 30px;
+  padding: 0 8px;
+  border-radius: 9px;
+  border: none;
+  background: var(--surface-low);
+  color: var(--on-surface-variant);
+  font-family: 'Manrope', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  transition: background .2s, color .2s, transform .15s;
+}
+.store-tab-chip .chip-check {
+  display: none;
+  font-size: 12px;
+}
+.store-tab-chip.done {
+  background: var(--ok-bg);
+  color: var(--ok);
+}
+.store-tab-chip.done .chip-check { display: inline; }
+.store-tab-chip.partial {
+  background: var(--primary-fixed);
+  color: var(--on-primary-fixed);
+}
+.store-tab-chip.active {
+  background: var(--primary);
+  color: #fff;
+  transform: scale(1.04);
+  box-shadow: 0 4px 10px -2px rgba(116,76,52,.35);
+}
+.store-tab-chip.active.done { background: var(--ok); color: #fff; }
+
+.sec-header {
+  margin: 10px 14px 6px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: 'Manrope', 'Noto Sans TC', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+.sec-header-left { display: flex; align-items: center; gap: 8px; }
+.sec-icon { font-size: 15px; }
+.sec-count {
+  font-size: 11px;
+  font-weight: 600;
+  font-family: 'Manrope', sans-serif;
+  opacity: .75;
+}
+.sec-header.action { background: var(--primary-fixed); color: var(--on-primary-fixed); }
+.sec-header.report { background: var(--ok-bg); color: var(--ok); }
+.sec-header.misc   { background: var(--cond-bg); color: var(--cond); }
+.sec-header.done { opacity: .6; }
+.sec-header.done .sec-count::before { content: '✓ '; }
+
+.phase-header {
+  margin: 18px 16px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.phase-header.sticky-header {
+  position: sticky;
+  top: 56px;
+  z-index: 45;
+  background: var(--bg);
+  margin: 0;
+  padding: 12px 16px;
+  box-shadow: 0 4px 12px -4px rgba(81,68,62,.08);
+}
+.phase-pill {
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+.phase-pill.ph1 { background: var(--primary-fixed); color: var(--on-primary-fixed); }
+.phase-pill.ph2 { background: var(--panel-dark); color: var(--panel-text); }
+.phase-desc {
+  font-size: 11px;
+  color: var(--on-surface-variant);
+  flex: 1;
+  text-align: right;
+  letter-spacing: 0.02em;
+}
+
+.store-block {
+  margin: 0 16px 14px;
+  background: var(--surface);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: var(--shadow-ambient);
+}
+.store-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  cursor: pointer;
+  gap: 10px;
+}
+.store-title-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+.store-num {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--primary-fixed);
+  color: var(--on-primary-fixed);
+  font-family: 'Manrope', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.store-num.dark { background: var(--panel-dark); color: var(--panel-text); }
+.store-name-text {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--on-surface);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.store-title-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.store-prog {
+  font-family: 'Manrope', sans-serif;
+  font-size: 11px;
+  color: var(--on-surface-variant);
+  letter-spacing: 0.02em;
+}
+.store-arrow {
+  font-size: 10px;
+  color: var(--on-surface-variant);
+  transition: transform .2s;
+}
+.store-block.collapsed .store-arrow { transform: rotate(-90deg); }
+.store-tasks { overflow: hidden; transition: max-height .3s ease; }
+.store-block.collapsed .store-tasks { max-height: 0 !important; }
+
+.copy-name-btn {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--primary-fixed);
+  color: var(--on-primary-fixed);
+  font-size: 10px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: inherit;
+  letter-spacing: 0.02em;
+}
+.copy-name-btn:active { opacity: .8; }
+
+.task {
+  background: var(--surface);
+  padding: 14px 18px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  cursor: pointer;
+  user-select: none;
+  transition: background .15s;
+  position: relative;
+}
+.task + .task { margin-top: 2px; }
+.task::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 8px; bottom: 8px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: transparent;
+}
+.task.priority { background: linear-gradient(90deg, rgba(167,29,21,.04), transparent 60%); }
+.task.priority::before { background: var(--danger); }
+.task.hi { background: linear-gradient(90deg, rgba(184,105,42,.07), transparent 60%); }
+.task.hi::before { background: var(--warn); }
+.task.time12::before { background: var(--warn); }
+.task.clock-in::before { background: var(--ok); }
+.task.clock-out::before { background: var(--danger); }
+.task.cond { opacity: .82; }
+.task.cond::before { background: var(--cond); }
+.task.must::before { background: var(--outline-variant); }
+.task.done { background: var(--ok-bg); }
+.task.done::before { background: var(--ok); }
+.task.done .task-name { color: var(--on-surface-variant); text-decoration: line-through; text-decoration-color: rgba(81,68,62,.4); }
+.task.done .task-desc, .task.done .note { opacity: .5; }
+.cb {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--surface-high);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .22s;
+  margin-top: 1px;
+}
+.task.done .cb { background: var(--ok); }
+.ck {
+  color: #fff;
+  font-size: 13px;
+  opacity: 0;
+  transform: scale(0);
+  transition: all .2s;
+  font-weight: 700;
+}
+.task.done .ck { opacity: 1; transform: scale(1); }
+.tc { flex: 1; min-width: 0; }
+.task-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--on-surface);
+  line-height: 1.4;
+}
+.task-desc {
+  font-size: 12px;
+  color: var(--on-surface-variant);
+  margin-top: 4px;
+  line-height: 1.5;
+}
+.note {
+  font-size: 11px;
+  color: var(--warn);
+  margin-top: 6px;
+  background: var(--warn-bg);
+  border-radius: 8px;
+  padding: 6px 10px;
+  line-height: 1.5;
+}
+.note.purple { color: var(--cond); background: var(--cond-bg); }
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 7px;
+}
+.badge {
+  font-family: 'Manrope', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 999px;
+  letter-spacing: 0.03em;
+  background: var(--surface-low);
+  color: var(--on-surface-variant);
+}
+.badge.bp { background: #e8e0d8; color: #5a4033; }
+.badge.bt { background: var(--warn-bg); color: var(--warn); }
+.badge.bl { background: var(--ok-bg); color: var(--ok); }
+.badge.bo { background: var(--cond-bg); color: var(--cond); }
+.badge.by { background: #fff3dc; color: #8c5a1d; }
+.badge.bg { background: var(--ok-bg); color: var(--ok); }
+.badge.br { background: var(--danger-bg); color: var(--danger); }
+
+.wh-options {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.wh-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--warn-bg);
+  border-radius: 10px;
+  padding: 9px 12px;
+  gap: 10px;
+}
+.wh-text {
+  font-size: 12px;
+  color: var(--warn);
+  font-weight: 500;
+  flex: 1;
+  line-height: 1.4;
+  word-break: break-all;
+}
+.wh-copy-btn {
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--warn);
+  font-size: 11px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  font-family: inherit;
+}
+.wh-copy-btn:active { opacity: .8; }
+
+.cond-card {
+  margin-top: 12px;
+  background: var(--cond-bg);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+.cond-title {
+  font-family: 'Manrope', 'Noto Sans TC', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--cond);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.cond-opts {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.cond-opt {
+  padding: 10px 12px;
+  border: none;
+  background: var(--surface);
+  color: var(--on-surface-variant);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+  line-height: 1.35;
+}
+.cond-opt.active {
+  background: var(--primary);
+  color: #fff;
+  font-weight: 600;
+}
+.cond-opt:not(.active):active { background: var(--surface-high); }
+.cond-hint {
+  margin-top: 10px;
+  padding: 10px 12px;
+  background: var(--warn-bg);
+  border-radius: 10px;
+  font-size: 12px;
+  color: var(--warn);
+  line-height: 1.5;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+.cond-hint-icon { flex-shrink: 0; }
+.cond-hint-muted {
+  font-size: 12px;
+  color: var(--on-surface-variant);
+  font-style: italic;
+}
+.cond-hint.muted {
+  background: transparent;
+  padding: 6px 2px;
+}
+
+.transition-note {
+  margin: 4px 16px 14px;
+  padding: 14px 18px;
+  background: var(--primary-fixed);
+  border-radius: 14px;
+  font-size: 12px;
+  color: var(--on-primary-fixed);
+  line-height: 1.6;
+}
+.transition-note b { font-weight: 700; }
+
+.data-section {
+  background: var(--surface-low);
+  padding: 14px 18px;
+}
+.data-section-title {
+  font-family: 'Manrope', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--primary);
+  letter-spacing: 0.05em;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+.data-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.data-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 9px 12px;
+}
+.data-label {
+  font-size: 12px;
+  color: var(--on-surface-variant);
+  font-weight: 500;
+}
+.num-ctrl { display: flex; align-items: center; gap: 6px; }
+.num-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: none;
+  background: var(--surface-low);
+  color: var(--primary);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.num-btn:active { background: var(--primary-fixed); }
+.num-val {
+  font-family: 'Manrope', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--primary);
+  min-width: 36px;
+  width: 44px;
+  text-align: center;
+  background: var(--surface-low);
+  border: none;
+  border-radius: 8px;
+  padding: 4px 2px;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+.num-val::-webkit-outer-spin-button,
+.num-val::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.num-val:focus { outline: 2px solid var(--primary); outline-offset: 1px; }
+
+.summary-section {
+  margin: 16px 16px 20px;
+  background: var(--surface);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: var(--shadow-ambient);
+}
+.summary-header {
+  background: var(--panel-dark);
+  color: var(--panel-text);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.summary-header h3 {
+  font-family: 'Manrope', 'Noto Sans TC', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.copy-btn {
+  padding: 7px 16px;
+  background: rgba(255,255,255,.12);
+  border: none;
+  color: var(--panel-text);
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: inherit;
+  letter-spacing: 0.05em;
+}
+.copy-btn:active { background: rgba(255,255,255,.25); }
+.summary-store { padding: 14px 20px; }
+.summary-store + .summary-store { background: var(--surface-low); }
+.summary-store + .summary-store + .summary-store { background: var(--surface); }
+.summary-store-name {
+  font-family: 'Manrope', 'Noto Sans TC', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--on-surface);
+  margin-bottom: 8px;
+}
+.summary-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 6px 10px;
+}
+.sf {
+  font-size: 11px;
+  color: var(--on-surface-variant);
+}
+.sf b {
+  color: var(--primary);
+  font-family: 'Manrope', sans-serif;
+  font-weight: 700;
+}
+.summary-total {
+  background: var(--primary-fixed);
+  padding: 14px 20px;
+}
+.summary-total-title {
+  font-family: 'Manrope', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--on-primary-fixed);
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+.summary-total .sf { color: var(--on-primary-fixed); }
+.summary-total .sf b { color: var(--on-primary-fixed); }
+.sf-time {
+  font-family: 'Manrope', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--on-surface-variant);
+  margin-bottom: 4px;
+  letter-spacing: 0.01em;
+}
+.sf-time-empty { color: var(--outline-variant); font-weight: 600; }
+
+.toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--panel-dark);
+  color: var(--panel-text);
+  padding: 11px 22px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 500;
+  opacity: 0;
+  transition: opacity .3s;
+  pointer-events: none;
+  z-index: 9999;
+  white-space: nowrap;
+  box-shadow: 0 20px 40px -8px rgba(0,0,0,.3);
+}
+.toast.show { opacity: 1; }
+
+.done-banner {
+  display: none;
+  margin: 18px 16px 0;
+  background: linear-gradient(135deg, var(--ok), #6f8e71);
+  color: #fff;
+  border-radius: 18px;
+  padding: 24px;
+  text-align: center;
+  box-shadow: 0 18px 40px -8px rgba(91,122,94,.35);
+}
+.done-banner.show { display: block; }
+.done-banner .em { font-size: 38px; margin-bottom: 8px; }
+.done-banner h2 {
+  font-family: 'Manrope', 'Noto Sans TC', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.done-banner p { font-size: 12px; opacity: .9; }
+
+.bottom-btns {
+  display: flex;
+  gap: 10px;
+  margin: 24px 16px 0;
+}
+.ghost-btn {
+  flex: 1;
+  background: var(--surface-low);
+  border: none;
+  color: var(--on-surface-variant);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 12px 0;
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: inherit;
+  letter-spacing: 0.05em;
+}
+.ghost-btn:active { background: var(--surface-high); }
+.ghost-btn.danger { color: var(--tertiary); }
+
+.tip-card {
+  margin: 0 16px 14px;
+  padding: 12px 16px;
+  background: var(--cond-bg);
+  border-radius: 12px;
+  font-size: 12px;
+  color: var(--cond);
+  line-height: 1.5;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.tip-card .tip-icon { font-size: 14px; flex-shrink: 0; line-height: 1.4; }
+.tip-card b { font-weight: 700; color: var(--on-primary-fixed); }
+
+.time-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--ok-bg);
+  color: var(--ok);
+  font-size: 11px;
+  font-weight: 700;
+  font-family: 'Manrope', sans-serif;
+  letter-spacing: 0.02em;
+}
+
+.task-timer { margin-top: 10px; }
+.timer-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface-low);
+  border-radius: 12px;
+  padding: 8px 12px;
+}
+.timer-row.running { background: var(--warn-bg); }
+.timer-row.done { background: var(--ok-bg); }
+.timer-btn {
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  border: none;
+  padding: 7px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  background: var(--surface);
+  color: var(--on-surface-variant);
+  flex-shrink: 0;
+}
+.timer-btn.primary {
+  background: var(--primary);
+  color: #fff;
+}
+.timer-btn.warn {
+  background: var(--warn);
+  color: #fff;
+}
+.timer-btn:active { opacity: .8; }
+.timer-text {
+  font-family: 'Manrope', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--on-surface);
+  flex: 1;
+}
+.timer-row.running .timer-text { color: var(--warn); }
+.timer-row.done .timer-text { color: var(--ok); }
+
+.photo-section { margin-top: 10px; }
+.photo-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.photo-count {
+  font-family: 'Manrope', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--on-surface-variant);
+  letter-spacing: 0.02em;
+}
+.photo-count.full { color: var(--ok); }
+.photo-add-btn {
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  border: none;
+  padding: 7px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  background: var(--primary);
+  color: #fff;
+  flex-shrink: 0;
+}
+.photo-add-btn:disabled { background: var(--surface-high); color: var(--outline-variant); }
+.photo-add-btn:active { opacity: .85; }
+.photo-thumbs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+.photo-thumb {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--surface-low);
+  cursor: pointer;
+}
+.photo-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.photo-thumb-del {
+  position: absolute;
+  top: 4px; right: 4px;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: rgba(0,0,0,.65);
+  color: #fff;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 1;
+}
+.photo-thumb-del:active { background: rgba(0,0,0,.85); }
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.92);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 20px;
+}
+.lightbox.show { display: flex; }
+.lightbox img {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 10px;
+}
+.lightbox-close {
+  position: absolute;
+  top: 20px; right: 20px;
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.15);
+  color: #fff;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.export-btn-wrap { margin: 12px 16px 0; }
+.export-btn {
+  width: 100%;
+  background: var(--surface);
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 700;
+  border: none;
+  padding: 14px;
+  border-radius: 14px;
+  cursor: pointer;
+  font-family: inherit;
+  letter-spacing: 0.04em;
+  box-shadow: var(--shadow-ambient);
+}
+.export-btn:active { background: var(--surface-low); }
+.export-hint {
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--on-surface-variant);
+  text-align: center;
+  line-height: 1.5;
+}
+.export-hint a { color: var(--primary); text-decoration: none; border-bottom: 1px solid var(--primary-fixed); }
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-row">
+    <div>
+      <div class="sub">智取店 · 早班</div>
+      <h1>每日 SOP 清單</h1>
+    </div>
+    <div class="date-box">
+      <div class="date-num" id="dateStr">--</div>
+      <div class="day-tag" id="dayTag">--</div>
+    </div>
+  </div>
+  <div class="prog-wrap"><div class="prog-bar" id="pb"></div></div>
+  <div class="prog-label" id="pl">0 / 0 完成</div>
+</div>
+
+<div id="setupScreen">
+  <h2>今天跑幾間店？</h2>
+  <p>輸入店數與店名，避免跑錯店</p>
+  <div class="store-picker">
+    <button class="store-btn" onclick="changeCount(-1)">−</button>
+    <div><span id="storeCount">5</span><span class="store-unit">間</span></div>
+    <button class="store-btn" onclick="changeCount(1)">+</button>
+  </div>
+  <div class="name-section">
+    <div class="name-section-title">店名設定（強烈建議填寫）</div>
+    <div id="nameInputs"></div>
+  </div>
+  <button class="start-btn" onclick="startChecklist()">開始今日任務 →</button>
+</div>
+
+<div id="checklistArea" style="display:none">
+  <div class="done-banner" id="doneBanner">
+    <div class="em">🎉</div>
+    <h2>今日所有店完成！</h2>
+    <p>辛苦了，早班全部 SOP 已執行完畢</p>
+  </div>
+  <div class="phase-tabs" id="phaseTabs" style="display:none">
+    <button class="phase-tab active" id="phaseTab1" onclick="switchPhase(1)"><span class="tab-dot" id="tabDot1">1</span>黑箱巡迴</button>
+    <button class="phase-tab" id="phaseTab2" onclick="switchPhase(2)"><span class="tab-dot" id="tabDot2">2</span>正常流程</button>
+  </div>
+  <div id="phaseContent"></div>
+  <div class="export-btn-wrap">
+    <button class="export-btn" onclick="exportToday()">📥 下載今日紀錄（JSON）</button>
+    <div class="export-hint">匯出後可於電腦 <a href="../history/">/history/</a> 頁面匯入查看</div>
+  </div>
+  <div class="bottom-btns">
+    <button class="ghost-btn" onclick="goBack()">← 重新設定</button>
+    <button class="ghost-btn danger" onclick="resetAll()">重置今日清單</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox();event.stopPropagation()">✕</button>
+  <img id="lightboxImg" alt="">
+</div>
+<input type="file" id="photoInput" accept="image/*" capture="environment" style="display:none">
+<a id="exportAnchor" style="display:none"></a>
+
+<script>
+const DAY = ['日','一','二','三','四','五','六'];
+const today = new Date();
+const dow = today.getDay();
+const dateKey = today.toDateString();
+document.getElementById('dateStr').textContent = `${today.getMonth()+1}/${today.getDate()}`;
+document.getElementById('dayTag').textContent = `星期${DAY[dow]}`;
+
+let totalCount = parseInt(localStorage.getItem('count_'+dateKey) || '5');
+document.getElementById('storeCount').textContent = totalCount;
+
+const P1_FIELDS = [{key:'bx', label:'黑箱'}];
+const P2_FIELDS = [
+  {key:'norm', label:'一般進店'},
+  {key:'ndd', label:'NDD進店'},
+  {key:'norm_out', label:'一般離店'},
+  {key:'ndd_out', label:'NDD離店'}
+];
+const ALL_FIELDS = [...P1_FIELDS, ...P2_FIELDS];
+
+function loadNames(){ try { return JSON.parse(localStorage.getItem('names_'+dateKey) || '[]'); } catch(e) { return []; } }
+function saveNames(n){ try { localStorage.setItem('names_'+dateKey, JSON.stringify(n)); } catch(e) {} }
+function saveCurrentNames(){
+  const names = [];
+  for (let j = 1; j <= totalCount; j++) {
+    const el = document.getElementById('ni_'+j);
+    names[j-1] = el ? el.value : '';
+  }
+  saveNames(names);
+}
+function renderNameInputs(){
+  const saved = loadNames();
+  const c = document.getElementById('nameInputs');
+  c.innerHTML = '';
+  for (let i = 1; i <= totalCount; i++) {
+    const v = saved[i-1] || '';
+    const r = document.createElement('div');
+    r.className = 'name-row';
+    const lbl = document.createElement('span');
+    lbl.className = 'name-label';
+    lbl.textContent = '第'+i+'間';
+    const inp = document.createElement('input');
+    inp.className = 'name-input';
+    inp.id = 'ni_'+i;
+    inp.type = 'text';
+    inp.value = v;
+    inp.placeholder = '例：桃園南崁店';
+    inp.addEventListener('input', saveCurrentNames);
+    r.appendChild(lbl);
+    r.appendChild(inp);
+    c.appendChild(r);
+  }
+}
+function changeCount(d){
+  saveCurrentNames();
+  totalCount = Math.max(1, Math.min(10, totalCount + d));
+  document.getElementById('storeCount').textContent = totalCount;
+  renderNameInputs();
+}
+renderNameInputs();
+
+function loadData(){ try { return JSON.parse(localStorage.getItem('sopdata_'+dateKey) || '{}'); } catch(e) { return {}; } }
+function saveData(d){ try { localStorage.setItem('sopdata_'+dateKey, JSON.stringify(d)); } catch(e) {} }
+function loadTimes(){ try { return JSON.parse(localStorage.getItem('times_'+dateKey) || '{}'); } catch(e) { return {}; } }
+function saveTimes(t){ try { localStorage.setItem('times_'+dateKey, JSON.stringify(t)); } catch(e) {} }
+function fmtClock(ts){ const d = new Date(ts); return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; }
+function fmtDuration(ms){
+  const sec = Math.floor(ms / 1000);
+  if (sec < 60) return `${sec}秒`;
+  const min = Math.floor(sec / 60);
+  if (min < 60) return `${min}分${sec % 60}秒`;
+  const h = Math.floor(min / 60);
+  return `${h}小時${min % 60}分`;
+}
+function updateNum(sid, key, delta){
+  const d = loadData();
+  if (!d[sid]) d[sid] = {};
+  d[sid][key] = Math.max(0, (d[sid][key] || 0) + delta);
+  saveData(d);
+  const el = document.getElementById(`nv_${sid}_${key}`);
+  if (el) ('value' in el) ? el.value = d[sid][key] : el.textContent = d[sid][key];
+  refreshSummary();
+}
+function setNum(sid, key, raw){
+  const n = Math.max(0, parseInt(String(raw).replace(/[^\d-]/g,''), 10) || 0);
+  const d = loadData();
+  if (!d[sid]) d[sid] = {};
+  d[sid][key] = n;
+  saveData(d);
+  const el = document.getElementById(`nv_${sid}_${key}`);
+  if (el) el.value = n;
+  refreshSummary();
+}
+
+const P2_CONDITIONS = [
+  {k:'A', label:'順利全數上架', hint:'拍進貨區物流箱位置 + TO 單（等下「包裹清 0」要用）'},
+  {k:'B', label:'格口沒了｜包裹全上完', hint:'拍 PDA 格口清 0 畫面（等下「包裹清 0」要用）'},
+  {k:'C', label:'格口沒了｜包裹有剩下', hint:'拍進貨區剩下的物流箱（等下「滯留包裹」要用）'}
+];
+
+function normalTasks(s){
+  const isTue = dow === 2, isSweep = [2,4,5].includes(dow), isMop = dow === 4;
+  const tasks = [
+    // === 動作 ===
+    {id:`s${s}_m2`, cls:'cond', section:'action', name:'紙捲測試回報', desc:'', badges:[{c:'bp',t:'📷 拍照'},{c:'bl',t:'Line回報'}]},
+    {id:`s${s}_p1`, cls:'must', section:'action', name:'逾期包裹下架 + 離店裝箱', desc:'查詢逾期件並完成裝箱', badges:[{c:'bp',t:'📷 拍照'},{c:'bl',t:'Line 逾期回報'}]},
+    {id:`s${s}_p2`, cls:'must', section:'action', name:'進貨包裹驗收上架', desc:'核對包裹後放入格子', badges:[{c:'bp',t:'📷 拍照'}], withTimer:true, conditions: P2_CONDITIONS},
+  ];
+  if (isTue) tasks.push({id:`s${s}_p3`, cls:'must', section:'action', name:'包裹盤點', desc:'清點所有格子包裹', badges:[{c:'bp',t:'📷 拍照'},{c:'bo',t:'📅 週二限定'},{c:'bl',t:'Line 盤點回報'}]});
+  tasks.push(
+    {id:`s${s}_p5`, cls:'must', section:'action', name:'寄件包裹離店裝箱', desc:'完成寄件包裹裝箱離店（NDD / 一般）', noteText:'⚠️ 若收到寄件欄已滿通知，須依由上而下順序完成！', badges:[{c:'bp',t:'📷 拍照'},{c:'bl',t:'Line 寄件清空'}]},
+    {id:`s${s}_p4`, cls:'cond', section:'action', name:'異常包裹離店裝箱（視情況）', desc:'記錄並裝箱異常包裹', note:'有異常包裹時才做', noteCls:'purple', badges:[{c:'bp',t:'📷 拍照'},{c:'bl',t:'Line 異常包裹'}]},
+    {id:`s${s}_sys`, cls:'hi', section:'action', name:'⭐ 檢查 AMS 系統並完成入庫', desc:'確認系統狀態，完成所有包裹入庫', note:'維修申請耗材驗收', noteCls:'purple', badges:[{c:'by',t:'重點項目'},{c:'bp',t:'📷 截圖'}]},
+    // === 回報 ===
+    {id:`s${s}_l1`, cls:'time12', section:'report', name:'1200前 SCSHD 上架', desc:'', badges:[{c:'bt',t:'⏰ 12:00前'},{c:'bp',t:'📷 拍照'},{c:'bl',t:'Line回報'}]},
+    {id:`s${s}_l5`, cls:'must', section:'report', name:'滯留包裹回傳', desc:'', badges:[{c:'bp',t:'📷 拍照'},{c:'bl',t:'Line回報'}]},
+    {id:`s${s}_l7`, cls:'must', section:'report', name:'寄件清空回報', desc:'', badges:[{c:'bp',t:'📷 拍照'},{c:'bl',t:'Line回報'}]},
+    {id:`s${s}_l8`, cls:'must', section:'report', name:'PDA 充電回傳', desc:'', badges:[{c:'bp',t:'📷 拍照'},{c:'bl',t:'Line回報'}]},
+    {id:`s${s}_l9`, cls:'must', section:'report', name:'包裹清 0', desc:'', badges:[{c:'bp',t:'📷 拍照'},{c:'bl',t:'Line回報'}]},
+    {id:`s${s}_l10`, cls:'must', section:'report', name:'包裹重新上架回報', desc:'', badges:[{c:'bp',t:'📷 拍照'},{c:'bl',t:'Line回報'}]},
+    {id:`s${s}_l11`, cls:'must', section:'report', name:'遺落回報', desc:'', badges:[{c:'bp',t:'📷 拍照'},{c:'bl',t:'Line回報'}]},
+    {id:`s${s}_l12`, cls:'must', section:'report', name:'鑰匙回放', desc:'', badges:[{c:'bp',t:'📷 拍照'},{c:'bl',t:'Line回報'}]},
+    {id:`s${s}_l13`, cls:'cond', section:'report', name:'其他異常詢問回報（視情況）', desc:'', note:'有異常才需回報', noteCls:'purple', badges:[{c:'bl',t:'Line回報'}]},
+    {id:`s${s}_l14`, cls:'cond', section:'report', name:'客訴處理（視情況）', desc:'', note:'有客訴才需回報', noteCls:'purple', badges:[{c:'bl',t:'Line回報'}]},
+    // === 其他 ===
+    {id:`s${s}_c1`, cls:'must', section:'misc', name:'每日清掃 & 循環包裝', desc:'倒垃圾 → 清空收據紙筒 → 循環包裝整理與離店裝箱 → 淨空前場 → 設備歸位 → 廣除TO箱單 → PDA充電', badges:[]}
+  );
+  if (isSweep) tasks.push({id:`s${s}_c2`, cls:'must', section:'misc', name:`掃地（${dow===2?'週二':dow===4?'週四':'週五'}）`, desc:'約 3 分鐘，僅需撿起大型垃圾', badges:[{c:'bo',t:'📅 今日限定'}]});
+  if (isMop) tasks.push({id:`s${s}_c3`, cls:'must', section:'misc', name:'拖地（週四）', desc:'約 5 分鐘，僅需將明顯髒污清除', badges:[{c:'bo',t:'📅 今日限定'}]});
+  return tasks;
+}
+
+function timePillHtml(taskId){
+  const t = loadTimes()[taskId];
+  return t ? `<div class="time-pill" id="tp_${taskId}">🕐 ${fmtClock(t)}</div>` : `<div class="time-pill" id="tp_${taskId}" style="display:none"></div>`;
+}
+function timerHtml(taskId){
+  const t = loadTimes(), start = t[taskId+'_start'], end = t[taskId+'_end'];
+  let inner;
+  if (start && end) {
+    inner = `<button class="timer-btn" onclick="resetTimer(event,'${taskId}')">重置</button><span class="timer-text">✓ 用時 ${fmtDuration(end - start)}（${fmtClock(start)}–${fmtClock(end)}）</span>`;
+    return `<div class="task-timer"><div class="timer-row done" id="tw_${taskId}">${inner}</div></div>`;
+  } else if (start) {
+    inner = `<button class="timer-btn warn" onclick="stopTimer(event,'${taskId}')">⏸ 結束</button><span class="timer-text" id="tt_${taskId}">進行中 ${fmtDuration(Date.now() - start)}</span>`;
+    return `<div class="task-timer"><div class="timer-row running" id="tw_${taskId}">${inner}</div></div>`;
+  } else {
+    inner = `<button class="timer-btn primary" onclick="startTimer(event,'${taskId}')">▶ 開始計時</button><span class="timer-text">尚未開始</span>`;
+    return `<div class="task-timer"><div class="timer-row" id="tw_${taskId}">${inner}</div></div>`;
+  }
+}
+const photoTaskIds = new Set();
+const storeConditionTaskIds = new Set();
+function hasPhotoBadge(task){
+  return task.badges && task.badges.some(b => b.c === 'bp');
+}
+function loadConditions(){ try { return JSON.parse(localStorage.getItem('cond_'+dateKey) || '{}'); } catch(e) { return {}; } }
+function saveConditions(c){ try { localStorage.setItem('cond_'+dateKey, JSON.stringify(c)); } catch(e){} }
+function conditionCardHtml(taskId, conditions){
+  const cur = loadConditions()[taskId] || '';
+  const opts = conditions.map(c => `<button class="cond-opt${cur===c.k?' active':''}" data-k="${c.k}" onclick="setCondition(event,'${taskId}','${c.k}')">${c.label}</button>`).join('');
+  const hintHtml = cur
+    ? `<span class="cond-hint-icon">📌</span><div>${conditions.find(c=>c.k===cur).hint}</div>`
+    : `<span class="cond-hint-muted">選一個狀況，下方會顯示等下要拍什麼照片</span>`;
+  const hintCls = cur ? 'cond-hint' : 'cond-hint muted';
+  return `<div class="cond-card" id="cc_${taskId}" onclick="event.stopPropagation()"><div class="cond-title">✅ 驗收上架結束時的狀況</div><div class="cond-opts" id="co_${taskId}">${opts}</div><div class="${hintCls}" id="ch_${taskId}">${hintHtml}</div></div>`;
+}
+function setCondition(e, taskId, k){
+  e.stopPropagation();
+  const all = loadConditions();
+  all[taskId] = k;
+  saveConditions(all);
+  // update option buttons
+  const optsWrap = document.getElementById('co_'+taskId);
+  if (optsWrap) [...optsWrap.children].forEach(btn => btn.classList.toggle('active', btn.getAttribute('data-k') === k));
+  renderConditionHint(taskId);
+  const blk = document.getElementById('cc_'+taskId)?.closest('.store-block');
+  if (blk && !blk.classList.contains('collapsed')) {
+    const inner = blk.querySelector('.store-tasks');
+    inner.style.maxHeight = inner.scrollHeight + 'px';
+  }
+}
+function renderConditionHint(taskId){
+  const hintEl = document.getElementById('ch_'+taskId);
+  if (!hintEl) return;
+  const cur = loadConditions()[taskId] || '';
+  const conditions = P2_CONDITIONS;
+  if (cur) {
+    const c = conditions.find(x => x.k === cur);
+    hintEl.className = 'cond-hint';
+    hintEl.innerHTML = `<span class="cond-hint-icon">📌</span><div>${c ? c.hint : ''}</div>`;
+  } else {
+    hintEl.className = 'cond-hint muted';
+    hintEl.innerHTML = `<span class="cond-hint-muted">選一個狀況，下方會顯示等下要拍什麼照片</span>`;
+  }
+}
+function taskHtml(task, sid){
+  const nh = task.note ? `<div class="note ${task.noteCls||''}">${task.note}</div>` : (task.noteText ? `<div class="note">${task.noteText}</div>` : '');
+  const bh = task.badges && task.badges.length ? `<div class="badges">${task.badges.map(b=>`<span class="badge ${b.c}">${b.t}</span>`).join('')}</div>` : '';
+  const isClock = task.id.endsWith('_in') || task.id.endsWith('_out');
+  const tp = isClock ? timePillHtml(task.id) : '';
+  const tm = task.withTimer ? timerHtml(task.id) : '';
+  let ph = '';
+  if (hasPhotoBadge(task) && !isClock) {
+    photoTaskIds.add(task.id);
+    ph = photoSectionHtml(task.id);
+  }
+  let cc = '';
+  if (task.conditions && task.conditions.length) {
+    storeConditionTaskIds.add(task.id);
+    cc = conditionCardHtml(task.id, task.conditions);
+  }
+  const secAttr = task.section ? ` data-section="${task.section}"` : '';
+  return `<div class="task ${task.cls}" id="${task.id}"${secAttr} onclick="tap('${task.id}','${sid}')"><div class="cb"><span class="ck">✓</span></div><div class="tc"><div class="task-name">${task.name}</div>${task.desc?`<div class="task-desc">${task.desc}</div>`:''}${nh}${bh}${tp}${tm}${cc}${ph}</div></div>`;
+}
+function bxTaskHtml(sid, name){
+  const naText = `${name} WH未到店`, okText = `${name} WH上架完成`;
+  return `<div class="task priority" id="${sid}_bx" onclick="tap('${sid}_bx','${sid}')"><div class="cb"><span class="ck">✓</span></div><div class="tc"><div class="task-name">⚡ 1200前 黑箱上架</div><div class="task-desc">完成後選擇狀況，複製文字貼到 Line 群組</div><div class="badges"><span class="badge bt">⏰ 12:00前</span><span class="badge bl">📋 Line 回報</span></div><div class="wh-options"><div class="wh-option"><span class="wh-text">${naText}</span><button class="wh-copy-btn" onclick="copyWH(event,'${naText.replace(/'/g,"\\'")}')">複製</button></div><div class="wh-option"><span class="wh-text">${okText}</span><button class="wh-copy-btn" onclick="copyWH(event,'${okText.replace(/'/g,"\\'")}')">複製</button></div></div></div></div>`;
+}
+function dataSectionHtml(sid, fields, title){
+  const vals = (loadData()[sid]) || {};
+  const rows = fields.map(f=>`<div class="data-row"><span class="data-label">${f.label}</span><div class="num-ctrl"><button class="num-btn" onclick="updateNum('${sid}','${f.key}',-1);event.stopPropagation()">−</button><input type="number" inputmode="numeric" min="0" class="num-val" id="nv_${sid}_${f.key}" value="${vals[f.key]||0}" onclick="this.select();event.stopPropagation()" onchange="setNum('${sid}','${f.key}',this.value)" onblur="setNum('${sid}','${f.key}',this.value)"><button class="num-btn" onclick="updateNum('${sid}','${f.key}',1);event.stopPropagation()">+</button></div></div>`).join('');
+  return `<div class="data-section"><div class="data-section-title">${title}</div><div class="data-grid">${rows}</div></div>`;
+}
+function storeBlockHtml(blockId, numLabel, color, title, tasksHtml, storeName){
+  const cb = storeName ? `<button class="copy-name-btn" onclick="copyName(event,'${storeName.replace(/'/g,"\\'")}')">複製店名</button>` : '';
+  return `<div class="store-block" id="blk_${blockId}"><div class="store-title" onclick="toggleBlock('blk_${blockId}')"><div class="store-title-left"><div class="store-num ${color}">${numLabel}</div><div class="store-name-text">${title}</div></div><div class="store-title-right">${cb}<div class="store-prog" id="prog_${blockId}"></div><div class="store-arrow">▼</div></div></div><div class="store-tasks" id="tasks_${blockId}">${tasksHtml}</div></div>`;
+}
+function valsForStore(d, i){
+  const merged = {};
+  P1_FIELDS.forEach(f => { merged[f.key] = (d[`p1_s${i}`] || {})[f.key] || 0; });
+  P2_FIELDS.forEach(f => { merged[f.key] = (d[`p2_s${i}`] || {})[f.key] || 0; });
+  return merged;
+}
+function fieldSourceSid(i, key){
+  return P1_FIELDS.some(f => f.key === key) ? `p1_s${i}` : `p2_s${i}`;
+}
+function timeBlockHtml(i){
+  const t = loadTimes();
+  const inT = t[`p1_s${i}_in`];
+  const outT = t[`p2_s${i}_out`];
+  const vStart = t[`sp2_s${i}_p2_start`], vEnd = t[`sp2_s${i}_p2_end`];
+  let lines = '';
+  if (inT || outT) {
+    const dur = (inT && outT) ? ` · 停留 ${fmtDuration(outT - inT)}` : '';
+    lines += `<div class="sf-time">🕐 進店 ${inT?fmtClock(inT):'<span class="sf-time-empty">--</span>'} → 離店 ${outT?fmtClock(outT):'<span class="sf-time-empty">--</span>'}${dur}</div>`;
+  }
+  if (vStart && vEnd) {
+    lines += `<div class="sf-time">📦 驗收用時 ${fmtDuration(vEnd - vStart)}</div>`;
+  } else if (vStart) {
+    lines += `<div class="sf-time">📦 驗收進行中…</div>`;
+  }
+  return lines;
+}
+function buildSummaryHtml(){
+  const d = loadData();
+  const totals = {}; ALL_FIELDS.forEach(f => totals[f.key] = 0);
+  let sh = '';
+  for (let i = storeCount; i >= 1; i--) {
+    const name = storeNames[i-1] || `第${i}間店`, vals = valsForStore(d, i), order = storeCount - i + 1;
+    ALL_FIELDS.forEach(f => totals[f.key] += vals[f.key]);
+    sh += `<div class="summary-store"><div class="summary-store-name">第${order}站 · ${name}</div><div id="sst_${i}">${timeBlockHtml(i)}</div><div class="summary-fields">${ALL_FIELDS.map(f=>`<div class="sf">${f.label}：<b id="ss_${fieldSourceSid(i,f.key)}_${f.key}">${vals[f.key]}</b></div>`).join('')}</div></div>`;
+  }
+  const th = `<div class="summary-total"><div class="summary-total-title">📦 今日合計</div><div class="summary-fields">${ALL_FIELDS.map(f=>`<div class="sf">${f.label}：<b id="st_${f.key}">${totals[f.key]}</b></div>`).join('')}</div></div>`;
+  return `<div class="summary-section"><div class="summary-header"><h3>📋 離店統整摘要</h3><button class="copy-btn" onclick="copySummary()">複製摘要</button></div>${sh}${th}</div>`;
+}
+function refreshSummary(){
+  const d = loadData(), totals = {};
+  ALL_FIELDS.forEach(f => totals[f.key] = 0);
+  for (let i = storeCount; i >= 1; i--) {
+    const vals = valsForStore(d, i);
+    ALL_FIELDS.forEach(f => {
+      totals[f.key] += vals[f.key];
+      const el = document.getElementById(`ss_${fieldSourceSid(i,f.key)}_${f.key}`);
+      if (el) el.textContent = vals[f.key];
+    });
+    const tb = document.getElementById(`sst_${i}`);
+    if (tb) tb.innerHTML = timeBlockHtml(i);
+  }
+  ALL_FIELDS.forEach(f => {
+    const el = document.getElementById(`st_${f.key}`);
+    if (el) el.textContent = totals[f.key];
+  });
+}
+
+// === Photos (IndexedDB) ===
+let photoDB = null;
+function openPhotoDB(){
+  return new Promise((resolve, reject) => {
+    if (photoDB) return resolve(photoDB);
+    const req = indexedDB.open('shopee-sop-photos', 1);
+    req.onupgradeneeded = (e) => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains('photos')) {
+        const store = db.createObjectStore('photos', {keyPath:'id', autoIncrement: true});
+        store.createIndex('byTask', ['dateKey', 'taskId']);
+        store.createIndex('byDate', 'dateKey');
+      }
+    };
+    req.onsuccess = (e) => { photoDB = e.target.result; resolve(photoDB); };
+    req.onerror = () => reject(req.error);
+  });
+}
+async function addPhoto(taskId, blob){
+  const db = await openPhotoDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('photos', 'readwrite');
+    const req = tx.objectStore('photos').add({ dateKey, taskId, blob, createdAt: Date.now() });
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+async function getPhotos(taskId){
+  const db = await openPhotoDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('photos', 'readonly');
+    const idx = tx.objectStore('photos').index('byTask');
+    const req = idx.getAll(IDBKeyRange.only([dateKey, taskId]));
+    req.onsuccess = () => resolve(req.result || []);
+    req.onerror = () => reject(req.error);
+  });
+}
+async function getPhotosByDate(dk){
+  const db = await openPhotoDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('photos', 'readonly');
+    const idx = tx.objectStore('photos').index('byDate');
+    const req = idx.getAll(IDBKeyRange.only(dk));
+    req.onsuccess = () => resolve(req.result || []);
+    req.onerror = () => reject(req.error);
+  });
+}
+async function deletePhotoById(id){
+  const db = await openPhotoDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('photos', 'readwrite');
+    const req = tx.objectStore('photos').delete(id);
+    req.onsuccess = () => resolve();
+    req.onerror = () => reject(req.error);
+  });
+}
+function compressImage(file, maxW = 800, quality = 0.78){
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const scale = Math.min(1, maxW / img.width);
+      const w = Math.round(img.width * scale), h = Math.round(img.height * scale);
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      canvas.toBlob(b => b ? resolve(b) : reject(new Error('compress failed')), 'image/jpeg', quality);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('load failed')); };
+    img.src = url;
+  });
+}
+function blobToDataURL(blob){
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result);
+    r.onerror = () => reject(r.error);
+    r.readAsDataURL(blob);
+  });
+}
+const MAX_PHOTOS = 4;
+const thumbUrls = new Map();
+function photoSectionHtml(taskId){
+  return `<div class="photo-section" id="ph_${taskId}"><div class="photo-head"><span class="photo-count" id="pc_${taskId}">📷 0/${MAX_PHOTOS}</span><button class="photo-add-btn" onclick="triggerCamera(event,'${taskId}')">＋ 拍照</button></div><div class="photo-thumbs" id="pt_${taskId}"></div></div>`;
+}
+async function renderPhotoSection(taskId){
+  const photos = await getPhotos(taskId);
+  const countEl = document.getElementById('pc_'+taskId);
+  const thumbsEl = document.getElementById('pt_'+taskId);
+  if (!countEl || !thumbsEl) return;
+  countEl.textContent = `📷 ${photos.length}/${MAX_PHOTOS}`;
+  countEl.classList.toggle('full', photos.length >= MAX_PHOTOS);
+  const addBtn = countEl.parentElement.querySelector('.photo-add-btn');
+  if (addBtn) addBtn.disabled = photos.length >= MAX_PHOTOS;
+  // clean old URLs
+  [...thumbsEl.querySelectorAll('img')].forEach(img => {
+    const u = thumbUrls.get(img);
+    if (u) { URL.revokeObjectURL(u); thumbUrls.delete(img); }
+  });
+  thumbsEl.innerHTML = photos.map(p => {
+    const u = URL.createObjectURL(p.blob);
+    return `<div class="photo-thumb" onclick="openLightbox('${u}')"><img src="${u}" data-pid="${p.id}"><button class="photo-thumb-del" onclick="deletePhoto(event,${p.id},'${taskId}')">✕</button></div>`;
+  }).join('');
+  [...thumbsEl.querySelectorAll('img')].forEach(img => thumbUrls.set(img, img.src));
+  // expand parent block
+  const blk = thumbsEl.closest('.store-block');
+  if (blk && !blk.classList.contains('collapsed')) {
+    const inner = blk.querySelector('.store-tasks');
+    inner.style.maxHeight = inner.scrollHeight + 'px';
+  }
+}
+let pendingPhotoTaskId = null;
+function triggerCamera(e, taskId){
+  e.stopPropagation();
+  pendingPhotoTaskId = taskId;
+  document.getElementById('photoInput').click();
+}
+document.getElementById('photoInput').addEventListener('change', async (ev) => {
+  const file = ev.target.files[0];
+  ev.target.value = '';
+  if (!file || !pendingPhotoTaskId) return;
+  const taskId = pendingPhotoTaskId;
+  pendingPhotoTaskId = null;
+  const existing = await getPhotos(taskId);
+  if (existing.length >= MAX_PHOTOS) { showToast('已達 4 張上限'); return; }
+  try {
+    const blob = await compressImage(file);
+    await addPhoto(taskId, blob);
+    await renderPhotoSection(taskId);
+    showToast(`📷 拍照儲存 (${existing.length + 1}/${MAX_PHOTOS})`);
+    shareToPhotos(blob, taskId);
+  } catch (err) { showToast('儲存失敗：' + err.message); }
+});
+async function shareToPhotos(blob, taskId){
+  try {
+    const ts = new Date();
+    const pad = n => String(n).padStart(2,'0');
+    const fname = `shopee-sop-${ts.getFullYear()}${pad(ts.getMonth()+1)}${pad(ts.getDate())}-${pad(ts.getHours())}${pad(ts.getMinutes())}${pad(ts.getSeconds())}-${taskId}.jpg`;
+    const file = new File([blob], fname, { type: 'image/jpeg' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file] });
+      return;
+    }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = fname;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  } catch (err) {
+    if (err && err.name === 'AbortError') return;
+    console.warn('shareToPhotos failed', err);
+  }
+}
+async function deletePhoto(e, id, taskId){
+  e.stopPropagation();
+  if (!confirm('刪除這張照片？')) return;
+  await deletePhotoById(id);
+  await renderPhotoSection(taskId);
+}
+function openLightbox(url){
+  document.getElementById('lightboxImg').src = url;
+  document.getElementById('lightbox').classList.add('show');
+}
+function closeLightbox(){
+  document.getElementById('lightbox').classList.remove('show');
+}
+
+// === Export / JSON download ===
+async function exportToday(){
+  const data = {
+    schemaVersion: 1,
+    exportedAt: Date.now(),
+    dateKey,
+    date: `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`,
+    storeCount,
+    storeNames,
+    tasks: loadAll(),
+    data: loadData(),
+    times: loadTimes(),
+    conditions: loadConditions(),
+    photos: []
+  };
+  const db = await openPhotoDB();
+  const tx = db.transaction('photos', 'readonly');
+  const idx = tx.objectStore('photos').index('byDate');
+  const req = idx.getAll(IDBKeyRange.only(dateKey));
+  const photos = await new Promise((r, j) => { req.onsuccess = () => r(req.result); req.onerror = () => j(req.error); });
+  for (const p of photos) {
+    data.photos.push({ taskId: p.taskId, createdAt: p.createdAt, dataUrl: await blobToDataURL(p.blob) });
+  }
+  const filename = `shopee-sop-${data.date}.json`;
+  const blob = new Blob([JSON.stringify(data)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.getElementById('exportAnchor');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  showToast(`已匯出 ${filename}（${photos.length} 張照片）`);
+}
+
+let allTaskIds = [], storeCount = 0, storeNames = [];
+
+function startChecklist(){
+  storeCount = totalCount;
+  localStorage.setItem('count_'+dateKey, storeCount);
+  const savedNames = loadNames();
+  storeNames = [];
+  for (let i = 1; i <= storeCount; i++) {
+    const inp = document.getElementById(`ni_${i}`);
+    storeNames.push((inp && inp.value.trim()) || savedNames[i-1] || `第${i}間店`);
+  }
+  saveNames(storeNames);
+
+  const saved = loadAll();
+  allTaskIds = [];
+  photoTaskIds.clear();
+  storeConditionTaskIds.clear();
+  phase1AutoSwitched = false;
+
+  let p1Html = '';
+  p1Html += `<div class="phase-header"><div class="phase-pill ph1">Phase 1</div><div class="phase-desc">黑箱上架巡迴（共 ${storeCount} 間）</div></div>`;
+  for (let i = 1; i <= storeCount; i++) {
+    const isLast = i === storeCount, sid = `p1_s${i}`, name = storeNames[i-1];
+    const ids = [`${sid}_in`, `${sid}_bx`];
+    if (!isLast) ids.push(`${sid}_out`);
+    allTaskIds.push(...ids);
+    let th = '';
+    th += taskHtml({id:`${sid}_in`, cls:'clock-in', name:'進店打卡', desc:'掃描 QR Code 完成 TO 單打卡', badges:[{c:'bp',t:'📷 拍照存證'},{c:'bg',t:'✅ 進店'}]}, sid);
+    th += dataSectionHtml(sid, P1_FIELDS, '📊 黑箱數量記錄');
+    th += bxTaskHtml(sid, name);
+    if (!isLast) th += taskHtml({id:`${sid}_out`, cls:'clock-out', name:'離店打卡', desc:'前往下一間店', badges:[{c:'bp',t:'📷 拍照存證'},{c:'br',t:'🚪 離店'}]}, sid);
+    p1Html += storeBlockHtml(sid, isLast ? `${i}★` : `${i}`, '', isLast ? `${name}　← 最後一間，接正常流程` : name, th, name);
+  }
+
+  let p2Html = '';
+  p2Html += `<div class="transition-note">🔄 <b>黑箱巡迴結束</b>，從第 ${storeCount} 間店開始，依序往回執行正常流程</div>`;
+  p2Html += `<div class="phase-header sticky-header"><div class="phase-pill ph2">Phase 2</div><div class="store-tabs" id="storeTabs"></div></div>`;
+  p2Html += `<div class="tip-card"><span class="tip-icon">🏷️</span><div>拍照任務記得加 <b>店名浮水印（右下）</b>。紙捲測試需 <b>4 張</b>。</div></div>`;
+  for (let i = storeCount; i >= 1; i--) {
+    const isFirst = i === storeCount, sid = `p2_s${i}`, name = storeNames[i-1], nTasks = normalTasks(sid);
+    const ids = [];
+    if (!isFirst) ids.push(`${sid}_in`);
+    ids.push(...nTasks.map(t => t.id));
+    ids.push(`${sid}_out`);
+    allTaskIds.push(...ids);
+    let th = '';
+    if (!isFirst) th += taskHtml({id:`${sid}_in`, cls:'clock-in', name:'進店打卡', desc:'掃描 QR Code', badges:[{c:'bp',t:'📷 拍照存證'},{c:'bg',t:'✅ 進店'}]}, sid);
+    th += dataSectionHtml(sid, P2_FIELDS, '📊 數量記錄（進店後填寫）');
+    let _lastSec = '';
+    nTasks.forEach(t => {
+      if (t.section && t.section !== _lastSec) {
+        th += sectionHeaderHtml(t.section, sid, nTasks);
+        _lastSec = t.section;
+      }
+      th += taskHtml(t, sid);
+    });
+    th += taskHtml({id:`${sid}_out`, cls:'clock-out', name:'離店打卡', desc:'掃描 QR Code 完成離店打卡', badges:[{c:'bp',t:'📷 拍照存證'},{c:'br',t:'🚪 離店'}]}, sid);
+    p2Html += storeBlockHtml(sid, `${storeCount-i+1}`, 'dark', isFirst ? `${name}（續正常流程）` : name, th, name);
+  }
+  p2Html += buildSummaryHtml();
+
+  const html = `<div class="phase-pane active" id="phase1Pane">${p1Html}</div><div class="phase-pane" id="phase2Pane">${p2Html}</div>`;
+
+  document.getElementById('phaseContent').innerHTML = html;
+  document.getElementById('phaseTabs').style.display = 'flex';
+  document.getElementById('setupScreen').style.display = 'none';
+  document.getElementById('checklistArea').style.display = 'block';
+
+  allTaskIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && saved[id]) el.classList.add('done');
+  });
+  // render condition hints for any saved p2 condition choices
+  storeConditionTaskIds.forEach(tid => renderConditionHint(tid));
+  // measure maxHeight while both panes are visible to avoid scrollHeight=0 in hidden pane
+  const p2Pane = document.getElementById('phase2Pane');
+  p2Pane.classList.add('active');
+  document.querySelectorAll('.store-block').forEach(blk => {
+    const inner = blk.querySelector('.store-tasks');
+    inner.style.maxHeight = inner.scrollHeight + 'px';
+  });
+  p2Pane.classList.remove('active');
+  // Phase 2: render store chips + collapse all except current selected store
+  renderStoreTabs();
+  document.querySelectorAll('#phase2Pane .store-block').forEach(blk => blk.classList.add('collapsed'));
+  const initialSid = p2SidForOrder(currentP2Order);
+  const initialBlk = document.getElementById('blk_'+initialSid);
+  if (initialBlk) {
+    initialBlk.classList.remove('collapsed');
+    const inner = initialBlk.querySelector('.store-tasks');
+    inner.style.maxHeight = inner.scrollHeight + 'px';
+  }
+  const initialChip = document.getElementById('stc_'+currentP2Order);
+  if (initialChip) initialChip.classList.add('active');
+  updateAllProgress();
+  // async: render photo thumbnails per task
+  photoTaskIds.forEach(tid => renderPhotoSection(tid));
+}
+
+function switchPhase(n){
+  document.querySelectorAll('.phase-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.phase-tab').forEach(p => p.classList.remove('active'));
+  const pane = document.getElementById('phase'+n+'Pane');
+  const tab = document.getElementById('phaseTab'+n);
+  if (pane) pane.classList.add('active');
+  if (tab) tab.classList.add('active');
+  // recalc maxHeight for newly visible non-collapsed blocks
+  if (pane) {
+    pane.querySelectorAll('.store-block').forEach(blk => {
+      if (blk.classList.contains('collapsed')) return;
+      const inner = blk.querySelector('.store-tasks');
+      inner.style.maxHeight = inner.scrollHeight + 'px';
+    });
+  }
+  window.scrollTo({top:0, behavior:'instant'});
+}
+
+let currentP2Order = 1;
+function p2SidForOrder(n){ return `p2_s${storeCount - n + 1}`; }
+function renderStoreTabs(){
+  const wrap = document.getElementById('storeTabs');
+  if (!wrap) return;
+  let h = '';
+  for (let n = 1; n <= storeCount; n++) {
+    const name = storeNames[storeCount - n] || `第${storeCount - n + 1}間`;
+    h += `<button class="store-tab-chip" id="stc_${n}" onclick="selectStore(${n})" title="${name.replace(/"/g,'&quot;')}">${n}<span class="chip-check">✓</span></button>`;
+  }
+  wrap.innerHTML = h;
+}
+function selectStore(n){
+  currentP2Order = n;
+  const sid = p2SidForOrder(n);
+  const pane = document.getElementById('phase2Pane');
+  if (!pane) return;
+  // disable transition so collapse/expand takes effect immediately (layout matches final state)
+  const taskEls = pane.querySelectorAll('.store-tasks');
+  taskEls.forEach(el => el.style.transition = 'none');
+  // collapse others, expand target
+  pane.querySelectorAll('.store-block').forEach(b => {
+    if (b.id === `blk_${sid}`) return;
+    b.classList.add('collapsed');
+    const inner = b.querySelector('.store-tasks');
+    if (inner) inner.style.maxHeight = '0px';
+  });
+  const blk = document.getElementById('blk_'+sid);
+  if (blk) {
+    blk.classList.remove('collapsed');
+    const inner = blk.querySelector('.store-tasks');
+    if (inner) inner.style.maxHeight = inner.scrollHeight + 'px';
+  }
+  // force reflow so the new layout is computed now
+  void pane.offsetHeight;
+  // update chip active class
+  document.querySelectorAll('.store-tab-chip').forEach(c => c.classList.remove('active'));
+  const chip = document.getElementById('stc_'+n);
+  if (chip) chip.classList.add('active');
+  // scroll to target using the settled layout
+  if (blk) {
+    const headerOffset = document.querySelector('.phase-tabs')?.getBoundingClientRect().bottom || 0;
+    const stickyH = pane.querySelector('.sticky-header')?.offsetHeight || 0;
+    const rect = blk.getBoundingClientRect();
+    const target = window.scrollY + rect.top - headerOffset - stickyH - 8;
+    window.scrollTo({top: Math.max(0, target), behavior: 'smooth'});
+  }
+  // restore transition on next frame (no animation triggered because values already match)
+  requestAnimationFrame(() => {
+    taskEls.forEach(el => { el.style.transition = ''; });
+  });
+}
+const SEC_META = {
+  action: {icon:'🎬', label:'動作（先做完）'},
+  report: {icon:'📋', label:'回報（用剛拍的照片）'},
+  misc:   {icon:'🧹', label:'其他（收尾）'}
+};
+function sectionHeaderHtml(section, sid, nTasks){
+  const meta = SEC_META[section];
+  const total = nTasks.filter(t => t.section === section).length;
+  return `<div class="sec-header ${section}" id="sec_${sid}_${section}"><div class="sec-header-left"><span class="sec-icon">${meta.icon}</span><span>${meta.label}</span></div><span class="sec-count" id="seccnt_${sid}_${section}">0 / ${total}</span></div>`;
+}
+function updateSectionHeaders(){
+  const s = loadAll();
+  document.querySelectorAll('.sec-header').forEach(hd => {
+    const id = hd.id; // sec_<sid>_<section>
+    const m = id.match(/^sec_(.+)_(action|report|misc)$/);
+    if (!m) return;
+    const sid = m[1], section = m[2];
+    // find tasks in this block belonging to this section
+    const blk = document.getElementById('blk_'+sid);
+    if (!blk) return;
+    const taskEls = [...blk.querySelectorAll('.task')].filter(el => el.dataset.section === section);
+    const total = taskEls.length;
+    const done = taskEls.filter(el => el.classList.contains('done')).length;
+    const cntEl = document.getElementById('seccnt_'+sid+'_'+section);
+    if (cntEl) cntEl.textContent = `${done} / ${total}`;
+    hd.classList.toggle('done', total > 0 && done === total);
+  });
+}
+function updateStoreTabs(){
+  if (!storeCount) return;
+  const s = loadAll();
+  for (let n = 1; n <= storeCount; n++) {
+    const sid = p2SidForOrder(n);
+    const chip = document.getElementById('stc_'+n);
+    if (!chip) continue;
+    const blk = document.getElementById('blk_'+sid);
+    if (!blk) continue;
+    const tasks = blk.querySelectorAll('.task');
+    const done = [...tasks].filter(t => t.classList.contains('done')).length;
+    const total = tasks.length;
+    chip.classList.remove('done', 'partial');
+    if (total > 0 && done === total) chip.classList.add('done');
+    else if (done > 0) chip.classList.add('partial');
+  }
+}
+
+function phaseStats(){
+  const s = loadAll();
+  const p1Ids = allTaskIds.filter(id => id.startsWith('p1_'));
+  const p2Ids = allTaskIds.filter(id => id.startsWith('p2_'));
+  return {
+    p1Done: p1Ids.filter(id => s[id]).length,
+    p1Total: p1Ids.length,
+    p2Done: p2Ids.filter(id => s[id]).length,
+    p2Total: p2Ids.length
+  };
+}
+
+let phase1AutoSwitched = false;
+
+function copyName(e, name){
+  e.stopPropagation();
+  navigator.clipboard.writeText(name).then(() => showToast(`已複製「${name}」✓`)).catch(() => showToast('複製失敗'));
+}
+function copyWH(e, text){
+  e.stopPropagation();
+  navigator.clipboard.writeText(text).then(() => showToast(`已複製「${text}」✓`)).catch(() => showToast('複製失敗'));
+}
+function copySummary(){
+  const d = loadData(), t = loadTimes(), ds = `${today.getFullYear()}/${today.getMonth()+1}/${today.getDate()}`;
+  let txt = `=== ${ds} 早班統整 ===\n\n`;
+  const totals = {}; ALL_FIELDS.forEach(f => totals[f.key] = 0);
+  for (let i = storeCount; i >= 1; i--) {
+    const name = storeNames[i-1] || `第${i}間店`, order = storeCount - i + 1, vals = valsForStore(d, i);
+    txt += `【第${order}站 · ${name}】\n`;
+    const inT = t[`p1_s${i}_in`], outT = t[`p2_s${i}_out`];
+    if (inT || outT) {
+      const dur = (inT && outT) ? `（停留 ${fmtDuration(outT - inT)}）` : '';
+      txt += `  進店 ${inT?fmtClock(inT):'--'} → 離店 ${outT?fmtClock(outT):'--'}${dur}\n`;
+    }
+    const vStart = t[`sp2_s${i}_p2_start`], vEnd = t[`sp2_s${i}_p2_end`];
+    if (vStart && vEnd) txt += `  驗收用時 ${fmtDuration(vEnd - vStart)}\n`;
+    ALL_FIELDS.forEach(f => { txt += `  ${f.label}：${vals[f.key]}箱\n`; totals[f.key] += vals[f.key]; });
+    txt += '\n';
+  }
+  txt += `【今日合計】\n`;
+  ALL_FIELDS.forEach(f => { txt += `  ${f.label}：${totals[f.key]}箱\n`; });
+  navigator.clipboard.writeText(txt).then(() => showToast('已複製摘要 ✓')).catch(() => showToast('複製失敗'));
+}
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+function toggleBlock(blockId){
+  const blk = document.getElementById(blockId), inner = blk.querySelector('.store-tasks');
+  if (blk.classList.contains('collapsed')) {
+    blk.classList.remove('collapsed');
+    inner.style.maxHeight = inner.scrollHeight + 'px';
+  } else {
+    blk.classList.add('collapsed');
+  }
+}
+function loadAll(){ try { return JSON.parse(localStorage.getItem('sop4_'+dateKey) || '{}'); } catch(e) { return {}; } }
+function saveAll(s){ try { localStorage.setItem('sop4_'+dateKey, JSON.stringify(s)); } catch(e) {} }
+function tap(id, sid){
+  const el = document.getElementById(id), s = loadAll();
+  s[id] = !s[id];
+  saveAll(s);
+  el.classList.toggle('done', s[id]);
+  if (id.endsWith('_in') || id.endsWith('_out')) {
+    const t = loadTimes();
+    if (s[id]) t[id] = Date.now(); else delete t[id];
+    saveTimes(t);
+    const pill = document.getElementById('tp_'+id);
+    if (pill) {
+      if (s[id]) { pill.style.display = ''; pill.textContent = '🕐 ' + fmtClock(t[id]); }
+      else { pill.style.display = 'none'; pill.textContent = ''; }
+    }
+    refreshSummary();
+  }
+  updateAllProgress();
+  const blk = el.closest('.store-block');
+  if (blk && !blk.classList.contains('collapsed')) {
+    const inner = blk.querySelector('.store-tasks');
+    inner.style.maxHeight = inner.scrollHeight + 'px';
+  }
+}
+function startTimer(e, taskId){
+  e.stopPropagation();
+  const t = loadTimes();
+  t[taskId+'_start'] = Date.now();
+  delete t[taskId+'_end'];
+  saveTimes(t);
+  rerenderTimer(taskId);
+}
+function stopTimer(e, taskId){
+  e.stopPropagation();
+  const t = loadTimes();
+  t[taskId+'_end'] = Date.now();
+  saveTimes(t);
+  rerenderTimer(taskId);
+  refreshSummary();
+}
+function resetTimer(e, taskId){
+  e.stopPropagation();
+  if (!confirm('重置這個計時？')) return;
+  const t = loadTimes();
+  delete t[taskId+'_start'];
+  delete t[taskId+'_end'];
+  saveTimes(t);
+  rerenderTimer(taskId);
+  refreshSummary();
+}
+function rerenderTimer(taskId){
+  const wrap = document.getElementById('tw_'+taskId);
+  if (!wrap) return;
+  const newHtml = timerHtml(taskId);
+  const tmp = document.createElement('div');
+  tmp.innerHTML = newHtml;
+  wrap.parentElement.replaceWith(tmp.firstChild);
+  document.querySelectorAll('.store-block').forEach(blk => {
+    if (!blk.classList.contains('collapsed')) {
+      const inner = blk.querySelector('.store-tasks');
+      inner.style.maxHeight = inner.scrollHeight + 'px';
+    }
+  });
+}
+function tickRunningTimers(){
+  const t = loadTimes();
+  Object.keys(t).forEach(k => {
+    if (k.endsWith('_start') && !t[k.replace('_start','_end')]) {
+      const taskId = k.slice(0, -6);
+      const el = document.getElementById('tt_'+taskId);
+      if (el) el.textContent = '進行中 ' + fmtDuration(Date.now() - t[k]);
+    }
+  });
+}
+setInterval(tickRunningTimers, 1000);
+function updateAllProgress(){
+  const s = loadAll(), done = allTaskIds.filter(id => s[id]).length, total = allTaskIds.length;
+  document.getElementById('pb').style.width = total ? Math.round(done / total * 100) + '%' : '0%';
+  document.getElementById('pl').textContent = `${done} / ${total} 完成`;
+  document.getElementById('doneBanner').classList.toggle('show', done === total && total > 0);
+  document.querySelectorAll('.store-block').forEach(blk => {
+    const tasks = blk.querySelectorAll('.task'), bDone = [...tasks].filter(t => t.classList.contains('done')).length, bTotal = tasks.length;
+    const prog = document.getElementById('prog_'+blk.id.replace('blk_',''));
+    if (prog) {
+      prog.textContent = bDone === bTotal ? '✓ 完成' : `${bDone}/${bTotal}`;
+      prog.style.color = bDone === bTotal ? 'var(--ok)' : 'var(--on-surface-variant)';
+    }
+    // Phase 1: auto-collapse finished store; Phase 2: keep single-open driven by store tabs
+    const isP2 = blk.id.startsWith('blk_p2_');
+    if (!isP2 && bDone === bTotal && bTotal > 0 && !blk.classList.contains('collapsed')) toggleBlock(blk.id);
+  });
+  updateStoreTabs();
+  updateSectionHeaders();
+  // update phase tab dots
+  const st = phaseStats();
+  const dot1 = document.getElementById('tabDot1'), dot2 = document.getElementById('tabDot2');
+  const tab1 = document.getElementById('phaseTab1'), tab2 = document.getElementById('phaseTab2');
+  if (dot1) dot1.textContent = (st.p1Total && st.p1Done === st.p1Total) ? '✓' : (st.p1Total ? `${st.p1Done}/${st.p1Total}` : '1');
+  if (dot2) dot2.textContent = (st.p2Total && st.p2Done === st.p2Total) ? '✓' : (st.p2Total ? `${st.p2Done}/${st.p2Total}` : '2');
+  if (tab1) tab1.classList.toggle('done', st.p1Total > 0 && st.p1Done === st.p1Total);
+  if (tab2) tab2.classList.toggle('done', st.p2Total > 0 && st.p2Done === st.p2Total);
+  // auto-switch to Phase 2 when Phase 1 just completed (only once per session)
+  if (!phase1AutoSwitched && st.p1Total > 0 && st.p1Done === st.p1Total && st.p2Done < st.p2Total) {
+    const activePane = document.querySelector('.phase-pane.active');
+    if (activePane && activePane.id === 'phase1Pane') {
+      phase1AutoSwitched = true;
+      setTimeout(() => { switchPhase(2); showToast('Phase 1 完成，切到正常流程 ✓'); }, 350);
+    }
+  }
+}
+function goBack(){
+  localStorage.removeItem('count_'+dateKey);
+  document.getElementById('checklistArea').style.display = 'none';
+  document.getElementById('setupScreen').style.display = 'block';
+  document.getElementById('phaseTabs').style.display = 'none';
+  renderNameInputs();
+}
+function resetAll(){
+  if (!confirm('確定重置今日清單？（包含勾選、數量、時間）')) return;
+  saveAll({});
+  saveData({});
+  saveTimes({});
+  saveConditions({});
+  startChecklist();
+}
+if (localStorage.getItem('count_'+dateKey)) {
+  storeNames = loadNames();
+  startChecklist();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,2300 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="晚班 SOP">
+<meta name="theme-color" content="#3d2e28">
+<title>智取店 晚班 SOP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f9f9f9;
+  --surface: #ffffff;
+  --surface-low: #f3f3f3;
+  --surface-high: #e8e8e8;
+  --on-surface: #1a1c1c;
+  --on-surface-variant: #51443e;
+  --primary: #744c34;
+  --primary-container: #8f644a;
+  --primary-fixed: #ffdbc8;
+  --on-primary-fixed: #301402;
+  --evening: #4a3a5e;
+  --evening-fixed: #e0d4ee;
+  --on-evening-fixed: #1f1530;
+  --tertiary: #a71d15;
+  --outline-variant: #d5c3ba;
+  --panel-dark: #3d2e28;
+  --panel-text: #e8dcd1;
+  --panel-text-dim: #a89485;
+  --ok: #5b7a5e;
+  --ok-bg: #eef2ec;
+  --warn: #b8692a;
+  --warn-bg: #fbf1e6;
+  --danger: #a71d15;
+  --danger-bg: #f9ebe9;
+  --shadow-ambient: 0 18px 40px -5px rgba(81,68,62,.06);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body {
+  font-family: 'Inter', 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--on-surface);
+  min-height: 100vh;
+  padding-bottom: 100px;
+  line-height: 1.5;
+}
+.header {
+  background: linear-gradient(135deg, var(--panel-dark), #4a3830);
+  color: var(--panel-text);
+  padding: 22px 20px 18px;
+  padding-top: calc(env(safe-area-inset-top, 0px) + 22px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-ambient);
+}
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+.header .sub {
+  font-family: 'Manrope', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--panel-text-dim);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.header h1 {
+  font-family: 'Manrope', 'Noto Sans TC', sans-serif;
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.date-box { text-align: right; font-family: 'Manrope', sans-serif; }
+.date-num {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--panel-text);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.now-time {
+  display: inline-block;
+  background: rgba(255,255,255,.12);
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--panel-text);
+  letter-spacing: 0.05em;
+}
+.back-link {
+  display: inline-block;
+  font-family: 'Manrope', sans-serif;
+  font-size: 11px;
+  color: var(--panel-text-dim);
+  text-decoration: none;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+.prog-wrap {
+  background: rgba(255,255,255,.14);
+  border-radius: 999px;
+  height: 6px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+.prog-bar {
+  background: linear-gradient(90deg, var(--evening-fixed), #c5b1da);
+  height: 100%;
+  width: 0;
+  transition: width .25s ease;
+}
+.prog-label {
+  font-family: 'Manrope', sans-serif;
+  font-size: 11px;
+  color: var(--panel-text-dim);
+  font-weight: 500;
+}
+
+/* time alert banner */
+.alert-banner {
+  margin: 14px 16px 0;
+  padding: 14px 16px;
+  border-radius: 14px;
+  font-size: 13px;
+  line-height: 1.55;
+  display: none;
+  box-shadow: var(--shadow-ambient);
+}
+.alert-banner.show { display: block; }
+.alert-banner.danger { background: var(--danger-bg); color: var(--danger); }
+.alert-banner.warn { background: var(--warn-bg); color: var(--warn); }
+.alert-banner .a-title {
+  font-family: 'Manrope', 'Noto Sans TC', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.alert-banner .copy-btn {
+  display: inline-block;
+  margin-top: 8px;
+  background: var(--surface);
+  color: var(--danger);
+  border: none;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 8px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  margin-right: 6px;
+}
+.alert-banner .copy-btn:hover { background: var(--surface-low); }
+
+/* setup */
+#setupScreen {
+  padding: 30px 20px 20px;
+  text-align: center;
+}
+#setupScreen h2 {
+  font-family: 'Manrope', 'Noto Sans TC', sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  margin-bottom: 8px;
+  color: var(--on-surface);
+}
+#setupScreen p {
+  color: var(--on-surface-variant);
+  font-size: 13px;
+  margin-bottom: 22px;
+}
+.store-input-card {
+  background: var(--surface);
+  border-radius: 18px;
+  padding: 18px 18px 8px;
+  text-align: left;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow-ambient);
+}
+.store-input-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.store-tag {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  background: var(--evening-fixed);
+  color: var(--on-evening-fixed);
+  padding: 6px 12px;
+  border-radius: 8px;
+  letter-spacing: 0.04em;
+  min-width: 56px;
+  text-align: center;
+}
+.store-input-row input {
+  flex: 1;
+  font-family: 'Inter', 'Noto Sans TC', sans-serif;
+  font-size: 15px;
+  padding: 10px 12px;
+  background: var(--surface-low);
+  border: none;
+  border-radius: 10px;
+  color: var(--on-surface);
+  outline: none;
+}
+.store-input-row input:focus { background: #ebe5e0; }
+.start-btn {
+  width: 100%;
+  background: var(--evening);
+  color: #fff;
+  border: none;
+  font-family: 'Manrope', 'Noto Sans TC', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  padding: 16px;
+  border-radius: 14px;
+  cursor: pointer;
+  margin-top: 10px;
+  box-shadow: 0 8px 20px -4px rgba(74,58,94,.3);
+}
+.start-btn:disabled { background: #b5acc4; cursor: not-allowed; box-shadow: none; }
+
+/* stage map (quest path) */
+.stage-map {
+  position: sticky;
+  top: 88px;
+  background: var(--bg);
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 16px 14px 14px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-bottom: 1px solid var(--surface-low);
+}
+.stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  flex-shrink: 0;
+  min-width: 64px;
+  padding: 4px 2px;
+}
+.stage .ring {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 2px solid var(--outline-variant);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: all .25s ease;
+  box-shadow: 0 4px 10px -3px rgba(81,68,62,.08);
+}
+.stage .ring .emoji { font-size: 20px; transition: opacity .15s; }
+.stage .label-text {
+  font-family: 'Manrope', 'Noto Sans TC', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--on-surface-variant);
+  text-align: center;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+.stage .path-tag {
+  font-family: 'Manrope', sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--on-surface-variant);
+  background: var(--surface-low);
+  padding: 1px 7px;
+  border-radius: 999px;
+  margin-top: 1px;
+}
+.stage.urgent .path-tag {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+/* state: done */
+.stage.done .ring {
+  background: var(--ok);
+  border-color: var(--ok);
+}
+.stage.done .ring .emoji { opacity: 0; }
+.stage.done .ring::before {
+  content: '✓';
+  position: absolute;
+  font-size: 22px;
+  font-weight: 800;
+  color: #fff;
+  font-family: 'Manrope', sans-serif;
+}
+.stage.done .label-text { color: var(--ok); }
+
+/* state: current */
+.stage.current .ring {
+  background: var(--evening);
+  border-color: var(--evening);
+  box-shadow: 0 0 0 4px rgba(74,58,94,.18), 0 6px 14px -2px rgba(74,58,94,.3);
+  animation: stagePulse 1.6s ease-in-out infinite;
+}
+.stage.current .ring .emoji { filter: brightness(0) invert(1); }
+.stage.current .label-text { color: var(--evening); font-weight: 800; }
+.stage.urgent.current .ring {
+  background: var(--danger);
+  border-color: var(--danger);
+  box-shadow: 0 0 0 4px rgba(167,29,21,.18), 0 6px 14px -2px rgba(167,29,21,.3);
+  animation: stagePulseUrgent 1.4s ease-in-out infinite;
+}
+.stage.urgent.current .label-text { color: var(--danger); }
+@keyframes stagePulse {
+  0%, 100% { box-shadow: 0 0 0 4px rgba(74,58,94,.18), 0 6px 14px -2px rgba(74,58,94,.3); }
+  50% { box-shadow: 0 0 0 12px rgba(74,58,94,.04), 0 6px 14px -2px rgba(74,58,94,.3); }
+}
+@keyframes stagePulseUrgent {
+  0%, 100% { box-shadow: 0 0 0 4px rgba(167,29,21,.18), 0 6px 14px -2px rgba(167,29,21,.3); }
+  50% { box-shadow: 0 0 0 12px rgba(167,29,21,.04), 0 6px 14px -2px rgba(167,29,21,.3); }
+}
+
+/* state: locked / skipped (still clickable) */
+.stage.locked { opacity: 0.6; }
+.stage.locked .ring { background: var(--surface-low); border-color: var(--surface-high); }
+.stage.skipped { opacity: 0.45; }
+.stage.skipped .ring {
+  background: var(--surface-low);
+  border-style: dashed;
+}
+.stage.skipped .label-text { text-decoration: line-through; }
+.stage.next .ring {
+  border-width: 3px;
+  border-color: var(--evening);
+  background: var(--surface);
+}
+.stage.urgent.next .ring { border-color: var(--danger); }
+.stage.next .label-text { color: var(--evening); font-weight: 800; }
+.stage.urgent.next .label-text { color: var(--danger); }
+
+/* state: selected (currently viewing) */
+.stage.selected .ring {
+  outline: 3px solid var(--evening);
+  outline-offset: 3px;
+}
+.stage.urgent.selected .ring { outline-color: var(--danger); }
+
+/* connectors */
+.connector {
+  width: 22px;
+  height: 3px;
+  background: var(--outline-variant);
+  border-radius: 999px;
+  margin-top: 18px;
+  align-self: flex-start;
+  flex-shrink: 0;
+  transition: background .3s;
+}
+.connector.done {
+  background: var(--ok);
+}
+.connector.flowing {
+  background: linear-gradient(90deg, var(--ok) 0%, var(--evening) 100%);
+  background-size: 200% 100%;
+  animation: connectorFlow 1.6s linear infinite;
+}
+@keyframes connectorFlow {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
+/* branch fork (Y shape into 4 and 5) */
+.branch-fork {
+  position: relative;
+  width: 24px;
+  height: 96px;
+  flex-shrink: 0;
+  margin: 0 2px;
+}
+.branch-fork .fork-line {
+  position: absolute;
+  width: 28px;
+  height: 2px;
+  background: var(--outline-variant);
+  left: -2px;
+  border-radius: 999px;
+  transform-origin: 0 50%;
+  transition: background .3s;
+}
+.branch-fork .fork-line.top { top: 22px; transform: rotate(-30deg); }
+.branch-fork .fork-line.bottom { top: 70px; transform: rotate(30deg); }
+.branch-fork .fork-line.active { background: var(--evening); height: 3px; }
+.branch-fork .fork-line.bottom.active { background: var(--danger); }
+
+/* branch targets (4 and 5 vertically stacked) */
+.branch-targets {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.branch-targets .stage { flex-direction: row; gap: 10px; padding: 2px 4px; min-width: 0; }
+.branch-targets .stage .ring { width: 36px; height: 36px; }
+.branch-targets .stage .ring .emoji { font-size: 16px; }
+.branch-targets .stage .ring::before { font-size: 18px; }
+.branch-targets .stage > .label-text { font-size: 11px; }
+.branch-targets .stage > .path-tag { margin: 0; align-self: center; }
+
+.phase-pane { display: none; padding: 16px 14px 0; }
+.phase-pane.active { display: block; }
+.decision-card {
+  background: linear-gradient(135deg, var(--surface), var(--evening-fixed));
+  border-radius: 16px;
+  padding: 18px 18px 14px;
+  margin: 14px 0 10px;
+  box-shadow: 0 12px 24px -4px rgba(74,58,94,.16);
+  border: 2px solid var(--evening);
+}
+.decision-card .decision-title {
+  font-family: 'Manrope', 'Noto Sans TC', sans-serif;
+  font-weight: 800;
+  font-size: 15px;
+  color: var(--evening);
+  margin-bottom: 4px;
+}
+.decision-card .decision-desc {
+  font-size: 12px;
+  color: var(--on-surface-variant);
+  margin-bottom: 12px;
+}
+.decision-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.decision-btn {
+  background: var(--surface);
+  border: 2px solid var(--surface-low);
+  text-align: left;
+  padding: 12px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: inherit;
+}
+.decision-btn:hover { border-color: var(--evening); }
+.decision-btn.selected { border-color: var(--evening); background: var(--evening); color: #fff; }
+.decision-btn.urgent.selected { border-color: var(--danger); background: var(--danger); }
+.decision-btn .d-num {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--evening);
+  color: #fff;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 800;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.decision-btn.urgent .d-num { background: var(--danger); }
+.decision-btn.selected .d-num { background: rgba(255,255,255,.25); }
+.decision-btn .d-content { flex: 1; }
+.decision-btn .d-label {
+  font-family: 'Manrope', 'Noto Sans TC', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 2px;
+}
+.decision-btn .d-sub {
+  font-size: 11px;
+  opacity: 0.8;
+}
+.decision-current {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--evening);
+  font-size: 11px;
+  color: var(--on-surface-variant);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.decision-clear {
+  background: transparent;
+  border: 1px solid var(--outline-variant);
+  color: var(--on-surface-variant);
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.section-divider {
+  margin: 18px 4px 10px;
+  padding: 8px 14px;
+  font-family: 'Manrope', 'Noto Sans TC', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--on-surface-variant);
+  background: var(--surface);
+  border-radius: 10px;
+  letter-spacing: 0.04em;
+  border-left: 4px solid var(--evening);
+  box-shadow: var(--shadow-ambient);
+}
+
+.phase-header {
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 16px 18px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow-ambient);
+}
+.phase-pill {
+  display: inline-block;
+  background: var(--evening-fixed);
+  color: var(--on-evening-fixed);
+  font-family: 'Manrope', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 4px 10px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.phase-pill.urgent { background: var(--danger-bg); color: var(--danger); }
+.phase-title {
+  font-family: 'Manrope', 'Noto Sans TC', sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  margin-bottom: 4px;
+}
+.phase-desc {
+  font-size: 13px;
+  color: var(--on-surface-variant);
+  line-height: 1.55;
+}
+
+/* transition phase (P2) */
+.transition-card {
+  background: linear-gradient(135deg, var(--panel-dark), var(--evening));
+  border-radius: 18px;
+  padding: 28px 22px;
+  color: var(--panel-text);
+  text-align: center;
+  margin-bottom: 14px;
+}
+.transition-card .big-time {
+  font-family: 'Manrope', sans-serif;
+  font-size: 48px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 4px;
+}
+.transition-card .big-label {
+  font-family: 'Manrope', 'Noto Sans TC', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+.transition-card p {
+  color: var(--panel-text-dim);
+  font-size: 13px;
+  line-height: 1.6;
+}
+.transition-mark {
+  margin-top: 16px;
+  background: var(--evening-fixed);
+  color: var(--on-evening-fixed);
+  border: none;
+  font-family: 'Manrope', 'Noto Sans TC', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  padding: 12px 20px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.transition-mark.done {
+  background: var(--ok-bg);
+  color: var(--ok);
+}
+
+/* task */
+.task {
+  background: var(--surface);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  display: flex;
+  gap: 12px;
+  cursor: pointer;
+  box-shadow: var(--shadow-ambient);
+  transition: background .15s ease;
+  position: relative;
+}
+.task.priority { background: linear-gradient(135deg, #fff, #fbf1e6); }
+.task.urgent { background: linear-gradient(135deg, #fff, #f9ebe9); }
+.task.interrupted { background: linear-gradient(135deg, #fff, #fff4e3); }
+.task.mirrored { cursor: default; opacity: 0.85; }
+.task.mirrored .task-name::after {
+  content: ' 🔗';
+  font-size: 12px;
+  color: var(--on-surface-variant);
+}
+.task.skipped { background: var(--surface-low); opacity: 0.7; }
+.task.skipped .task-name { color: var(--on-surface-variant); text-decoration: line-through; }
+.task.skipped .cb { background: var(--on-surface-variant); }
+.task.skipped .cb .ck { color: #fff; content: '⊘'; }
+.task.skipped .cb .ck::before { content: '⊘'; }
+.skip-row {
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 12px;
+  background: transparent;
+  border: 1px dashed var(--outline-variant);
+  color: var(--on-surface-variant);
+}
+.skip-row.skipped {
+  background: var(--surface-low);
+  border-style: solid;
+  border-color: var(--surface-high);
+  color: var(--on-surface);
+}
+.skip-row .sk-label {
+  font-family: 'Manrope', 'Noto Sans TC', sans-serif;
+  font-weight: 700;
+}
+.skip-row .sk-btn {
+  background: transparent;
+  color: var(--on-surface-variant);
+  border: 1px solid var(--outline-variant);
+  font-family: 'Manrope', 'Noto Sans TC', sans-serif;
+  font-weight: 700;
+  font-size: 11px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.skip-row.skipped .sk-btn { background: var(--surface); }
+.task.interrupted .task-name::after {
+  content: '⏸';
+  margin-left: 8px;
+  color: var(--warn);
+  font-weight: 700;
+}
+.interrupt-row {
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: var(--warn-bg);
+  border-radius: 10px;
+  font-size: 12px;
+  color: var(--warn);
+}
+.interrupt-row .ir-label {
+  font-family: 'Manrope', 'Noto Sans TC', sans-serif;
+  font-weight: 700;
+}
+.interrupt-row .ir-btn {
+  background: var(--warn);
+  color: #fff;
+  border: none;
+  font-family: 'Manrope', 'Noto Sans TC', sans-serif;
+  font-weight: 700;
+  font-size: 11px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.interrupt-row.idle {
+  background: transparent;
+  border: 1px dashed var(--outline-variant);
+  color: var(--on-surface-variant);
+}
+.interrupt-row.idle .ir-btn {
+  background: transparent;
+  color: var(--warn);
+  border: 1px solid var(--warn);
+}
+.task.done {
+  background: var(--ok-bg);
+  opacity: 0.85;
+}
+.task.done .task-name { text-decoration: line-through; color: var(--ok); }
+.cb {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+  background: var(--surface-low);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+}
+.task.done .cb { background: var(--ok); }
+.cb .ck { color: transparent; font-weight: 800; font-size: 14px; }
+.task.done .cb .ck { color: #fff; }
+.tc { flex: 1; }
+.task-name {
+  font-family: 'Inter', 'Noto Sans TC', sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  margin-bottom: 4px;
+  letter-spacing: -0.005em;
+}
+.task-desc {
+  font-size: 12px;
+  color: var(--on-surface-variant);
+  line-height: 1.5;
+}
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 8px;
+}
+.badge {
+  display: inline-block;
+  font-family: 'Manrope', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+  letter-spacing: 0.04em;
+}
+.badge.bp { background: #f0e8e0; color: #6b5b4f; }
+.badge.bt { background: var(--warn-bg); color: var(--warn); }
+.badge.bd { background: var(--danger-bg); color: var(--danger); }
+.badge.bl { background: var(--evening-fixed); color: var(--on-evening-fixed); }
+
+.inline-count {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--surface-low);
+  border-radius: 10px;
+}
+.inline-count.readonly {
+  background: transparent;
+  border: 1px dashed var(--outline-variant);
+  margin-top: 8px;
+  padding: 8px 12px;
+}
+.inline-count.readonly .ic-label { color: var(--on-surface-variant); font-size: 12px; }
+.inline-count.readonly .ic-readonly-val {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--on-surface);
+  background: var(--surface-low);
+  padding: 4px 12px;
+  border-radius: 8px;
+}
+.inline-count .ic-label {
+  font-family: 'Manrope', 'Noto Sans TC', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--on-surface-variant);
+  flex: 1;
+}
+
+/* photo section */
+.photo-section {
+  margin-top: 10px;
+  padding: 10px 12px;
+  background: var(--surface-low);
+  border-radius: 10px;
+}
+.photo-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.photo-count {
+  font-family: 'Manrope', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--on-surface-variant);
+}
+.photo-count.full { color: var(--ok); }
+.photo-add-btn {
+  background: var(--evening);
+  color: #fff;
+  border: none;
+  font-family: 'Manrope', 'Noto Sans TC', sans-serif;
+  font-weight: 700;
+  font-size: 11px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.photo-add-btn:disabled { background: #b5acc4; cursor: not-allowed; }
+.photo-thumbs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.photo-thumb {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #ddd;
+  cursor: pointer;
+}
+.photo-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.photo-thumb-del {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: rgba(0,0,0,.6);
+  color: #fff;
+  border: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  line-height: 1;
+}
+.photo-wrap { display: flex; flex-direction: column; gap: 6px; margin-top: 0; }
+.copy-store-btn {
+  align-self: flex-start;
+  background: var(--surface-low);
+  color: var(--on-surface);
+  border: 1px solid var(--outline-variant);
+  font-family: 'Manrope', 'Noto Sans TC', sans-serif;
+  font-weight: 700;
+  font-size: 11px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.copy-store-btn:hover { background: var(--surface-high); }
+
+/* report copy section (Line 文案) */
+.report-section {
+  margin-top: 10px;
+  padding: 10px 12px;
+  background: var(--danger-bg);
+  border-radius: 10px;
+  font-size: 12px;
+  color: var(--danger);
+}
+.report-section .rs-title {
+  font-family: 'Manrope', 'Noto Sans TC', sans-serif;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.report-section .rs-text {
+  font-family: 'Inter', 'Noto Sans TC', sans-serif;
+  font-weight: 600;
+  background: #fff;
+  padding: 8px 10px;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--on-surface);
+}
+.report-section .rs-copy {
+  background: var(--danger);
+  color: #fff;
+  border: none;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* Line template (NDD 上架完成回報) */
+.tpl-section {
+  margin-top: 10px;
+  padding: 12px 14px;
+  background: var(--evening-fixed);
+  border-radius: 10px;
+  font-size: 12px;
+  color: var(--on-evening-fixed);
+  display: block;
+  opacity: 0.65;
+  transition: opacity .2s;
+}
+.task.done .tpl-section { opacity: 1; }
+.tpl-section .tpl-title {
+  font-family: 'Manrope', 'Noto Sans TC', sans-serif;
+  font-weight: 700;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.tpl-section .tpl-text {
+  font-family: 'Inter', 'Noto Sans TC', sans-serif;
+  font-weight: 500;
+  background: #fff;
+  padding: 10px 12px;
+  border-radius: 8px;
+  white-space: pre-line;
+  color: var(--on-surface);
+  line-height: 1.6;
+}
+.tpl-section .tpl-copy {
+  background: var(--evening);
+  color: #fff;
+  border: none;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* counts panel */
+.counts-card {
+  background: var(--surface);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-top: 14px;
+  box-shadow: var(--shadow-ambient);
+}
+.counts-card-title {
+  font-family: 'Manrope', 'Noto Sans TC', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--on-surface-variant);
+  margin-bottom: 10px;
+  letter-spacing: 0.04em;
+}
+.count-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--surface-low);
+}
+.count-row:last-child { border-bottom: none; }
+.count-label {
+  font-size: 13px;
+  color: var(--on-surface);
+  font-weight: 500;
+}
+.num-ctrl {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.num-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--surface-low);
+  border: none;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--on-surface);
+  cursor: pointer;
+}
+.num-btn:active { background: var(--surface-high); }
+.num-val {
+  width: 50px;
+  text-align: center;
+  font-family: 'Manrope', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--on-surface);
+  background: var(--surface-low);
+  border: none;
+  padding: 6px 0;
+  border-radius: 6px;
+  outline: none;
+}
+.num-val::-webkit-outer-spin-button,
+.num-val::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+/* summary card */
+.summary-card {
+  background: linear-gradient(135deg, var(--panel-dark), #4a3830);
+  border-radius: 18px;
+  padding: 18px 20px;
+  margin: 14px;
+  color: var(--panel-text);
+  display: none;
+}
+.summary-card.show { display: block; }
+.summary-title {
+  font-family: 'Manrope', 'Noto Sans TC', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.summary-store {
+  background: rgba(255,255,255,.06);
+  padding: 12px 14px;
+  border-radius: 10px;
+  margin-bottom: 8px;
+}
+.summary-store-name {
+  font-family: 'Manrope', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--evening-fixed);
+  margin-bottom: 6px;
+}
+.summary-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 12px;
+  font-size: 12px;
+}
+.sf b { color: #fff; font-weight: 700; margin-left: 4px; }
+
+/* path indicator */
+.path-info {
+  margin: 14px 16px 0;
+  padding: 12px 14px;
+  background: var(--surface);
+  border-radius: 12px;
+  font-size: 12px;
+  color: var(--on-surface-variant);
+  box-shadow: var(--shadow-ambient);
+}
+.path-info b { color: var(--evening); }
+.path-info.urgent b { color: var(--danger); }
+
+/* export / bottom buttons */
+.export-btn-wrap { padding: 18px 14px 4px; text-align: center; }
+.export-btn {
+  background: var(--evening);
+  color: #fff;
+  border: none;
+  font-family: 'Manrope', 'Noto Sans TC', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  padding: 14px 24px;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 6px 16px -2px rgba(74,58,94,.3);
+}
+.export-hint {
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--on-surface-variant);
+}
+.export-hint a { color: var(--evening); font-weight: 700; }
+.bottom-btns {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  padding: 14px;
+}
+.ghost-btn {
+  background: transparent;
+  border: 1px solid var(--outline-variant);
+  font-family: 'Manrope', 'Noto Sans TC', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--on-surface-variant);
+  padding: 10px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.ghost-btn.danger { color: var(--danger); border-color: var(--danger); }
+
+/* toast */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--panel-dark);
+  color: var(--panel-text);
+  padding: 12px 20px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 500;
+  opacity: 0;
+  pointer-events: none;
+  transition: all .3s ease;
+  z-index: 200;
+  box-shadow: 0 12px 30px -6px rgba(0,0,0,.3);
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* lightbox */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.92);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+}
+.lightbox.show { display: flex; }
+.lightbox img { max-width: 96vw; max-height: 92vh; }
+.lightbox-close {
+  position: absolute;
+  top: env(safe-area-inset-top, 16px);
+  right: 16px;
+  background: rgba(255,255,255,.2);
+  color: #fff;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 18px;
+  cursor: pointer;
+}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-row">
+    <div>
+      <a class="back-link" href="../">← 主選單</a>
+      <div class="sub">智取店 · 晚班</div>
+      <h1>每日 SOP 清單</h1>
+    </div>
+    <div class="date-box">
+      <div class="date-num" id="dateStr">--</div>
+      <div class="now-time" id="nowTime">--:--</div>
+    </div>
+  </div>
+  <div class="prog-wrap"><div class="prog-bar" id="pb"></div></div>
+  <div class="prog-label" id="pl">0 / 0 完成</div>
+</div>
+
+<div class="alert-banner" id="alertBanner"></div>
+
+<div id="setupScreen">
+  <h2>晚班開始</h2>
+  <p>輸入今晚要跑的兩間店</p>
+  <div class="store-input-card">
+    <div class="store-input-row">
+      <span class="store-tag">第一間</span>
+      <input type="text" id="storeA" placeholder="例：信義虎林店">
+    </div>
+    <div class="store-input-row" style="margin-bottom: 4px">
+      <span class="store-tag">第二間</span>
+      <input type="text" id="storeB" placeholder="例：福德二A">
+    </div>
+  </div>
+  <button class="start-btn" id="startBtn" onclick="startChecklist()">開始今日任務 →</button>
+</div>
+
+<div id="checklistArea" style="display:none">
+  <div class="path-info" id="pathInfo">
+    <b>路線：尚未確定</b> — P3 結束時依第一間店 P1 完成度自動判斷
+  </div>
+  <div class="stage-map" id="stageMap">
+    <div class="stage" data-phase="p1">
+      <div class="ring"><span class="emoji">📦</span></div>
+      <span class="label-text">第一間 NDD</span>
+    </div>
+    <div class="connector" id="conn-13"></div>
+    <div class="stage" data-phase="p3">
+      <div class="ring"><span class="emoji">📦</span></div>
+      <span class="label-text">第二間</span>
+    </div>
+    <div class="connector" id="conn-35"></div>
+    <div class="stage urgent" data-phase="p5">
+      <div class="ring"><span class="emoji">🚨</span></div>
+      <span class="label-text">回頭補</span>
+      <span class="path-tag">注意</span>
+    </div>
+  </div>
+  <div id="phaseContent"></div>
+  <div class="summary-card" id="summaryCard">
+    <div class="summary-title">📦 今日合計</div>
+    <div id="summaryBody"></div>
+  </div>
+  <div class="export-btn-wrap">
+    <button class="export-btn" onclick="exportToday()">📥 下載今日紀錄（JSON）</button>
+    <div class="export-hint">匯出後可於電腦 <a href="../history/">/history/</a> 頁面匯入查看</div>
+  </div>
+  <div class="bottom-btns">
+    <button class="ghost-btn" onclick="goBack()">← 重新設定</button>
+    <button class="ghost-btn danger" onclick="resetAll()">重置今日清單</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox();event.stopPropagation()">✕</button>
+  <img id="lightboxImg" alt="">
+</div>
+<input type="file" id="photoInput" accept="image/*" style="display:none">
+<a id="exportAnchor" style="display:none"></a>
+
+<script>
+// === Date / Time ===
+const DAY = ['日','一','二','三','四','五','六'];
+const today = new Date();
+const dateKey = 'late_' + today.toDateString();
+function pad(n){ return String(n).padStart(2,'0'); }
+document.getElementById('dateStr').textContent = `${today.getMonth()+1}/${today.getDate()}（${DAY[today.getDay()]}）`;
+
+function updateNowTime(){
+  const n = new Date();
+  document.getElementById('nowTime').textContent = `${pad(n.getHours())}:${pad(n.getMinutes())}`;
+}
+updateNowTime();
+setInterval(() => { updateNowTime(); refreshAlerts(); }, 30000);
+
+// === Phase Definition ===
+const PHASES = {
+  p1: {
+    title: '{A}', store: 'A',
+    pill: 'Phase 1', pillCls: '',
+    desc: '進店TO、20:00 前 NDD 寄件打包、WH 上架、NDD 上架、包裹重新分配。19:00 離開 {A} 前要打離店TO。',
+    tasks: [
+      {id:'p1_in_to', name:'進店TO', desc:'進店要印「TO單」並拍照回傳 Line 群組', photo:true, lineReport:true},
+      {id:'p1_pack', name:'2000 前 NDD 寄件打包', desc:'結束 2 件事：<br>① 拍 PDA「隔日到貨&逾期離店逐顆裝箱」頁面，回傳 Line（標題：2000前NDD寄件打包）<br>② 記錄下方「NDD 離店總箱數」', priority:true, deadline:'20:00', photo:true, lineReport:true, inlineCount:{key:'ndd_out', label:'NDD 離店總箱數'}},
+      {id:'p1_wh', name:'WH 上架（黑箱）', desc:'有黑箱才做。<br>不可中斷。沒有黑箱可按「沒有此項」跳過。', skippable:true, inlineCount:{key:'bx', label:'黑箱數量'}},
+      {id:'p1_decision', decisionPoint:'p1_d1'},
+      {id:'p1_ndd', name:'NDD 上架', desc:'記錄下方「NDD 上架箱數」。<br>① 沒到 19:00 可繼續上架<br>② 已 19:00 按「⏸ 中斷暫離」前往下一間<br>③ 完成後複製下方 Line 模板回報群組', lineReport:true, lineTemplate:'ndd', interruptible:true, inlineCount:{key:'ndd_up', label:'NDD 上架箱數'}, conditional:{key:'p1_d1', value:'continue'}},
+      {id:'p1_redist', name:'包裹重新分配', desc:'完成後拍 PDA「包裹重新分配」頁面，回傳 Line（標題：晚班包裹重新上架回報）', report:true, interruptible:true, photo:true, lineReport:true, conditional:{key:'p1_d1', value:'continue'}, hideIfInterrupted:'p1_ndd'},
+      {id:'p1_out_to', name:'離店TO', desc:'離開 {A} 前要打', photo:true, lineReport:true}
+    ],
+    counts: [],
+    countStore: 'A'
+  },
+  p3: {
+    title: '{B}', store: 'B',
+    pill: 'Phase 3', pillCls: '',
+    desc: '進店TO、20:00 前 NDD 寄件打包、WH 上架、NDD 上架、包裹重新分配。21:15–21:30 前重新分配未完要訊息串標註。',
+    tasks: [
+      {id:'p3_in_to', name:'進店TO', desc:'進店要印「TO單」並拍照回傳 Line 群組', photo:true, lineReport:true},
+      {id:'p3_pack', name:'2000 前 NDD 寄件打包', desc:'結束 2 件事：<br>① 拍 PDA「隔日到貨&逾期離店逐顆裝箱」頁面，回傳 Line（標題：2000前NDD寄件打包）<br>② 記錄下方「NDD 離店總箱數」', priority:true, deadline:'20:00', photo:true, lineReport:true, inlineCount:{key:'ndd_out', label:'NDD 離店總箱數'}},
+      {id:'p3_wh', name:'WH 上架（黑箱）', desc:'有黑箱才做，記錄黑箱數量。<br>不可中斷。沒有黑箱可按「沒有此項」跳過。', skippable:true, inlineCount:{key:'bx', label:'黑箱數量'}},
+      {id:'p3_ndd', name:'NDD 上架', desc:'記錄下方「NDD 上架箱數」。<br>完成後複製下方 Line 模板回報群組。', lineReport:true, lineTemplate:'ndd', inlineCount:{key:'ndd_up', label:'NDD 上架箱數'}},
+      {id:'p3_redist', name:'包裹重新分配', desc:'完成後拍 PDA「包裹重新分配」頁面，回傳 Line（標題：晚班包裹重新上架回報）', report:true, photo:true, lineReport:true},
+      {id:'p3_decision', decisionPoint:'p3_d1'},
+      {id:'p3_norm_up', name:'標準配送包裹上架', desc:'記錄下方箱數', inlineCount:{key:'norm_up', label:'標準配送上架箱數'}, conditional:{key:'p3_d1', value:'continue'}},
+      {id:'p3_clear', name:'晚班包裹清 0', desc:'指「標準配送」包裹。<br>① 格口沒了：拍 PDA「手動上架」畫面（A/B/C… 為 0）<br>② 上完貨：手拿進店 TO 單拍照，後方為先前放標準配送橘箱位置（表示上完貨）', photo:true, lineReport:true, conditional:{key:'p3_d1', value:'continue'}},
+      {id:'p3_decision2', decisionPoint:'p3_d2', conditional:{key:'p3_d1', value:'continue'}},
+      {id:'p3_norm_pack', name:'一般寄件包裹打包', desc:'打包「一般」寄件包裹', photo:true, lineReport:true, conditional:{key:'p3_d2', value:'continue_pack'}},
+      {id:'p3_holdover', name:'晚班滯留包裹', desc:'手拿進店 TO 單拍照，後方為未上完標準配送橘箱位置（表示沒有上完）', photo:true, lineReport:true, conditional:{key:'p3_d2', value:'continue_pack'}},
+      {id:'p3_send_clear', name:'晚班寄件清空', desc:'拍寄件區照片，上店名浮水印，回傳 Line 群組', photo:true, lineReport:true, conditional:{key:'p3_d2', value:'continue_pack'}},
+      {id:'p3_pda', name:'PDA 充電', desc:'離店前拍 PDA 充電照，上店名浮水印，回傳 Line 群組', photo:true, lineReport:true, conditional:{key:'p3_d2', value:'continue_pack'}}
+    ],
+    counts: [],
+    countStore: 'B'
+  },
+  p5: {
+    title: '回 {A} 補完', store: 'A',
+    pill: '緊急路線', pillCls: 'urgent',
+    desc: '{A} P1 有未完項時走此路線。回到 {A} 後把 P1 沒做完的事繼續做完。一般包裹／清空／PDA 充電等收尾項目暫未放入。',
+    tasks: [
+      {id:'p5_b_out_to', name:'離店TO（{B}）', desc:'離開 {B} 前要打', photo:true, lineReport:true},
+      {id:'p5_in_to', name:'進店TO', desc:'進店要印「TO單」並拍照回傳 Line 群組', photo:true, lineReport:true},
+      {id:'p5_pack', name:'2000 前 NDD 寄件打包', desc:'此項自動同步 P1 狀態（已過 20:00 不需重做）', mirrorFrom:'p1_pack'},
+      {id:'p5_wh', name:'WH 上架（黑箱）', desc:'有黑箱才做。<br>不可中斷。沒有黑箱可按「沒有此項」跳過。', skippable:true, inlineCount:{key:'bx_p5', label:'此次黑箱數量'}, prevReadonlyCount:{key:'bx', label:'P1 已記錄'}},
+      {id:'p5_ndd', name:'NDD 上架', desc:'記錄下方「NDD 上架箱數」。<br>完成後複製下方 Line 模板回報群組。', lineReport:true, lineTemplate:'ndd', inlineCount:{key:'ndd_up_p5', label:'此次 NDD 上架箱數'}, prevReadonlyCount:{key:'ndd_up', label:'P1 已記錄'}},
+      {id:'p5_redist', name:'包裹重新分配', desc:'完成後拍 PDA「包裹重新分配」頁面，回傳 Line（標題：晚班包裹重新上架回報）', photo:true, lineReport:true, report:true},
+      {id:'p5_norm_up', name:'標準配送包裹上架', desc:'記錄下方箱數', inlineCount:{key:'norm_up', label:'標準配送上架箱數'}},
+      {id:'p5_clear', name:'晚班包裹清 0', desc:'指「標準配送」包裹。<br>① 格口沒了：拍 PDA「手動上架」畫面（A/B/C… 為 0）<br>② 上完貨：手拿進店 TO 單拍照，後方為先前放標準配送橘箱位置（表示上完貨）', photo:true, lineReport:true},
+      {id:'p5_holdover', name:'晚班滯留包裹', desc:'手拿進店 TO 單拍照，後方為未上完標準配送橘箱位置（表示沒有上完）', photo:true, lineReport:true},
+      {id:'p5_norm_pack', name:'開始打包「一般」包裹', desc:'打包「一般」寄件包裹', photo:true, lineReport:true},
+      {id:'p5_send_clear', name:'晚班寄件清空', desc:'拍寄件區照片，上店名浮水印，回傳 Line 群組', photo:true, lineReport:true},
+      {id:'p5_pda', name:'PDA 充電', desc:'離店前拍 PDA 充電照，上店名浮水印，回傳 Line 群組', photo:true, lineReport:true},
+      {id:'p5_out_to', name:'離店TO', desc:'離開 {A} 前要打', photo:true, lineReport:true}
+    ],
+    counts: [],
+    countStore: 'A'
+  }
+};
+
+function tpl(s){
+  if (!s) return s;
+  return String(s)
+    .replace(/\{A\}/g, stores.A || '第一間店')
+    .replace(/\{B\}/g, stores.B || '第二間店');
+}
+
+// === Helpers ===
+function fmtClock(ts){
+  const d = new Date(ts);
+  return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+
+// === Storage ===
+function loadJson(key, def){
+  try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(def)); } catch(e) { return def; }
+}
+function saveJson(key, v){
+  try { localStorage.setItem(key, JSON.stringify(v)); } catch(e){}
+}
+const K = {
+  stores: () => 'late_stores_'+today.toDateString(),
+  tasks: () => 'late_tasks_'+today.toDateString(),
+  counts: () => 'late_counts_'+today.toDateString(),
+  times: () => 'late_times_'+today.toDateString(),
+  interrupts: () => 'late_interrupts_'+today.toDateString(),
+  skips: () => 'late_skips_'+today.toDateString(),
+  decisions: () => 'late_decisions_'+today.toDateString()
+};
+
+let stores = loadJson(K.stores(), {A:'', B:''});
+let tasks = loadJson(K.tasks(), {});
+let counts = loadJson(K.counts(), {A:{}, B:{}});
+let times = loadJson(K.times(), {});
+let interrupts = loadJson(K.interrupts(), {});
+let skips = loadJson(K.skips(), {});
+let decisions = loadJson(K.decisions(), {});
+
+// === Init UI ===
+document.getElementById('storeA').value = stores.A || '';
+document.getElementById('storeB').value = stores.B || '';
+['storeA','storeB'].forEach(id => {
+  document.getElementById(id).addEventListener('input', () => {
+    stores.A = document.getElementById('storeA').value.trim();
+    stores.B = document.getElementById('storeB').value.trim();
+    saveJson(K.stores(), stores);
+    document.getElementById('startBtn').disabled = !(stores.A && stores.B);
+  });
+});
+document.getElementById('startBtn').disabled = !(stores.A && stores.B);
+
+// 永遠先顯示 setup screen，Carol 按「開始」進 checklist
+
+function startChecklist(){
+  if (!stores.A || !stores.B) { showToast('請先填兩間店名'); return; }
+  showChecklist();
+}
+function showChecklist(){
+  document.getElementById('setupScreen').style.display = 'none';
+  document.getElementById('checklistArea').style.display = 'block';
+  bindStageClicks();
+  renderAllPhases();
+  renderStageMap();
+  switchPhase('p1');
+  refreshProgress();
+  refreshAlerts();
+  refreshPathInfo();
+  refreshSummary();
+}
+let _stageClicksBound = false;
+function bindStageClicks(){
+  if (_stageClicksBound) return;
+  _stageClicksBound = true;
+  // Capture phase delegation：window 往下抓，最早收到 click
+  document.addEventListener('click', (e) => {
+    const tgt = e.target;
+    const stage = tgt && tgt.closest && tgt.closest('.stage[data-phase]');
+    if (stage) {
+      switchPhase(stage.dataset.phase);
+      showToast('✓ 切到 ' + stage.dataset.phase);
+    } else {
+      // Debug：不是 stage，顯示 target 是誰
+      const cls = (tgt.className || '').toString().slice(0, 30);
+      showToast('click: ' + (tgt.tagName||'?') + ' .' + cls);
+    }
+  }, true);
+}
+function goBack(){
+  document.getElementById('setupScreen').style.display = 'block';
+  document.getElementById('checklistArea').style.display = 'none';
+}
+function resetAll(){
+  if (!confirm('確定要重置今日所有勾選與計數嗎？（店名保留，照片保留）')) return;
+  tasks = {}; counts = {A:{}, B:{}}; times = {}; interrupts = {}; skips = {}; decisions = {};
+  saveJson(K.tasks(), tasks);
+  saveJson(K.counts(), counts);
+  saveJson(K.times(), times);
+  saveJson(K.interrupts(), interrupts);
+  saveJson(K.skips(), skips);
+  saveJson(K.decisions(), decisions);
+  renderAllPhases();
+  refreshProgress();
+  refreshAlerts();
+  refreshPathInfo();
+  refreshSummary();
+  showToast('已重置');
+}
+
+// === Render Phase ===
+function renderAllPhases(){
+  // 以 stage map 上 selected 的節點為當前 phase（最穩定）
+  const sel = document.querySelector('.stage.selected');
+  const curPid = (sel && sel.dataset.phase) || 'p1';
+  const root = document.getElementById('phaseContent');
+  root.innerHTML = '';
+  Object.keys(PHASES).forEach(pid => {
+    const div = document.createElement('div');
+    div.className = 'phase-pane' + (pid === curPid ? ' active' : '');
+    div.id = 'pane_'+pid;
+    try {
+      div.innerHTML = renderPhase(pid);
+    } catch(err) {
+      console.error('renderPhase failed for', pid, err);
+      div.innerHTML = `<div style="padding:20px;color:#a71d15">${pid} 渲染失敗：${err.message}</div>`;
+    }
+    root.appendChild(div);
+  });
+  document.querySelectorAll('.task').forEach(el => {
+    const tid = el.id;
+    if (el.dataset.photo === '1') renderPhotoSection(tid);
+  });
+  refreshNddTemplates();
+}
+
+function renderPhase(pid){
+  const p = PHASES[pid];
+  let html = '';
+  html += `<div class="phase-header">
+    <span class="phase-pill ${p.pillCls}">${p.pill}</span>
+    <div class="phase-title">${tpl(p.title)}</div>
+    <div class="phase-desc">${tpl(p.desc)}</div>
+  </div>`;
+  if (p.transition) {
+    const moved = !!tasks['p2_moved'];
+    const sA = stores.A || '第一間店';
+    const sB = stores.B || '第二間店';
+    html += `<div class="transition-card">
+      <div class="big-time">19:00</div>
+      <div class="big-label">該前往 ${sB} 了</div>
+      <p>NDD 是核心 KPI，時間到必須離開 ${sA}。<br>${sA} P1 未完項目會在 P5 緊急路線補做。</p>
+      <button class="transition-mark ${moved ? 'done' : ''}" onclick="markMoved()">${moved ? '✓ 我已前往 ' + sB : '我已前往 ' + sB}</button>
+    </div>`;
+    return html;
+  }
+  // tasks
+  for (const t of p.tasks) {
+    if (!conditionalSatisfied(t, pid)) continue;
+    if (t.decisionPoint) {
+      html += renderDecisionCard(t.decisionPoint);
+      continue;
+    }
+    if (t.sectionTitle) {
+      html += `<div class="section-divider">${t.sectionTitle}</div>`;
+      continue;
+    }
+    html += renderTask(pid, t);
+  }
+  // counts
+  if (p.counts && p.counts.length) {
+    const sn = stores[p.countStore] || (p.countStore === 'A' ? '第一間店' : '第二間店');
+    html += `<div class="counts-card">
+      <div class="counts-card-title">📊 ${sn}・件數記錄</div>
+      ${p.counts.map(f => `
+        <div class="count-row">
+          <span class="count-label">${f.label}</span>
+          <div class="num-ctrl">
+            <button type="button" class="num-btn" onclick="updateCount('${p.countStore}','${f.key}',-1)">−</button>
+            <input type="number" inputmode="numeric" min="0" class="num-val" data-store="${p.countStore}" data-key="${f.key}" value="${counts[p.countStore][f.key]||0}" onchange="setCount('${p.countStore}','${f.key}',this.value)">
+            <button type="button" class="num-btn" onclick="updateCount('${p.countStore}','${f.key}',1)">+</button>
+          </div>
+        </div>
+      `).join('')}
+    </div>`;
+  }
+  return html;
+}
+
+function renderTask(pid, t){
+  const isMirror = !!t.mirrorFrom;
+  const mirroredDone = isMirror && !!tasks[t.mirrorFrom];
+  const mirroredSkipped = isMirror && !!skips[t.mirrorFrom];
+  const done = !!tasks[t.id] || mirroredDone;
+  const isSkipped = !!skips[t.id] || mirroredSkipped;
+  const isInterrupted = !done && !isSkipped && !!interrupts[t.id];
+  const cls = ['task'];
+  if (isMirror) cls.push('mirrored');
+  if (isSkipped) cls.push('skipped');
+  else if (done) cls.push('done');
+  else if (isInterrupted) cls.push('interrupted');
+  if (t.priority && !isSkipped) cls.push('priority');
+  if (t.urgent && !isSkipped) cls.push('urgent');
+  const dataPhoto = t.photo ? '1' : '0';
+  let badges = '';
+  if (t.photo) badges += '<span class="badge bp">📷 拍照</span>';
+  if (t.lineReport) badges += '<span class="badge bl">📋 Line 回報</span>';
+  if (t.deadline) badges += `<span class="badge bt">⏰ ${t.deadline} 前</span>`;
+  if (t.report) badges += '<span class="badge bd">⚠️ 21:15–21:30 未完要回報</span>';
+  // P1 status badge 加在 task 的 badge 中
+  // (在 renderTask 後段定義 p1StatusBadge 再串入)
+  const photoBlock = t.photo ? `<div class="photo-wrap" onclick="event.stopPropagation()"><div id="ph_${t.id}"></div><button type="button" class="copy-store-btn" onclick="copyStoreName(event,'${PHASES[pid].store || PHASES[pid].countStore || ''}')">📋 複製店名</button></div>` : '';
+  let reportBlock = '';
+  if (t.report) {
+    const sk = PHASES[pid].store;
+    const sn = stores[sk] || (sk === 'A' ? '第一間店' : '第二間店');
+    const txt = `${sn} 包裹重新分配未完成`;
+    reportBlock = `<div class="report-section" id="rs_${t.id}" style="display:none">
+      <div class="rs-title">⚠️ 訊息串回報</div>
+      <div class="rs-text">
+        <span>${txt}</span>
+        <button class="rs-copy" onclick="copyText(event,'${txt.replace(/'/g,"\\'")}')">複製</button>
+      </div>
+    </div>`;
+  }
+  let tplBlock = '';
+  if (t.lineTemplate) {
+    tplBlock = `<div class="tpl-section" onclick="event.stopPropagation()">
+      <div class="tpl-title"><span>📋 Line 群組回報</span><button type="button" class="tpl-copy" id="tpl_btn_${t.id}" onclick="copyFromBtn(event, this)">複製</button></div>
+      <div class="tpl-text" id="tpl_text_${t.id}"></div>
+    </div>`;
+  }
+  let skipBlock = '';
+  if (t.skippable && !done) {
+    if (isSkipped) {
+      skipBlock = `<div class="skip-row skipped" onclick="event.stopPropagation()">
+        <span class="sk-label">⊘ 已跳過（沒有此項）</span>
+        <button type="button" class="sk-btn" onclick="toggleSkip(event,'${t.id}')">↺ 取消</button>
+      </div>`;
+    } else {
+      skipBlock = `<div class="skip-row" onclick="event.stopPropagation()">
+        <span class="sk-label">沒有可跳過？</span>
+        <button type="button" class="sk-btn" onclick="toggleSkip(event,'${t.id}')">⊘ 沒有此項</button>
+      </div>`;
+    }
+  }
+  let interruptBlock = '';
+  if (t.interruptible && !done && !isSkipped) {
+    if (isInterrupted) {
+      const tm = fmtClock(interrupts[t.id]);
+      interruptBlock = `<div class="interrupt-row" onclick="event.stopPropagation()">
+        <span class="ir-label">⏸ 中斷暫離於 ${tm}</span>
+        <button type="button" class="ir-btn" onclick="toggleInterrupt(event,'${t.id}')">↺ 取消</button>
+      </div>`;
+    } else {
+      interruptBlock = `<div class="interrupt-row idle" onclick="event.stopPropagation()">
+        <span class="ir-label">沒做完就走？</span>
+        <button type="button" class="ir-btn" onclick="toggleInterrupt(event,'${t.id}')">⏸ 標記中斷暫離</button>
+      </div>`;
+    }
+  }
+  let prevReadonlyBlock = '';
+  if (t.prevReadonlyCount) {
+    const store = PHASES[pid].countStore || PHASES[pid].store;
+    const v = (counts[store] || {})[t.prevReadonlyCount.key] || 0;
+    prevReadonlyBlock = `<div class="inline-count readonly" onclick="event.stopPropagation()">
+      <span class="ic-label">${t.prevReadonlyCount.label}</span>
+      <span class="ic-readonly-val">${v}</span>
+    </div>`;
+  }
+  let inlineCountBlock = '';
+  if (t.inlineCount) {
+    const store = PHASES[pid].countStore || PHASES[pid].store;
+    const v = (counts[store] || {})[t.inlineCount.key] || 0;
+    inlineCountBlock = `<div class="inline-count" onclick="event.stopPropagation()">
+      <span class="ic-label">${t.inlineCount.label}</span>
+      <div class="num-ctrl">
+        <button type="button" class="num-btn" onclick="event.stopPropagation();updateCount('${store}','${t.inlineCount.key}',-1)">−</button>
+        <input type="number" inputmode="numeric" min="0" class="num-val" data-store="${store}" data-key="${t.inlineCount.key}" value="${v}" onchange="setCount('${store}','${t.inlineCount.key}',this.value)" onclick="event.stopPropagation();this.select()">
+        <button type="button" class="num-btn" onclick="event.stopPropagation();updateCount('${store}','${t.inlineCount.key}',1)">+</button>
+      </div>
+    </div>`;
+  }
+  // P5 task 顯示對應 P1 task 的狀態（done / 跳過 / 中斷）
+  let p1StatusBadge = '';
+  if (pid === 'p5') {
+    const p1Map = {p5_pack:'p1_pack', p5_wh:'p1_wh', p5_ndd:'p1_ndd', p5_redist:'p1_redist'};
+    const p1id = p1Map[t.id];
+    if (p1id) {
+      if (tasks[p1id]) {
+        const tm = times[p1id] ? fmtClock(times[p1id]) : '';
+        p1StatusBadge = `<span class="badge bp">P1 已完成 ${tm}</span>`;
+      } else if (skips[p1id]) {
+        p1StatusBadge = '<span class="badge bp">P1 已跳過</span>';
+      } else if (interrupts[p1id]) {
+        p1StatusBadge = `<span class="badge bd">P1 中斷於 ${fmtClock(interrupts[p1id])}</span>`;
+      } else {
+        p1StatusBadge = '<span class="badge bd">P1 未做</span>';
+      }
+    }
+  }
+  // 動態 desc 處理：p5_p1_redo 列出 P1 未完項
+  let desc = t.desc;
+  if (t.id === 'p5_p1_redo') {
+    const unfinished = p1UnfinishedNames();
+    desc = unfinished.length
+      ? `補做：${unfinished.join('、')}`
+      : `${stores.A || '第一間店'} P1 全部已完成，無需補做`;
+  }
+  return `<div class="${cls.join(' ')}" id="${t.id}" data-photo="${dataPhoto}" data-mirror="${t.mirrorFrom || ''}" onclick="toggleTask('${t.id}')">
+    <div class="cb"><span class="ck">✓</span></div>
+    <div class="tc">
+      <div class="task-name">${tpl(t.name)}</div>
+      ${desc ? `<div class="task-desc">${tpl(desc)}</div>` : ''}
+      ${(badges || p1StatusBadge) ? `<div class="badges">${badges}${p1StatusBadge}</div>` : ''}
+      ${skipBlock}
+      ${interruptBlock}
+      ${prevReadonlyBlock}
+      ${inlineCountBlock}
+      ${photoBlock}
+      ${reportBlock}
+      ${tplBlock}
+    </div>
+  </div>`;
+}
+
+function toggleSkip(e, tid){
+  if (e) { e.stopPropagation(); e.preventDefault(); }
+  if (skips[tid]) {
+    delete skips[tid];
+    showToast('已取消跳過');
+  } else {
+    skips[tid] = true;
+    delete tasks[tid];
+    delete times[tid];
+    delete interrupts[tid];
+    showToast('已標記為「沒有此項」');
+  }
+  saveJson(K.skips(), skips);
+  saveJson(K.tasks(), tasks);
+  saveJson(K.times(), times);
+  saveJson(K.interrupts(), interrupts);
+  renderAllPhases();
+  refreshProgress();
+  refreshTabDots();
+  refreshPathInfo();
+  refreshSummary();
+}
+
+function toggleInterrupt(e, tid){
+  if (e) { e.stopPropagation(); e.preventDefault(); }
+  const wasInterrupted = !!interrupts[tid];
+  if (wasInterrupted) {
+    delete interrupts[tid];
+    showToast('已取消中斷標記');
+  } else {
+    interrupts[tid] = Date.now();
+    if (tid === 'p1_ndd') showToast('已標記中斷暫離，請打「離店TO」再前往下一間');
+    else showToast('已標記中斷暫離');
+  }
+  saveJson(K.interrupts(), interrupts);
+  renderAllPhases();
+  refreshTabDots();
+  refreshPathInfo();
+}
+
+const DECISIONS = {
+  p1_d1: {
+    title: '📍 下一步（WH 上架後）',
+    desc: '是否要繼續上架 NDD？',
+    options: [
+      {value:'continue', num:'1', label:'是，繼續上架 NDD', sub:'留在這個階段'},
+      {value:'skip', num:'2', label:'否，前往第二間店', sub:'切到 P3', urgent:true, jumpTo:'p3'}
+    ]
+  },
+  p3_d1: {
+    title: '📍 下一步（包裹重新分配後）',
+    desc: '完成 NDD 上架 + 包裹重新分配，下一步：',
+    options: [
+      {value:'continue', num:'1', label:'繼續上「標準配送」（二配）包裹', sub:'留在這個階段'},
+      {value:'back', num:'2', label:'回第一間店繼續 NDD 上架', sub:'切到 P5', urgent:true, jumpTo:'p5'}
+    ]
+  },
+  p3_d2: {
+    title: '📍 下一步（標配上架後）',
+    desc: '完成標準配送包裹上架，下一步：',
+    options: [
+      {value:'continue_pack', num:'1', label:'開始打包「一般」寄件包裹', sub:'繼續做完收尾'},
+      {value:'back', num:'2', label:'回第一間店繼續動作', sub:'切到 P5', urgent:true, jumpTo:'p5'}
+    ]
+  }
+};
+
+function renderDecisionCard(decisionKey){
+  const config = DECISIONS[decisionKey];
+  if (!config) return '';
+  const dec = decisions[decisionKey];
+  const opts = config.options;
+  const currentLabel = dec ? ((opts.find(o => o.value === dec) || {}).label || '') : '';
+  return `<div class="decision-card" data-key="${decisionKey}">
+    <div class="decision-title">${config.title}</div>
+    <div class="decision-desc">${config.desc}</div>
+    <div class="decision-options">
+      ${opts.map(o => `
+        <button type="button" class="decision-btn ${o.urgent ? 'urgent' : ''} ${dec === o.value ? 'selected' : ''}" onclick="setDecision(event,'${decisionKey}','${o.value}')">
+          <div class="d-num">${o.num}</div>
+          <div class="d-content"><div class="d-label">${o.label}</div><div class="d-sub">${o.sub}</div></div>
+        </button>
+      `).join('')}
+    </div>
+    ${dec ? `<div class="decision-current">已選：${currentLabel}　<button type="button" class="decision-clear" onclick="clearDecision(event,'${decisionKey}')">取消</button></div>` : ''}
+  </div>`;
+}
+
+function setDecision(e, key, value){
+  if (e) { e.stopPropagation(); e.preventDefault(); }
+  decisions[key] = value;
+  saveJson(K.decisions(), decisions);
+  const config = DECISIONS[key];
+  const opt = config && config.options.find(o => o.value === value);
+  showToast(opt ? '已選：' + opt.label : '已選');
+  renderAllPhases();
+  refreshProgress();
+  refreshTabDots();
+  refreshPathInfo();
+  if (opt && opt.jumpTo) {
+    setTimeout(() => switchPhase(opt.jumpTo), 200);
+  }
+}
+function clearDecision(e, key){
+  if (e) { e.stopPropagation(); e.preventDefault(); }
+  delete decisions[key];
+  saveJson(K.decisions(), decisions);
+  showToast('已取消選擇');
+  renderAllPhases();
+  refreshProgress();
+  refreshTabDots();
+  refreshPathInfo();
+}
+
+function refreshNddTemplates(){
+  // 收集所有有 lineTemplate 的 task
+  Object.keys(PHASES).forEach(pid => {
+    const p = PHASES[pid];
+    if (!p.tasks) return;
+    p.tasks.forEach(t => {
+      if (!t.lineTemplate) return;
+      const store = p.store || p.countStore;
+      const sn = stores[store] || (store === 'A' ? '第一間店' : '第二間店');
+      const time = times[t.id] ? fmtClock(times[t.id]) : '--:--';
+      let text = '';
+      if (t.lineTemplate === 'ndd') {
+        const ndd = (counts[store] || {}).ndd_up || 0;
+        text = `${sn}\nNDD進貨箱數：${ndd}\n完成時間：${time}`;
+      } else if (t.lineTemplate === 'redist') {
+        text = `${sn} 晚班包裹重新上架回報\n完成時間：${time}`;
+      }
+      const textEl = document.getElementById('tpl_text_'+t.id);
+      if (textEl) textEl.textContent = text;
+      const btn = document.getElementById('tpl_btn_'+t.id);
+      if (btn) btn.dataset.text = text;
+    });
+  });
+}
+function copyFromBtn(e, btn){
+  if (e) { e.stopPropagation(); e.preventDefault(); }
+  const txt = btn.dataset.text || '';
+  navigator.clipboard.writeText(txt).then(() => showToast('已複製')).catch(() => showToast('複製失敗'));
+}
+
+// === Tab Switching ===
+function switchPhase(pid){
+  document.querySelectorAll('.stage').forEach(el => el.classList.toggle('selected', el.dataset.phase === pid));
+  document.querySelectorAll('.phase-pane').forEach(el => el.classList.toggle('active', el.id === 'pane_'+pid));
+  window.scrollTo({top: 0, behavior: 'instant'});
+}
+
+// === Task Toggle ===
+function toggleTask(tid){
+  // ignore if click was inside photo / report / tpl / inline / interrupt section
+  if (event && event.target && event.target.closest && (event.target.closest('.photo-section') || event.target.closest('.report-section') || event.target.closest('.tpl-section') || event.target.closest('.inline-count') || event.target.closest('.interrupt-row') || event.target.closest('.skip-row') || event.target.closest('.photo-wrap'))) return;
+  // 已跳過的任務不能 toggle done
+  if (skips[tid]) return;
+  // mirror task 不可獨立 toggle（自動同步來源）
+  const el = document.getElementById(tid);
+  if (el && el.dataset.mirror) {
+    showToast('此項自動同步，請去原任務操作');
+    return;
+  }
+  if (tasks[tid]) {
+    delete tasks[tid];
+    delete times[tid];
+  } else {
+    tasks[tid] = true;
+    times[tid] = Date.now();
+    // 完成 = 清掉中斷標記
+    if (interrupts[tid]) {
+      delete interrupts[tid];
+      saveJson(K.interrupts(), interrupts);
+    }
+  }
+  saveJson(K.tasks(), tasks);
+  saveJson(K.times(), times);
+  if (el) el.classList.toggle('done', !!tasks[tid]);
+  refreshProgress();
+  refreshAlerts();
+  refreshPathInfo();
+  refreshTabDots();
+  refreshNddTemplates();
+  // p1_out_to 勾起 + p1_ndd 中斷 → 自動切到 P3
+  if (tid === 'p1_out_to' && tasks[tid] && interrupts['p1_ndd']) {
+    setTimeout(() => { showToast('前往下一間店'); switchPhase('p3'); }, 200);
+  }
+}
+
+function markMoved(){
+  tasks['p2_moved'] = !tasks['p2_moved'];
+  saveJson(K.tasks(), tasks);
+  const sB = stores.B || '第二間店';
+  showToast(tasks['p2_moved'] ? `已前往 ${sB}` : '取消');
+  renderAllPhases();
+  switchPhase('p2');
+  refreshProgress();
+  refreshTabDots();
+  refreshPathInfo();
+}
+
+// === Counts ===
+function getCurrentPid(){
+  const el = document.querySelector('.phase-pane.active');
+  return el ? el.id.replace('pane_', '') : 'p1';
+}
+function updateCount(store, key, delta){
+  if (!counts[store]) counts[store] = {};
+  counts[store][key] = Math.max(0, (counts[store][key] || 0) + delta);
+  saveJson(K.counts(), counts);
+  // 直接更新 DOM input value，不重 render（避免畫面跳）
+  document.querySelectorAll(`input[data-store="${store}"][data-key="${key}"]`).forEach(input => {
+    input.value = counts[store][key];
+  });
+  refreshSummary();
+  refreshNddTemplates();
+}
+function setCount(store, key, raw){
+  const n = Math.max(0, parseInt(String(raw).replace(/[^\d]/g,''),10) || 0);
+  if (!counts[store]) counts[store] = {};
+  counts[store][key] = n;
+  saveJson(K.counts(), counts);
+  document.querySelectorAll(`input[data-store="${store}"][data-key="${key}"]`).forEach(input => {
+    if (input.value != n) input.value = n;
+  });
+  refreshSummary();
+  refreshNddTemplates();
+}
+
+// === Progress ===
+function allTaskIds(){
+  const ids = [];
+  Object.entries(PHASES).forEach(([pid, p]) => {
+    if (p.tasks) p.tasks.forEach(t => {
+      if (t.sectionTitle || t.decisionPoint) return;
+      if (!conditionalSatisfied(t, pid)) return;
+      ids.push(t.id);
+    });
+  });
+  return ids;
+}
+function refreshProgress(){
+  const ids = allTaskIds();
+  const done = ids.filter(id => taskIsDone(id)).length;
+  const total = ids.length;
+  const pct = total > 0 ? Math.round(done / total * 100) : 0;
+  document.getElementById('pb').style.width = pct + '%';
+  document.getElementById('pl').textContent = `${done} / ${total} 完成`;
+}
+
+function refreshTabDots(){ renderStageMap(); }
+
+function renderStageMap(){
+  const map = document.getElementById('stageMap');
+  if (!map) return;
+  // status of each phase
+  const status = {};
+  Object.keys(PHASES).forEach(pid => {
+    const p = PHASES[pid];
+    if (p.transition) status[pid] = tasks['p2_moved'] ? 'done' : 'pending';
+    else status[pid] = (p.tasks || []).every(t => phaseTaskOk(pid, t)) ? 'done' : 'pending';
+  });
+  const order = ['p1','p3','p5'];
+  let current = order.find(pid => status[pid] !== 'done') || 'p5';
+  const hasInterrupt = PHASES.p1.tasks.some(t => interrupts[t.id]);
+  const goesToP5 = hasInterrupt || decisions.p3_d1 === 'back' || decisions.p3_d2 === 'back';
+  let nextPid = null;
+  if (goesToP5) nextPid = 'p5';
+  else if (decisions.p1_d1 === 'skip' && current === 'p1') nextPid = 'p3';
+
+  order.forEach(pid => {
+    const el = map.querySelector(`.stage[data-phase="${pid}"]`);
+    if (!el) return;
+    el.classList.remove('done', 'current', 'skipped', 'locked', 'next');
+    if (status[pid] === 'done') el.classList.add('done');
+    else if (pid === current) el.classList.add('current');
+    else if (pid === nextPid) el.classList.add('next');
+    else el.classList.add('locked');
+  });
+
+  const conn13 = document.getElementById('conn-13');
+  const conn35 = document.getElementById('conn-35');
+  if (conn13) conn13.classList.toggle('done', status.p1 === 'done');
+  if (conn35) conn35.classList.toggle('done', status.p3 === 'done');
+
+  // dynamic short labels using store names
+  const shortA = (stores.A || '第一間').slice(0, 4);
+  const shortB = (stores.B || '第二間').slice(0, 4);
+  const labels = {
+    p1: `${shortA} NDD`,
+    p3: `${shortB}`,
+    p5: `回 ${shortA}`
+  };
+  Object.keys(labels).forEach(pid => {
+    const el = map.querySelector(`.stage[data-phase="${pid}"] .label-text`);
+    if (el) el.textContent = labels[pid];
+  });
+}
+
+// === Path Indicator (P4/P5 path) ===
+function findTaskConfig(tid){
+  for (const pid of Object.keys(PHASES)) {
+    for (const t of (PHASES[pid].tasks || [])) {
+      if (t.id === tid) return t;
+    }
+  }
+  return null;
+}
+function taskIsDone(tid){
+  if (!!tasks[tid] || !!skips[tid]) return true;
+  const t = findTaskConfig(tid);
+  if (t && t.mirrorFrom) return taskIsDone(t.mirrorFrom);
+  return false;
+}
+// 判斷 task 的 conditional 是否滿足（true 表示要顯示/計算）
+function conditionalSatisfied(t, pid){
+  if (t.hideIfInterrupted && interrupts[t.hideIfInterrupted]) return false;
+  if (!t.conditional) return true;
+  const c = t.conditional;
+  if (typeof c === 'string') return decisions[pid] === c;
+  return decisions[c.key] === c.value;
+}
+// task 在某 phase 中是否「達成」（含 sectionTitle/conditional 跳過、decisionPoint 看 decision）
+function phaseTaskOk(pid, t){
+  if (t.sectionTitle) return true;
+  if (!conditionalSatisfied(t, pid)) return true; // 不顯示 = 視為已通過
+  if (t.decisionPoint) return !!decisions[t.decisionPoint];
+  return taskIsDone(t.id);
+}
+function isP1Complete(){
+  return PHASES.p1.tasks.every(t => phaseTaskOk('p1', t));
+}
+function isP3Complete(){
+  return PHASES.p3.tasks.every(t => phaseTaskOk('p3', t));
+}
+function p1UnfinishedNames(){
+  // 列出 P1 未完任務名（包含中斷的，跳過的不算）
+  return PHASES.p1.tasks
+    .filter(t => !taskIsDone(t.id))
+    .filter(t => t.id !== 'p1_in_to' && t.id !== 'p1_out_to') // in/out TO 不在 P5 補
+    .map(t => {
+      const name = tpl(t.name);
+      if (interrupts[t.id]) return `${name}（中斷於 ${fmtClock(interrupts[t.id])}）`;
+      return name;
+    });
+}
+function refreshPathInfo(){
+  const info = document.getElementById('pathInfo');
+  if (!info) return;
+  const sA = stores.A || '第一間店';
+  const hasInterrupt = PHASES.p1.tasks.some(t => interrupts[t.id]);
+  const goesToP5 = hasInterrupt || decisions.p3_d1 === 'back' || decisions.p3_d2 === 'back';
+  info.classList.remove('urgent');
+  if (goesToP5) {
+    info.classList.add('urgent');
+    info.innerHTML = `<b>需要回 ${sA} 補完</b>（P5 緊急路線）`;
+  } else {
+    info.innerHTML = `<b>線性流程</b>　P1 → P2 → P3 — 若 P3 選「回第一間」會切到 P5`;
+  }
+  // tabs label use store names
+  const tabMap = {
+    p1: `${sA} NDD`,
+    p3: `${sB} NDD`,
+    p4: `${sB} 一般`,
+    p5: `回 ${sA}`
+  };
+  Object.keys(tabMap).forEach(pid => {
+    const el = document.querySelector(`[data-tab="${pid}"]`);
+    if (el) el.textContent = tabMap[pid];
+  });
+}
+
+// === Time Alerts ===
+function timeIs(hh, mm){
+  const n = new Date();
+  return n.getHours() > hh || (n.getHours() === hh && n.getMinutes() >= mm);
+}
+function timeBetween(h1, m1, h2, m2){
+  const n = new Date();
+  const cur = n.getHours()*60 + n.getMinutes();
+  return cur >= (h1*60+m1) && cur <= (h2*60+m2);
+}
+function refreshAlerts(){
+  const banner = document.getElementById('alertBanner');
+  banner.classList.remove('show', 'danger', 'warn');
+  // priority order: report window > 19:00 cutoff > 20:00 NDD pack
+  const reportMissing = (!tasks['p1_redist'] || !tasks['p3_redist']);
+  if (timeBetween(21,15,21,30) && reportMissing) {
+    const list = [];
+    if (!tasks['p1_redist']) list.push(stores.A || '第一間店');
+    if (!tasks['p3_redist']) list.push(stores.B || '第二間店');
+    const txt = list.map(s => `${s} 包裹重新分配未完成`).join('\n');
+    banner.classList.add('show', 'danger');
+    banner.innerHTML = `<div class="a-title">🚨 21:15–21:30 訊息串回報時間</div>
+      <div>包裹重新分配未完，請在訊息串標註：</div>
+      ${list.map(s => `<button class="copy-btn" onclick="copyText(event,'${s} 包裹重新分配未完成')">📋 複製「${s} 包裹重新分配未完成」</button>`).join('')}`;
+    return;
+  }
+  if (timeIs(19,0) && !tasks['p3_in_to']) {
+    banner.classList.add('show', 'danger');
+    const sA = stores.A || '第一間店';
+    const sB = stores.B || '第二間店';
+    banner.innerHTML = `<div class="a-title">⏰ 19:00 已到</div>
+      <div>請前往 ${sB}（${sA} 未完項目會在 P5 補做）</div>`;
+    return;
+  }
+  if (timeIs(20,0) && (!tasks['p1_pack'] || !tasks['p3_pack'])) {
+    banner.classList.add('show', 'warn');
+    const missing = [];
+    if (!tasks['p1_pack']) missing.push(stores.A || '第一間店');
+    if (!tasks['p3_pack']) missing.push(stores.B || '第二間店');
+    banner.innerHTML = `<div class="a-title">⚠️ 20:00 已過</div>
+      <div>NDD 寄件打包尚未完成：${missing.join('、')}</div>`;
+    return;
+  }
+}
+
+// === Summary ===
+function refreshSummary(){
+  const card = document.getElementById('summaryCard');
+  if (!card) return;
+  const sA = stores.A || '第一間店';
+  const sB = stores.B || '第二間店';
+  const cA = counts.A || {};
+  const cB = counts.B || {};
+  const fields = [
+    {key:'bx', label:'黑箱'},
+    {key:'ndd_out', label:'NDD 離店'},
+    {key:'ndd_up', label:'NDD 上架'},
+    {key:'norm_out', label:'一般離店'},
+    {key:'norm_up', label:'一般上架'}
+  ];
+  const renderStore = (name, c) => `
+    <div class="summary-store">
+      <div class="summary-store-name">${name}</div>
+      <div class="summary-fields">
+        ${fields.map(f => `<div class="sf">${f.label}：<b>${c[f.key]||0}</b></div>`).join('')}
+      </div>
+    </div>`;
+  document.getElementById('summaryBody').innerHTML = renderStore(sA, cA) + renderStore(sB, cB);
+  // show summary if any task or count touched
+  const hasAny = Object.keys(tasks).length > 0 ||
+    Object.values(counts).some(o => Object.values(o).some(v => v > 0));
+  card.classList.toggle('show', hasAny);
+}
+
+// === Photos (IndexedDB shared with morning under same origin, but we use separate dateKey prefix) ===
+let photoDB = null;
+function openPhotoDB(){
+  return new Promise((resolve, reject) => {
+    if (photoDB) return resolve(photoDB);
+    const req = indexedDB.open('shopee-sop-photos', 1);
+    req.onupgradeneeded = (e) => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains('photos')) {
+        const store = db.createObjectStore('photos', {keyPath:'id', autoIncrement: true});
+        store.createIndex('byTask', ['dateKey', 'taskId']);
+        store.createIndex('byDate', 'dateKey');
+      }
+    };
+    req.onsuccess = (e) => { photoDB = e.target.result; resolve(photoDB); };
+    req.onerror = () => reject(req.error);
+  });
+}
+async function addPhoto(taskId, blob){
+  const db = await openPhotoDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('photos', 'readwrite');
+    const req = tx.objectStore('photos').add({ dateKey, taskId, blob, createdAt: Date.now() });
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+async function getPhotos(taskId){
+  const db = await openPhotoDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('photos', 'readonly');
+    const idx = tx.objectStore('photos').index('byTask');
+    const req = idx.getAll(IDBKeyRange.only([dateKey, taskId]));
+    req.onsuccess = () => resolve(req.result || []);
+    req.onerror = () => reject(req.error);
+  });
+}
+async function getPhotosByDate(dk){
+  const db = await openPhotoDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('photos', 'readonly');
+    const idx = tx.objectStore('photos').index('byDate');
+    const req = idx.getAll(IDBKeyRange.only(dk));
+    req.onsuccess = () => resolve(req.result || []);
+    req.onerror = () => reject(req.error);
+  });
+}
+async function deletePhotoById(id){
+  const db = await openPhotoDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('photos', 'readwrite');
+    const req = tx.objectStore('photos').delete(id);
+    req.onsuccess = () => resolve();
+    req.onerror = () => reject(req.error);
+  });
+}
+function compressImage(file, maxW = 800, quality = 0.78){
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const scale = Math.min(1, maxW / img.width);
+      const w = Math.round(img.width * scale), h = Math.round(img.height * scale);
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      canvas.toBlob(b => b ? resolve(b) : reject(new Error('compress failed')), 'image/jpeg', quality);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('load failed')); };
+    img.src = url;
+  });
+}
+function blobToDataURL(blob){
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result);
+    r.onerror = () => reject(r.error);
+    r.readAsDataURL(blob);
+  });
+}
+const MAX_PHOTOS = 1;
+const thumbUrls = new Map();
+
+async function renderPhotoSection(taskId){
+  const wrap = document.getElementById('ph_'+taskId);
+  if (!wrap) return;
+  const photos = await getPhotos(taskId);
+  wrap.innerHTML = `<div class="photo-section">
+    <div class="photo-head">
+      <span class="photo-count ${photos.length >= MAX_PHOTOS ? 'full' : ''}">📷 ${photos.length}/${MAX_PHOTOS}</span>
+      <button class="photo-add-btn" ${photos.length >= MAX_PHOTOS ? 'disabled' : ''} onclick="triggerCamera(event,'${taskId}')">＋ 拍照</button>
+    </div>
+    <div class="photo-thumbs">
+      ${photos.map(p => {
+        const u = URL.createObjectURL(p.blob);
+        return `<div class="photo-thumb" onclick="event.stopPropagation();openLightbox('${u}')"><img src="${u}"><button class="photo-thumb-del" onclick="event.stopPropagation();deletePhoto(event,${p.id},'${taskId}')">✕</button></div>`;
+      }).join('')}
+    </div>
+  </div>`;
+}
+
+let pendingPhotoTaskId = null;
+function triggerCamera(e, taskId){
+  e.stopPropagation();
+  pendingPhotoTaskId = taskId;
+  document.getElementById('photoInput').click();
+}
+document.getElementById('photoInput').addEventListener('change', async (ev) => {
+  const file = ev.target.files[0];
+  ev.target.value = '';
+  if (!file || !pendingPhotoTaskId) return;
+  const taskId = pendingPhotoTaskId;
+  pendingPhotoTaskId = null;
+  const existing = await getPhotos(taskId);
+  if (existing.length >= MAX_PHOTOS) { showToast('已達 4 張上限'); return; }
+  try {
+    const blob = await compressImage(file);
+    await addPhoto(taskId, blob);
+    await renderPhotoSection(taskId);
+    showToast(`📷 拍照儲存 (${existing.length + 1}/${MAX_PHOTOS})`);
+    shareToPhotos(blob, taskId);
+  } catch (err) { showToast('儲存失敗：' + err.message); }
+});
+async function shareToPhotos(blob, taskId){
+  try {
+    const ts = new Date();
+    const fname = `shopee-sop-late-${ts.getFullYear()}${pad(ts.getMonth()+1)}${pad(ts.getDate())}-${pad(ts.getHours())}${pad(ts.getMinutes())}${pad(ts.getSeconds())}-${taskId}.jpg`;
+    const file = new File([blob], fname, { type: 'image/jpeg' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file] });
+      return;
+    }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = fname;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  } catch (err) {
+    if (err && err.name === 'AbortError') return;
+    console.warn('shareToPhotos failed', err);
+  }
+}
+async function deletePhoto(e, id, taskId){
+  e.stopPropagation();
+  if (!confirm('刪除這張照片？')) return;
+  await deletePhotoById(id);
+  await renderPhotoSection(taskId);
+}
+function openLightbox(url){
+  document.getElementById('lightboxImg').src = url;
+  document.getElementById('lightbox').classList.add('show');
+}
+function closeLightbox(){
+  document.getElementById('lightbox').classList.remove('show');
+}
+
+// === Misc helpers ===
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(() => t.classList.remove('show'), 1800);
+}
+function copyText(e, txt){
+  if (e) { e.stopPropagation(); e.preventDefault(); }
+  navigator.clipboard.writeText(txt).then(() => showToast('已複製')).catch(() => showToast('複製失敗'));
+}
+function copyStoreName(e, storeKey){
+  if (e) { e.stopPropagation(); e.preventDefault(); }
+  if (!storeKey) { showToast('店名缺失'); return; }
+  const sn = stores[storeKey] || (storeKey === 'A' ? '第一間店' : '第二間店');
+  navigator.clipboard.writeText(sn).then(() => showToast('已複製：' + sn)).catch(() => showToast('複製失敗'));
+}
+
+// === Export ===
+async function exportToday(){
+  const data = {
+    schemaVersion: 1,
+    type: 'late',
+    exportedAt: Date.now(),
+    dateKey,
+    date: `${today.getFullYear()}-${pad(today.getMonth()+1)}-${pad(today.getDate())}`,
+    stores,
+    tasks,
+    counts,
+    times,
+    interrupts,
+    skips,
+    decisions,
+    path: isP1Complete() ? 'P4' : 'P5',
+    photos: []
+  };
+  const photos = await getPhotosByDate(dateKey);
+  for (const p of photos) {
+    data.photos.push({ taskId: p.taskId, createdAt: p.createdAt, dataUrl: await blobToDataURL(p.blob) });
+  }
+  const filename = `shopee-sop-late-${data.date}.json`;
+  const blob = new Blob([JSON.stringify(data)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.getElementById('exportAnchor');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  showToast(`已匯出 ${filename}（${photos.length} 張照片）`);
+}
+
+</script>
+</body>
+</html>
