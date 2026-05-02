@@ -1523,20 +1523,26 @@ function blobToDataURL(blob){
     r.readAsDataURL(blob);
   });
 }
-const MAX_PHOTOS = 4;
+const MAX_PHOTOS = 1;
+function getMaxPhotos(taskId){
+  // 紙捲測試（_m2）4 張，其他 1 張
+  return /_m2$/.test(taskId) ? 4 : 1;
+}
 const thumbUrls = new Map();
 function photoSectionHtml(taskId){
-  return `<div class="photo-section" id="ph_${taskId}"><div class="photo-head"><span class="photo-count" id="pc_${taskId}">📷 0/${MAX_PHOTOS}</span><button class="photo-add-btn" onclick="triggerCamera(event,'${taskId}')">＋ 拍照</button></div><div class="photo-thumbs" id="pt_${taskId}"></div></div>`;
+  const max = getMaxPhotos(taskId);
+  return `<div class="photo-section" id="ph_${taskId}"><div class="photo-head"><span class="photo-count" id="pc_${taskId}">📷 0/${max}</span><button class="photo-add-btn" onclick="triggerCamera(event,'${taskId}')">＋ 拍照</button></div><div class="photo-thumbs" id="pt_${taskId}"></div></div>`;
 }
 async function renderPhotoSection(taskId){
   const photos = await getPhotos(taskId);
   const countEl = document.getElementById('pc_'+taskId);
   const thumbsEl = document.getElementById('pt_'+taskId);
   if (!countEl || !thumbsEl) return;
-  countEl.textContent = `📷 ${photos.length}/${MAX_PHOTOS}`;
-  countEl.classList.toggle('full', photos.length >= MAX_PHOTOS);
+  const max = getMaxPhotos(taskId);
+  countEl.textContent = `📷 ${photos.length}/${max}`;
+  countEl.classList.toggle('full', photos.length >= max);
   const addBtn = countEl.parentElement.querySelector('.photo-add-btn');
-  if (addBtn) addBtn.disabled = photos.length >= MAX_PHOTOS;
+  if (addBtn) addBtn.disabled = photos.length >= max;
   // clean old URLs
   [...thumbsEl.querySelectorAll('img')].forEach(img => {
     const u = thumbUrls.get(img);
@@ -1567,12 +1573,13 @@ document.getElementById('photoInput').addEventListener('change', async (ev) => {
   const taskId = pendingPhotoTaskId;
   pendingPhotoTaskId = null;
   const existing = await getPhotos(taskId);
-  if (existing.length >= MAX_PHOTOS) { showToast('已達 4 張上限'); return; }
+  const max = getMaxPhotos(taskId);
+  if (existing.length >= max) { showToast(`已達 ${max} 張上限`); return; }
   try {
     const blob = await compressImage(file);
     await addPhoto(taskId, blob);
     await renderPhotoSection(taskId);
-    showToast(`📷 拍照儲存 (${existing.length + 1}/${MAX_PHOTOS})`);
+    showToast(`📷 拍照儲存 (${existing.length + 1}/${max})`);
     shareToPhotos(blob, taskId);
   } catch (err) { showToast('儲存失敗：' + err.message); }
 });
