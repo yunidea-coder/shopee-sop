@@ -1416,17 +1416,13 @@ let _stageClicksBound = false;
 function bindStageClicks(){
   if (_stageClicksBound) return;
   _stageClicksBound = true;
-  // Capture phase delegation：window 往下抓，最早收到 click
   document.addEventListener('click', (e) => {
     const tgt = e.target;
-    const stage = tgt && tgt.closest && tgt.closest('.stage[data-phase]');
+    if (!tgt || !tgt.closest) return;
+    const stage = tgt.closest('.stage[data-phase]');
     if (stage) {
+      e.stopPropagation();
       switchPhase(stage.dataset.phase);
-      showToast('✓ 切到 ' + stage.dataset.phase);
-    } else {
-      // Debug：不是 stage，顯示 target 是誰
-      const cls = (tgt.className || '').toString().slice(0, 30);
-      showToast('click: ' + (tgt.tagName||'?') + ' .' + cls);
     }
   }, true);
 }
