@@ -1309,10 +1309,11 @@ const PHASES = {
       {id:'p3_redist', name:'包裹重新分配', desc:'完成後拍 PDA「包裹重新分配」頁面，回傳 Line（標題：晚班包裹重新上架回報）', report:true, photo:true, lineReport:true},
       {id:'p3_decision', decisionPoint:'p3_d1'},
       {id:'p3_norm_up', name:'標準配送包裹上架', desc:'記錄下方箱數', inlineCount:{key:'norm_up', label:'標準配送上架箱數'}, conditional:{key:'p3_d1', value:'continue'}},
-      {id:'p3_clear', name:'晚班包裹清 0', desc:'指「標準配送」包裹。<br>① 格口沒了：拍 PDA「手動上架」畫面（A/B/C… 為 0）<br>② 上完貨：手拿進店 TO 單拍照，後方為先前放標準配送橘箱位置（表示上完貨）', photo:true, lineReport:true, conditional:{key:'p3_d1', value:'continue'}},
-      {id:'p3_decision2', decisionPoint:'p3_d2', conditional:{key:'p3_d1', value:'continue'}},
+      {id:'p3_decision_norm_done', decisionPoint:'p3_d_norm_done', conditional:{key:'p3_d1', value:'continue'}},
+      {id:'p3_clear', name:'晚班包裹清 0', desc:'指「標準配送」包裹。<br>① 格口沒了：拍 PDA「手動上架」畫面（A/B/C… 為 0）<br>② 上完貨：手拿進店 TO 單拍照，後方為先前放標準配送橘箱位置（表示上完貨）', photo:true, lineReport:true, conditional:{key:'p3_d_norm_done', value:'all'}},
+      {id:'p3_holdover', name:'晚班滯留包裹', desc:'手拿進店 TO 單拍照，後方為未上完標準配送橘箱位置（表示沒有上完）', photo:true, lineReport:true, conditional:{key:'p3_d_norm_done', value:'partial'}},
+      {id:'p3_decision2', decisionPoint:'p3_d2', conditional:[{key:'p3_d_norm_done',value:'all'},{key:'p3_d_norm_done',value:'partial'}]},
       {id:'p3_norm_pack', name:'一般寄件包裹打包', desc:'打包「一般」寄件包裹', photo:true, lineReport:true, conditional:{key:'p3_d2', value:'continue_pack'}},
-      {id:'p3_holdover', name:'晚班滯留包裹', desc:'手拿進店 TO 單拍照，後方為未上完標準配送橘箱位置（表示沒有上完）', photo:true, lineReport:true, conditional:{key:'p3_d2', value:'continue_pack'}},
       {id:'p3_send_clear', name:'晚班寄件清空', desc:'拍寄件區照片，上店名浮水印，回傳 Line 群組', photo:true, lineReport:true, conditional:{key:'p3_d2', value:'continue_pack'}},
       {id:'p3_pda', name:'PDA 充電', desc:'離店前拍 PDA 充電照，上店名浮水印，回傳 Line 群組', photo:true, lineReport:true, conditional:{key:'p3_d2', value:'continue_pack'}}
     ],
@@ -1721,6 +1722,14 @@ const DECISIONS = {
       {value:'back', num:'2', label:'回第一間店繼續 NDD 上架', sub:'切到 P5', urgent:true, jumpTo:'p5'}
     ]
   },
+  p3_d_norm_done: {
+    title: '📍 下一步（標配上架後）',
+    desc: '有全數完成上架嗎？',
+    options: [
+      {value:'all', num:'1', label:'有，全數完成', sub:'進「晚班包裹清 0」'},
+      {value:'partial', num:'2', label:'沒有，還有滯留', sub:'進「晚班滯留包裹」'}
+    ]
+  },
   p3_d2: {
     title: '📍 下一步（標配上架後）',
     desc: '完成標準配送包裹上架，下一步：',
@@ -1979,13 +1988,17 @@ function taskIsDone(tid){
   if (t && t.mirrorFrom) return taskIsDone(t.mirrorFrom);
   return false;
 }
+function checkConditional(c, pid){
+  if (typeof c === 'string') return decisions[pid] === c;
+  return decisions[c.key] === c.value;
+}
 // 判斷 task 的 conditional 是否滿足（true 表示要顯示/計算）
 function conditionalSatisfied(t, pid){
   if (t.hideIfInterrupted && interrupts[t.hideIfInterrupted]) return false;
   if (!t.conditional) return true;
   const c = t.conditional;
-  if (typeof c === 'string') return decisions[pid] === c;
-  return decisions[c.key] === c.value;
+  if (Array.isArray(c)) return c.some(cc => checkConditional(cc, pid));
+  return checkConditional(c, pid);
 }
 // task 在某 phase 中是否「達成」（含 sectionTitle/conditional 跳過、decisionPoint 看 decision）
 function phaseTaskOk(pid, t){
