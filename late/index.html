@@ -1332,8 +1332,9 @@ const PHASES = {
       {id:'p5_ndd', name:'NDD 上架', desc:'記錄下方「NDD 上架箱數」。<br>完成後複製下方 Line 模板回報群組。', lineReport:true, lineTemplate:'ndd', inlineCount:{key:'ndd_up_p5', label:'此次 NDD 上架箱數'}, prevReadonlyCount:{key:'ndd_up', label:'P1 已記錄'}},
       {id:'p5_redist', name:'包裹重新分配', desc:'完成後拍 PDA「包裹重新分配」頁面，回傳 Line（標題：晚班包裹重新上架回報）', photo:true, lineReport:true, report:true},
       {id:'p5_norm_up', name:'標準配送包裹上架', desc:'記錄下方箱數', inlineCount:{key:'norm_up', label:'標準配送上架箱數'}},
-      {id:'p5_clear', name:'晚班包裹清 0', desc:'指「標準配送」包裹。<br>① 格口沒了：拍 PDA「手動上架」畫面（A/B/C… 為 0）<br>② 上完貨：手拿進店 TO 單拍照，後方為先前放標準配送橘箱位置（表示上完貨）', photo:true, lineReport:true},
-      {id:'p5_holdover', name:'晚班滯留包裹', desc:'手拿進店 TO 單拍照，後方為未上完標準配送橘箱位置（表示沒有上完）', photo:true, lineReport:true},
+      {id:'p5_decision_norm_done', decisionPoint:'p5_d_norm_done'},
+      {id:'p5_clear', name:'晚班包裹清 0', desc:'指「標準配送」包裹。<br>① 格口沒了：拍 PDA「手動上架」畫面（A/B/C… 為 0）<br>② 上完貨：手拿進店 TO 單拍照，後方為先前放標準配送橘箱位置（表示上完貨）', photo:true, lineReport:true, conditional:{key:'p5_d_norm_done', value:'all'}},
+      {id:'p5_holdover', name:'晚班滯留包裹', desc:'手拿進店 TO 單拍照，後方為未上完標準配送橘箱位置（表示沒有上完）', photo:true, lineReport:true, conditional:{key:'p5_d_norm_done', value:'partial'}},
       {id:'p5_norm_pack', name:'開始打包「一般」包裹', desc:'打包「一般」寄件包裹', photo:true, lineReport:true},
       {id:'p5_send_clear', name:'晚班寄件清空', desc:'拍寄件區照片，上店名浮水印，回傳 Line 群組', photo:true, lineReport:true},
       {id:'p5_pda', name:'PDA 充電', desc:'離店前拍 PDA 充電照，上店名浮水印，回傳 Line 群組', photo:true, lineReport:true},
@@ -1723,6 +1724,14 @@ const DECISIONS = {
     ]
   },
   p3_d_norm_done: {
+    title: '📍 下一步（標配上架後）',
+    desc: '有全數完成上架嗎？',
+    options: [
+      {value:'all', num:'1', label:'有，全數完成', sub:'進「晚班包裹清 0」'},
+      {value:'partial', num:'2', label:'沒有，還有滯留', sub:'進「晚班滯留包裹」'}
+    ]
+  },
+  p5_d_norm_done: {
     title: '📍 下一步（標配上架後）',
     desc: '有全數完成上架嗎？',
     options: [
