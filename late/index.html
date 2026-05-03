@@ -1321,7 +1321,7 @@ const PHASES = {
   },
   p5: {
     title: '回 {A} 補完', store: 'A',
-    pill: '緊急路線', pillCls: 'urgent',
+    pill: '接續', pillCls: 'urgent',
     desc: '{A} P1 有未完項時走此路線。回到 {A} 後把 P1 沒做完的事繼續做完。一般包裹／清空／PDA 充電等收尾項目暫未放入。',
     tasks: [
       {id:'p5_b_out_to', name:'離店TO（{B}）', desc:'離開 {B} 前要打', photo:true, lineReport:true},
@@ -1488,7 +1488,7 @@ function renderPhase(pid){
     html += `<div class="transition-card">
       <div class="big-time">19:00</div>
       <div class="big-label">該前往 ${sB} 了</div>
-      <p>NDD 是核心 KPI，時間到必須離開 ${sA}。<br>${sA} P1 未完項目會在 P5 緊急路線補做。</p>
+      <p>NDD 是核心 KPI，時間到必須離開 ${sA}。<br>${sA} P1 未完項目會在 P5 接續補做。</p>
       <button class="transition-mark ${moved ? 'done' : ''}" onclick="markMoved()">${moved ? '✓ 我已前往 ' + sB : '我已前往 ' + sB}</button>
     </div>`;
     return html;
@@ -2019,7 +2019,7 @@ function refreshPathInfo(){
   info.classList.remove('urgent');
   if (goesToP5) {
     info.classList.add('urgent');
-    info.innerHTML = `<b>需要回 ${sA} 補完</b>（P5 緊急路線）`;
+    info.innerHTML = `<b>需要回 ${sA} 補完</b>（P5 接續）`;
   } else {
     info.innerHTML = `<b>線性流程</b>　P1 → P2 → P3 — 若 P3 選「回第一間」會切到 P5`;
   }

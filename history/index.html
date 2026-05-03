@@ -838,7 +838,7 @@ function renderDayList(days){
     let stats;
     if (d.kind === 'late') {
       const t = lateTotals([d]);
-      const path = d.path ? `· ${d.path === 'P5' ? '緊急路線' : '正常路線'}` : '';
+      const path = d.path ? `· ${d.path === 'P5' ? '接續' : '正常路線'}` : '';
       stats = `黑箱 <b>${t.bx}</b> · NDD <b>${t.ndd_up}</b> ${path}`;
     } else {
       const totals = totalsForRecord(d);
@@ -1012,7 +1012,7 @@ function renderLateDetail(record){
   const recordSkips = record.skips || {};
   const totalTasks = Object.values(LATE_PHASE_GROUPS).reduce((a, p) => a + p.tasks.length, 0);
   const doneTasks = Object.keys(tasks).filter(k => tasks[k]).length + Object.keys(recordSkips).filter(k => recordSkips[k]).length;
-  const path = record.path === 'P5' ? '緊急路線（回 A 店補做）' : (record.path === 'P4' ? '正常路線（B 店收尾）' : '路線未確定');
+  const path = record.path === 'P5' ? '接續（回 A 店補做）' : (record.path === 'P4' ? '正常路線（B 店收尾）' : '路線未確定');
 
   // photos by taskId
   const photosByTask = {};
