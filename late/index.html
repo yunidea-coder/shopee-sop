@@ -1548,7 +1548,8 @@ function renderTask(pid, t){
   if (t.report) badges += '<span class="badge bd">⚠️ 21:15–21:30 未完要回報</span>';
   // P1 status badge 加在 task 的 badge 中
   // (在 renderTask 後段定義 p1StatusBadge 再串入)
-  const photoBlock = t.photo ? `<div class="photo-wrap" onclick="event.stopPropagation()"><div id="ph_${t.id}"></div><button type="button" class="copy-store-btn" onclick="copyStoreName(event,'${PHASES[pid].store || PHASES[pid].countStore || ''}')">📋 複製店名</button></div>` : '';
+  const isToTask = /_to$/.test(t.id);
+  const photoBlock = t.photo ? `<div class="photo-wrap" onclick="event.stopPropagation()"><div id="ph_${t.id}"></div>${isToTask ? '' : `<button type="button" class="copy-store-btn" onclick="copyStoreName(event,'${PHASES[pid].store || PHASES[pid].countStore || ''}')">📋 複製店名</button>`}</div>` : '';
   let reportBlock = '';
   if (t.report) {
     const sk = PHASES[pid].store;
