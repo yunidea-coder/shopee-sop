@@ -237,6 +237,15 @@ body {
 .start-btn:disabled { background: #b5acc4; cursor: not-allowed; box-shadow: none; }
 
 /* stage map (quest path) */
+.stage-map.footer {
+  position: static;
+  top: auto;
+  z-index: auto;
+  margin: 24px 0 4px;
+  border-top: 1px solid var(--surface-low);
+  border-bottom: none;
+  padding-top: 18px;
+}
 .stage-map {
   position: sticky;
   top: 88px;
@@ -1202,12 +1211,12 @@ body {
       <div class="ring"><span class="emoji">📦</span></div>
       <span class="label-text">第一間 NDD</span>
     </div>
-    <div class="connector" id="conn-13"></div>
+    <div class="connector" data-conn="13"></div>
     <div class="stage" data-phase="p3">
       <div class="ring"><span class="emoji">📦</span></div>
       <span class="label-text">第二間</span>
     </div>
-    <div class="connector" id="conn-35"></div>
+    <div class="connector" data-conn="35"></div>
     <div class="stage urgent" data-phase="p5">
       <div class="ring"><span class="emoji">🚨</span></div>
       <span class="label-text">回頭補</span>
@@ -1218,6 +1227,23 @@ body {
   <div class="summary-card" id="summaryCard">
     <div class="summary-title">📦 今日合計</div>
     <div id="summaryBody"></div>
+  </div>
+  <div class="stage-map footer">
+    <div class="stage" data-phase="p1">
+      <div class="ring"><span class="emoji">📦</span></div>
+      <span class="label-text">第一間 NDD</span>
+    </div>
+    <div class="connector" data-conn="13"></div>
+    <div class="stage" data-phase="p3">
+      <div class="ring"><span class="emoji">📦</span></div>
+      <span class="label-text">第二間</span>
+    </div>
+    <div class="connector" data-conn="35"></div>
+    <div class="stage urgent" data-phase="p5">
+      <div class="ring"><span class="emoji">🚨</span></div>
+      <span class="label-text">回頭補</span>
+      <span class="path-tag">注意</span>
+    </div>
   </div>
   <div class="export-btn-wrap">
     <button class="export-btn" onclick="exportToday()">📥 下載今日紀錄（JSON）</button>
@@ -1893,8 +1919,8 @@ function refreshProgress(){
 function refreshTabDots(){ renderStageMap(); }
 
 function renderStageMap(){
-  const map = document.getElementById('stageMap');
-  if (!map) return;
+  const maps = document.querySelectorAll('.stage-map');
+  if (!maps.length) return;
   // status of each phase
   const status = {};
   Object.keys(PHASES).forEach(pid => {
@@ -1910,21 +1936,6 @@ function renderStageMap(){
   if (goesToP5) nextPid = 'p5';
   else if (decisions.p1_d1 === 'skip' && current === 'p1') nextPid = 'p3';
 
-  order.forEach(pid => {
-    const el = map.querySelector(`.stage[data-phase="${pid}"]`);
-    if (!el) return;
-    el.classList.remove('done', 'current', 'skipped', 'locked', 'next');
-    if (status[pid] === 'done') el.classList.add('done');
-    else if (pid === current) el.classList.add('current');
-    else if (pid === nextPid) el.classList.add('next');
-    else el.classList.add('locked');
-  });
-
-  const conn13 = document.getElementById('conn-13');
-  const conn35 = document.getElementById('conn-35');
-  if (conn13) conn13.classList.toggle('done', status.p1 === 'done');
-  if (conn35) conn35.classList.toggle('done', status.p3 === 'done');
-
   // dynamic short labels using store names
   const shortA = (stores.A || '第一間').slice(0, 4);
   const shortB = (stores.B || '第二間').slice(0, 4);
@@ -1933,9 +1944,25 @@ function renderStageMap(){
     p3: `${shortB}`,
     p5: `回 ${shortA}`
   };
-  Object.keys(labels).forEach(pid => {
-    const el = map.querySelector(`.stage[data-phase="${pid}"] .label-text`);
-    if (el) el.textContent = labels[pid];
+
+  maps.forEach(map => {
+    order.forEach(pid => {
+      const el = map.querySelector(`.stage[data-phase="${pid}"]`);
+      if (!el) return;
+      el.classList.remove('done', 'current', 'skipped', 'locked', 'next');
+      if (status[pid] === 'done') el.classList.add('done');
+      else if (pid === current) el.classList.add('current');
+      else if (pid === nextPid) el.classList.add('next');
+      else el.classList.add('locked');
+    });
+    const conn13 = map.querySelector('[data-conn="13"]');
+    const conn35 = map.querySelector('[data-conn="35"]');
+    if (conn13) conn13.classList.toggle('done', status.p1 === 'done');
+    if (conn35) conn35.classList.toggle('done', status.p3 === 'done');
+    Object.keys(labels).forEach(pid => {
+      const el = map.querySelector(`.stage[data-phase="${pid}"] .label-text`);
+      if (el) el.textContent = labels[pid];
+    });
   });
 }
 
